@@ -12,30 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
-import XCTVapor
+import Testing
 
 
-class StatsTests: AppTestCase {
+@Suite struct StatsTests {
 
-    func test_fetch() async throws {
-        // setup
-        do {
-            let pkg = Package(id: UUID(), url: "1")
-            try await pkg.save(on: app.db)
+    @Test func fetch() async throws {
+        try await withApp { app in
+            // setup
+            do {
+                let pkg = Package(id: UUID(), url: "1")
+                try await pkg.save(on: app.db)
+            }
+            do {
+                let pkg = Package(id: UUID(), url: "2")
+                try await pkg.save(on: app.db)
+            }
+            try await Stats.refresh(on: app.db)
+            
+            // MUT
+            let res = try await Stats.fetch(on: app.db)
+            
+            // validate
+            #expect(res == .some(.init(packageCount: 2)))
         }
-        do {
-            let pkg = Package(id: UUID(), url: "2")
-            try await pkg.save(on: app.db)
-        }
-        try await Stats.refresh(on: app.db)
-
-        // MUT
-        let res = try await Stats.fetch(on: app.db)
-
-        // validate
-        XCTAssertEqual(res, .some(.init(packageCount: 2)))
     }
 
 }
