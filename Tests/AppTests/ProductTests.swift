@@ -87,17 +87,17 @@ import Testing
             try await prod.save(on: app.db)
             let db = app.db
 
-            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
-            try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 1)
-            try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 1)
+            #expect(try await Package.query(on: db).count() == 1)
+            #expect(try await Version.query(on: db).count() == 1)
+            #expect(try await Product.query(on: db).count() == 1)
 
             // MUT
             try await ver.delete(on: app.db)
 
             // version and product should be deleted
-            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
-            try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 0)
-            try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 0)
+            #expect(try await Package.query(on: db).count() == 1)
+            #expect(try await Version.query(on: db).count() == 0)
+            #expect(try await Product.query(on: db).count() == 0)
         }
     }
 

@@ -276,7 +276,7 @@ import Vapor
             </turbo-frame>
             """)
                 #expect(try await Repository.query(on: app.db).count() == 1)
-                let s3Readme = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first()?.s3Readme)
+                let s3Readme = try #require(try await Repository.query(on: app.db).first()?.s3Readme)
                 #expect(s3Readme.isError)
             }
         }

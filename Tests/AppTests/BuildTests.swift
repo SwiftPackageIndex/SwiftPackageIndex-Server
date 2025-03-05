@@ -44,7 +44,7 @@ import Vapor
             try await b.save(on: app.db)
 
             do {  // validate
-                let b = try await XCTUnwrapAsync(try await Build.find(b.id, on: app.db))
+                let b = try #require(try await Build.find(b.id, on: app.db))
                 #expect(b.buildCommand == #"xcrun xcodebuild -scheme "Foo""#)
                 #expect(b.jobUrl == "https://example.com/jobs/1")
                 #expect(b.logUrl == "https://example.com/logs/1")
@@ -419,7 +419,7 @@ import Vapor
             try await UpdateBuildPendingToTriggered().prepare(on: app.db)
 
             // validate
-            let b = try await XCTUnwrapAsync(try await Build.find(.id0, on: app.db))
+            let b = try #require(try await Build.find(.id0, on: app.db))
             #expect(b.status == .triggered)
         }
     }
