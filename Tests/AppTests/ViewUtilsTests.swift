@@ -14,60 +14,47 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
 
-class ViewUtilsTests: XCTestCase {
+@Suite struct ViewUtilsTests {
 
-    func test_listPhrase() throws {
+    @Test func test_listPhrase() throws {
         // test listing 2 and 3 values
-        XCTAssertEqual(listPhrase(nodes: ["A", "B"]).render(),
-                       "A and B")
-        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"]).render(),
-                       "A, B, and C")
+        #expect(listPhrase(nodes: ["A", "B"]).render() == "A and B")
+        #expect(listPhrase(nodes: ["A", "B", "C"]).render() == "A, B, and C")
         // test opening
-        XCTAssertEqual(listPhrase(opening: "Versions ", nodes: ["A", "B", "C"]).render(),
-                       "Versions A, B, and C")
+        #expect(listPhrase(opening: "Versions ", nodes: ["A", "B", "C"]).render() == "Versions A, B, and C")
         // test closing
-        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"], closing: ".").render(),
-                       "A, B, and C.")
+        #expect(listPhrase(nodes: ["A", "B", "C"], closing: ".").render() == "A, B, and C.")
         // test empty list substitution
-        XCTAssertEqual(listPhrase(nodes: [], ifEmpty: "none").render(),
-                       "none")
+        #expect(listPhrase(nodes: [], ifEmpty: "none").render() == "none")
         // test conjunction
-        XCTAssertEqual(listPhrase(nodes: ["A", "B"], conjunction: " or ").render(),
-                       "A or B")
-        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"], conjunction: " or ").render(),
-                       "A, B, or C")
+        #expect(listPhrase(nodes: ["A", "B"], conjunction: " or ").render() == "A or B")
+        #expect(listPhrase(nodes: ["A", "B", "C"], conjunction: " or ").render() == "A, B, or C")
     }
 
-}
+    @Test func test_makeLink() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1")
+            try await pkg.save(on: app.db)
+            let version = try Version(package: pkg)
+            try await version.save(on: app.db)
 
+            do {  // branch reference
+                version.reference = .branch("main")
+                #expect(
+                    makeLink(packageUrl: "url", version: version) == .init(label: "main", url: "url")
+                )
+            }
 
-// Test that require DB access
-class ViewUtilsDBTests: AppTestCase {
-
-    func test_makeLink() async throws {
-        // setup
-        let pkg = Package(url: "1")
-        try await pkg.save(on: app.db)
-        let version = try Version(package: pkg)
-        try await version.save(on: app.db)
-
-        do {  // branch reference
-            version.reference = .branch("main")
-            XCTAssertEqual(
-                makeLink(packageUrl: "url", version: version),
-                .init(label: "main", url: "url")
-            )
-        }
-
-        do {  // tag reference
-            version.reference = .tag(1, 2, 3)
-            XCTAssertEqual(
-                makeLink(packageUrl: "url", version: version),
-                .init(label: "1.2.3", url: "url/releases/tag/1.2.3")
-            )
+            do {  // tag reference
+                version.reference = .tag(1, 2, 3)
+                #expect(
+                    makeLink(packageUrl: "url", version: version) == .init(label: "1.2.3", url: "url/releases/tag/1.2.3")
+                )
+            }
         }
     }
 
