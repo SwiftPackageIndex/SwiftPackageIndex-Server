@@ -36,8 +36,7 @@ private extension DependenciesProvider {
 }
 
 
-@Suite(.dependencies(.default))
-struct WebpageSnapshotTests {
+@Suite(.dependencies(.default)) struct WebpageSnapshotTests {
 
     @Test func HomeIndexView_document() throws {
         Supporters.mock()
