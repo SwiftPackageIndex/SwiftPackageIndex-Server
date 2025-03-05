@@ -15,54 +15,58 @@
 @testable import App
 
 import Fluent
+import Testing
 import Vapor
-import XCTVapor
 
 
-final class TargetTests: AppTestCase {
+@Suite struct TargetTests {
 
-    func test_save() async throws {
-        // setup
-        let v = Version()
-        v.commit = "" // required field
-        v.commitDate = .distantPast // required field
-        v.reference = .branch("main")  // required field
-        try await v.save(on: app.db)
-        let t = try Target(version: v, name: "target")
+    @Test func save() async throws {
+        try await withApp { app in
+            // setup
+            let v = Version()
+            v.commit = "" // required field
+            v.commitDate = .distantPast // required field
+            v.reference = .branch("main")  // required field
+            try await v.save(on: app.db)
+            let t = try Target(version: v, name: "target")
 
-        // MUT
-        try await t.save(on: app.db)
+            // MUT
+            try await t.save(on: app.db)
 
-        // validate
-        let readBack = try await XCTUnwrapAsync(try await Target.query(on: app.db).first())
-        XCTAssertNotNil(readBack.id)
-        XCTAssertEqual(readBack.$version.id, v.id)
-        XCTAssertNotNil(readBack.createdAt)
-        XCTAssertNotNil(readBack.updatedAt)
-        XCTAssertEqual(readBack.name, "target")
+            // validate
+            let readBack = try await XCTUnwrapAsync(try await Target.query(on: app.db).first())
+            #expect(readBack.id != nil)
+            #expect(readBack.$version.id == v.id)
+            #expect(readBack.createdAt != nil)
+            #expect(readBack.updatedAt != nil)
+            #expect(readBack.name == "target")
+        }
     }
 
-    func test_delete_cascade() async throws {
-        // setup
-        let v = Version()
-        v.commit = "" // required field
-        v.commitDate = .distantPast // required field
-        v.reference = .branch("main")  // required field
-        try await v.save(on: app.db)
-        let t = try Target(version: v, name: "target")
-        try await t.save(on: app.db)
-        do {
-            let target = try await Target.query(on: app.db).first()
-            XCTAssertNotNil(target)
-        }
+    @Test func delete_cascade() async throws {
+        try await withApp { app in
+            // setup
+            let v = Version()
+            v.commit = "" // required field
+            v.commitDate = .distantPast // required field
+            v.reference = .branch("main")  // required field
+            try await v.save(on: app.db)
+            let t = try Target(version: v, name: "target")
+            try await t.save(on: app.db)
+            do {
+                let target = try await Target.query(on: app.db).first()
+                #expect(target != nil)
+            }
 
-        // MUT
-        try await v.delete(on: app.db)
+            // MUT
+            try await v.delete(on: app.db)
 
-        // validate
-        do {
-            let target = try await Target.query(on: app.db).first()
-            XCTAssertNil(target)
+            // validate
+            do {
+                let target = try await Target.query(on: app.db).first()
+                #expect(target == nil)
+            }
         }
     }
 
