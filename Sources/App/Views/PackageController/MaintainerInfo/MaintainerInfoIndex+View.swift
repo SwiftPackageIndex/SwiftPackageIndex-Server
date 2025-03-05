@@ -70,7 +70,8 @@ enum MaintainerInfoIndex {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .div(
+            let scoreCategories = model.scoreCategories()
+            return .div(
                 .h2("Information for \(model.packageName) Maintainers"),
                 .p(
                     .text("Are you the author, or a maintainer of "),
@@ -188,7 +189,7 @@ enum MaintainerInfoIndex {
                         "This package has a total score of \(model.score) points. The Swift Package Index uses package score in combination with the relevancy of a search query to influence the ordering of search results."
                     ),
                     .p(
-                        "The score is currently evaluated based on \(model.scoreCategories.count) traits, and the breakdown of each trait is shown below."
+                        "The score is currently evaluated based on \(scoreCategories.count) traits, and the breakdown of each trait is shown below."
                     ),
                     .div(
                         .class("package-score"),
@@ -196,7 +197,7 @@ enum MaintainerInfoIndex {
                     ),
                     .div(
                         .class("package-score-breakdown"),
-                        model.packageScoreCategories()
+                        Model.packageScoreCategories(for: scoreCategories)
                     ),
                     .p(
                         "The package score is a work in progress. We have an ",
