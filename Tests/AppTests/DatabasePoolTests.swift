@@ -10,6 +10,19 @@ actor DatabasePool {
     }
 
     func withDatabase(_ operation: (DatabaseID) async throws -> Void) async throws {
+        let dbID = try await retainDatabase()
+
+        do {
+            print("⚠️ available", availableDatabaseIDs.sorted())
+            try await operation(dbID)
+            try await releaseDatabase(id: dbID)
+        } catch {
+            try await releaseDatabase(id: dbID)
+            throw error
+        }
+    }
+
+    private func retainDatabase() async throws -> DatabaseID {
         var dbID = availableDatabaseIDs.randomElement()
         while dbID == nil {
             try await Task.sleep(for: .milliseconds(100))
@@ -17,10 +30,11 @@ actor DatabasePool {
         }
         guard let dbID else { fatalError("dbID cannot be nil here") }
         availableDatabaseIDs.remove(dbID)
-        defer { availableDatabaseIDs.insert(dbID) }
+        return dbID
+    }
 
-        print("⚠️ available", availableDatabaseIDs.sorted())
-        try await operation(dbID)
+    private func releaseDatabase(id: DatabaseID) async throws {
+        availableDatabaseIDs.insert(id)
     }
 }
 
