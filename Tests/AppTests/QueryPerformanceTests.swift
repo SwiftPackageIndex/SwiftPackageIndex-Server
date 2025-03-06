@@ -21,6 +21,8 @@ import Vapor
 
 
 @Suite(
+    .serialized,
+    .tags(.performance),
     .disabled(if: !runQueryPerformanceTests())
 )
 struct QueryPerformanceTests {
