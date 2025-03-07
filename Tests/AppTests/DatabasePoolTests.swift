@@ -16,19 +16,3 @@ struct DatabasePoolTests {
         }
     }
 }
-
-struct DatabaseSetupTrait: SuiteTrait, TestScoping {
-    func provideScope(for test: Test, testCase: Test.Case?, performing function: @Sendable () async throws -> Void) async throws {
-        print("⚠️ setup")
-        try await DatabasePool.shared.setUp()
-        try await function()
-        print("⚠️ tear down")
-        try await DatabasePool.shared.tearDown()
-    }
-}
-
-extension SuiteTrait where Self == DatabaseSetupTrait {
-    static var setupDatabasePool: Self {
-        Self()
-    }
-}
