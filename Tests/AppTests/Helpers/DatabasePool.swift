@@ -14,6 +14,7 @@
 
 import Foundation
 
+import App
 import ShellOut
 
 
@@ -90,28 +91,3 @@ actor DatabasePool {
         }
     }
 }
-
-
-private enum RetryError: Error {
-    case maxAttemptsExceeded
-}
-
-
-@discardableResult
-private func run<T>(maxAttempts: Int = 3, operation: (_ attempt: Int) async throws -> T) async throws -> T {
-    var attemptsLeft = maxAttempts
-    while attemptsLeft > 0 {
-        do {
-            let attempt = maxAttempts - attemptsLeft + 1
-            return try await operation(attempt)
-        } catch {
-            print("⚠️ \(error)")
-            if attemptsLeft != maxAttempts {
-                try? await Task.sleep(for: .milliseconds(200))
-            }
-            attemptsLeft -= 1
-        }
-    }
-    throw RetryError.maxAttemptsExceeded
-}
-
