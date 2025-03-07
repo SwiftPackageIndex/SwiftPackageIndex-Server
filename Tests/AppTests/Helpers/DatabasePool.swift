@@ -26,6 +26,8 @@ actor DatabasePool {
         var port: Int
     }
 
+    static let shared = DatabasePool(maxCount: 4)
+
     var maxCount: Int
 
     init(maxCount: Int) {
