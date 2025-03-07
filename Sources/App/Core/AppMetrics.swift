@@ -15,17 +15,18 @@
 import Dependencies
 import Metrics
 import Prometheus
+import Synchronization
 import Vapor
 
 
 enum AppMetrics {
 
-    nonisolated(unsafe) static var initialized = false
+    static let initialized = Mutex(false)
 
     static func bootstrap() {
         // prevent tests from boostrapping multiple times
-        guard !initialized else { return }
-        defer { initialized = true }
+        guard !initialized.withLock({ $0 }) else { return }
+        defer { initialized.withLock{ $0 = true } }
         let client = PrometheusClient()
         MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
     }
