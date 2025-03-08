@@ -26,7 +26,7 @@ import XCTVapor
 #warning("move/rename")
 enum AppTestCase {
 
-    static func setupApp(_ environment: Environment, databasePort: Int) async throws -> Application {
+    static func setupApp(_ environment: Environment, databasePort: Int? = nil) async throws -> Application {
         let app = try await Application.make(environment)
         try await configure(app, databasePort: databasePort)
 
@@ -37,13 +37,14 @@ enum AppTestCase {
     }
 
 
-    static func setupDb(_ environment: Environment, databasePort: Int) async throws {
+    static func setupDb(_ environment: Environment, databasePort: Int? = nil) async throws {
         await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
 
         // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
         // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
         // and to ensure the database resetting cannot impact any other network hosts.
         let host = Environment.get("DATABASE_HOST")
+        let databasePort = databasePort ?? Environment.get("DATABASE_PORT").flatMap(Int.init)!
         precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
                      "DATABASE_HOST must be a local db, was: \(host)")
 
@@ -166,7 +167,6 @@ private func connect(to databaseName: String,
                      _ environment: Environment) async throws -> PostgresClient {
     await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
     let host = Environment.get("DATABASE_HOST")!
-//    let port = Environment.get("DATABASE_PORT").flatMap(Int.init)!
     let username = Environment.get("DATABASE_USERNAME")!
     let password = Environment.get("DATABASE_PASSWORD")!
 
