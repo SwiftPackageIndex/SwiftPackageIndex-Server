@@ -16,7 +16,7 @@
 
 import Dependencies
 import Testing
-import Vapor
+import XCTVapor
 
 
 @Suite struct KeywordControllerTests {
