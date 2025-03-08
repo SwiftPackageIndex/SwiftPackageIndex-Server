@@ -763,7 +763,7 @@ extension AllTests.AnalyzerTests {
 
             do {  // validate
                 #expect(try await Version.query(on: app.db).count() == 2)
-                let versions = try #require(await Version.query(on: app.db).sort(\.$commit).all())
+                let versions = try await Version.query(on: app.db).sort(\.$commit).all()
                 #expect(versions[0].docArchives == [.init(name: "foo", title: "Foo")])
                 #expect(versions[1].docArchives == nil)
             }
