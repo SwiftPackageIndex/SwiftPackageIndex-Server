@@ -20,6 +20,7 @@ import Testing
 
 
 @Suite(
+    .setupDatabasePool,
     .dependency(\.date.now, .t0),
     .dependency(\.metricsSystem, .mock),
     .snapshots(record: .failed)
