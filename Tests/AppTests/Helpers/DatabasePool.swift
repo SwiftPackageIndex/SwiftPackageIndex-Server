@@ -48,7 +48,7 @@ actor DatabasePool {
         }
     }
 
-    func withDatabase(_ operation: (DatabaseInfo) async throws -> Void) async throws {
+    func withDatabase(_ operation: @Sendable (DatabaseInfo) async throws -> Void) async throws {
         let dbID = try await retainDatabase()
         do {
             print("⚠️ available", availableDatabases.map(\.port).sorted())

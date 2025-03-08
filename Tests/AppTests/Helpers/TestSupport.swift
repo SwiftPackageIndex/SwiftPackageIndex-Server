@@ -29,16 +29,18 @@ func withSPIApp(
         $0.logger = .noop
     }
 
-    try await TestSupport.setupDb(environment)
-    let app = try await TestSupport.setupApp(environment)
+    try await DatabasePool.shared.withDatabase { dbInfo in
+        try await TestSupport.setupDb(environment, databasePort: dbInfo.port)
+        let app = try await TestSupport.setupApp(environment, databasePort: dbInfo.port)
 
-    return try await run {
-        try await setup(app)
-        try await withDependencies(updateValuesForOperation) {
-            try await test(app)
+        return try await run {
+            try await setup(app)
+            try await withDependencies(updateValuesForOperation) {
+                try await test(app)
+            }
+        } defer: {
+            try await app.asyncShutdown()
         }
-    } defer: {
-        try await app.asyncShutdown()
     }
 }
 
