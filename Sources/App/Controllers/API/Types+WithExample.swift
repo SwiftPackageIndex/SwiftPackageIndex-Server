@@ -14,15 +14,21 @@
 
 import Foundation
 
-import VaporToOpenAPI
 import DependencyResolution
 import PackageCollectionsSigning
+
+#warning("Keep this?")
+protocol WithExample { }
 
 
 // MARK: - External types
 
-extension Date: VaporToOpenAPI.WithExample {
+extension Date: WithExample {
     public static var example: Self { .init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")! }
+}
+
+extension UUID: WithExample {
+    static var example: Self { .init() }
 }
 
 
@@ -101,7 +107,7 @@ extension API.PostPackageCollectionDTO: WithExample {
     }
 }
 
-extension PackageCollectionModel.V1.Collection: VaporToOpenAPI.WithExample {
+extension PackageCollectionModel.V1.Collection: WithExample {
     public static var example: Self {
         .init(name: "Packages by mona",
               overview: "A collection of packages authored by mona from the Swift Package Index",
@@ -120,7 +126,7 @@ extension PackageCollectionModel.V1.Collection: VaporToOpenAPI.WithExample {
     }
 }
 
-extension PackageCollectionModel.V1.Signature.Certificate: VaporToOpenAPI.WithExample {
+extension PackageCollectionModel.V1.Signature.Certificate: WithExample {
     public static var example: Self {
         .init(subject: .init(userID: "V676TFACYJ",
                              commonName: "Swift Package Collection: SPI Operations Limited",
@@ -133,13 +139,13 @@ extension PackageCollectionModel.V1.Signature.Certificate: VaporToOpenAPI.WithEx
     }
 }
 
-extension PackageCollectionModel.V1.Signature: VaporToOpenAPI.WithExample {
+extension PackageCollectionModel.V1.Signature: WithExample {
     public static var example: Self {
         .init(signature: "ewogICJhbGciIDogIlJ...<snip>...WD1pXXPrkvVJlv4w", certificate: .example)
     }
 }
 
-extension PackageCollectionSigning.Model.SignedCollection: VaporToOpenAPI.WithExample {
+extension PackageCollectionSigning.Model.SignedCollection: WithExample {
     public static var example: Self {
         .init(collection: .example, signature: .example)
     }

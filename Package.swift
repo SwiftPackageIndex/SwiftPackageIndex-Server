@@ -36,7 +36,6 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.4"),
         .package(url: "https://github.com/swiftlang/swift-package-manager.git", branch: "release/5.10"),
-        .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.4.4"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.8.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
@@ -75,7 +74,6 @@ let package = Package(
                     .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
                     .product(name: "Vapor", package: "vapor"),
-                    .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
                     .product(name: "SotoCognitoAuthentication", package: "soto-cognito-authentication")
                 ],
                 swiftSettings: swiftSettings,

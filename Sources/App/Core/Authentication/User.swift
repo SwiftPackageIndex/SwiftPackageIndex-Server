@@ -16,7 +16,6 @@ import Authentication
 import Dependencies
 import JWTKit
 import Vapor
-import VaporToOpenAPI
 
 
 struct User: Authenticatable, Equatable {
@@ -65,17 +64,5 @@ extension User {
                 request.auth.login(User.builder)
             }
         }
-    }
-}
-
-
-extension AuthSchemeObject {
-    static var apiBearerToken: Self {
-        .bearer(id: "api_token",
-               description: "Token used for API access.")
-    }
-    static var builderBearerToken: Self {
-        .bearer(id: "builder_token",
-               description: "Token used for build result reporting.")
     }
 }
