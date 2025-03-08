@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct EmojiTests {
+extension AllTests.EmojiTests {
 
     @Test func emojiReplacement() throws {
         let cases: [(shorthand: String, result: String)] = [

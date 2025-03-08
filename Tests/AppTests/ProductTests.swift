@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct ProductTests {
+extension AllTests.ProductTests {
 
     @Test func ProductType_Codable() throws {
         // Ensure ProductType is Codable in a way that's forward compatible with Swift 5.5's Codable synthesis for enums with associated types (SE-0295)

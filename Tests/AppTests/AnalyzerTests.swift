@@ -26,7 +26,7 @@ import Vapor
 @preconcurrency import ShellOut
 
 
-@Suite struct AnalyzerTests {
+extension AllTests.AnalyzerTests {
 
     @Test func analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we

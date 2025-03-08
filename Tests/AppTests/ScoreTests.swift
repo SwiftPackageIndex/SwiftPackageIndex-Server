@@ -18,7 +18,7 @@ import DependenciesTestSupport
 import Testing
 
 
-@Suite struct ScoreTests {
+extension AllTests.ScoreTests {
 
     @Test(.dependency(\.date.now, .t0))
     func computeBreakdown() throws {

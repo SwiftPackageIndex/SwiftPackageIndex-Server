@@ -18,7 +18,7 @@ import SQLKit
 import Testing
 
 
-@Suite struct SQLKitExtensionTests {
+extension AllTests.SQLKitExtensionTests {
 
     @Test func OrderByGroup() async throws {
         try await withApp { app in

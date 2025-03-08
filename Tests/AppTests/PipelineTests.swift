@@ -24,7 +24,7 @@ import Vapor
 // - candidate selection at each stage
 // - processing stage recording
 // - error recording
-@Suite struct PipelineTests {
+extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_ingestion_fifo() async throws {
         // oldest first

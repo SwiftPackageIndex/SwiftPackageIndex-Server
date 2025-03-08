@@ -24,7 +24,7 @@ import SQLKit
 import Vapor
 
 
-@Suite struct BuildTriggerTests {
+extension AllTests.BuildTriggerTests {
 
     @Test func BuildTriggerInfo_emptyPair() throws {
         #expect(BuildTriggerInfo(versionId: .id0, buildPairs: Set([BuildPair(.iOS, .v1)])) != nil)

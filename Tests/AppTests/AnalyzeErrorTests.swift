@@ -21,6 +21,13 @@ import Testing
 import Vapor
 
 
+extension AllTests {
+    @Suite struct AnalyzeErrorTests {
+        let socialPosts = LockIsolated<[String]>([])
+    }
+}
+
+
 // Test analysis error handling.
 //
 // This suite of tests ensures that errors in batch analysis do not impact processing
@@ -28,13 +35,9 @@ import Vapor
 //
 // We analyze two packages where the first package is set up to encounter
 // various error states and ensure the second package is successfully processed.
-@Suite struct AnalyzeErrorTests {
-
-    let badPackageID: Package.Id = .id0
-    let goodPackageID: Package.Id = .id1
-
-    let capturingLogger = CapturingLogger()
-    let socialPosts = LockIsolated<[String]>([])
+extension AllTests.AnalyzeErrorTests {
+    var badPackageID: Package.Id { .id0 }
+    var goodPackageID: Package.Id { .id1 }
 
     struct SimulatedError: Error { }
 
@@ -58,6 +61,7 @@ import Vapor
     }
 
     @Test func analyze_refreshCheckout_failed() async throws {
+        let capturingLogger = CapturingLogger()
         try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
@@ -90,6 +94,7 @@ import Vapor
     }
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
+        let capturingLogger = CapturingLogger()
         try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
@@ -118,6 +123,7 @@ import Vapor
     }
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
+        let capturingLogger = CapturingLogger()
         try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
@@ -147,6 +153,7 @@ import Vapor
     }
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
+        let capturingLogger = CapturingLogger()
         try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
@@ -176,7 +183,7 @@ import Vapor
 }
 
 
-extension AnalyzeErrorTests {
+extension AllTests.AnalyzeErrorTests {
 #if compiler(>=6.1)
 #warning("Move this into a trait on @Test")
     // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
@@ -193,7 +200,7 @@ extension AnalyzeErrorTests {
 }
 
 
-extension AnalyzeErrorTests {
+extension AllTests.AnalyzeErrorTests {
     func defaultValidation(_ app: Application) async throws {
         let versions = try await Version.query(on: app.db)
             .filter(\.$package.$id == goodPackageID)

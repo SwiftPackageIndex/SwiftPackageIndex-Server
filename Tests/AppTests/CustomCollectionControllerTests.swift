@@ -20,7 +20,7 @@ import Testing
 import Vapor
 
 
-@Suite struct CustomCollectionControllerTests {
+extension AllTests.CustomCollectionControllerTests {
 
     @Test func query() async throws {
         try await withApp { app in

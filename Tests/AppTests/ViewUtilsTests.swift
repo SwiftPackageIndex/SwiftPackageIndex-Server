@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct ViewUtilsTests {
+extension AllTests.ViewUtilsTests {
 
     @Test func test_listPhrase() throws {
         // test listing 2 and 3 values

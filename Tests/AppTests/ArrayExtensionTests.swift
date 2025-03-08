@@ -19,7 +19,7 @@ import SPIManifest
 import Testing
 
 
-@Suite struct ArrayExtensionTests {
+extension AllTests.ArrayExtensionTests {
 
     @Test func defaultBranchVersion() throws {
         #expect(

@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct MaintainerInfoIndexViewTests {
+extension AllTests.MaintainerInfoIndexViewTests {
 
     @Test func spiManifestCommonUseCasesDocLink() throws {
         #expect(

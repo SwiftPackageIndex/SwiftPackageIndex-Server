@@ -19,7 +19,7 @@ import SQLKit
 import Testing
 
 
-@Suite struct SearchFilterTests {
+extension AllTests.SearchFilterTests {
 
     @Test func SearchFilterKey_searchFilter() throws {
         // Ensure all `SearchFilter.Key`s are wired correctly to their

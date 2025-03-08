@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct RecentViewsTests {
+extension AllTests.RecentViewsTests {
 
     @Test func recentPackages() async throws {
         try await withApp { app in

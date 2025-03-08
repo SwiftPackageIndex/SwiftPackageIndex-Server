@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct API_PackageControllerTests {
+extension AllTests.API_PackageControllerTests {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 

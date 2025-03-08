@@ -20,9 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct ErrorReportingTests {
-
-    let capturingLogger = CapturingLogger()
+extension AllTests.ErrorReportingTests {
 
     @Test func Analyze_recordError() async throws {
         try await withApp { app in
@@ -38,6 +36,7 @@ import Testing
     }
 
     @Test func Ingestion_error_reporting() async throws {
+        let capturingLogger = CapturingLogger()
         try await withApp(logHandler: capturingLogger) { app in
             // setup
             try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
@@ -59,6 +58,7 @@ import Testing
     }
 
     @Test func Analyzer_error_reporting() async throws {
+        let capturingLogger = CapturingLogger()
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.shell.run = { @Sendable cmd, _ in

@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageController_routesTests {
+extension AllTests.PackageController_routesTests {
 
     @Test func show() async throws {
         try await withDependencies {

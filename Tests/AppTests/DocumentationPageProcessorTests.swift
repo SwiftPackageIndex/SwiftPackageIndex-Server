@@ -20,7 +20,7 @@ import SwiftSoup
 import Testing
 
 
-@Suite struct DocumentationPageProcessorTests {
+extension AllTests.DocumentationPageProcessorTests {
 
     @Test func header_linkTitle() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2249

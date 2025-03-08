@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct BuildMonitorControllerTests {
+extension AllTests.BuildMonitorControllerTests {
 
     @Test func show_owner() async throws {
         try await withDependencies {

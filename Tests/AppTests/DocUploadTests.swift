@@ -19,7 +19,7 @@ import Foundation
 import PostgresKit
 import Testing
 
-@Suite struct DocUploadTests {
+extension AllTests.DocUploadTests {
 
     @Test func attach() async throws {
         try await withApp { app in

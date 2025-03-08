@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageController_BuildsRouteTests {
+extension AllTests.PackageController_BuildsRouteTests {
 
     typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status, docStatus: DocUpload.Status?)
 

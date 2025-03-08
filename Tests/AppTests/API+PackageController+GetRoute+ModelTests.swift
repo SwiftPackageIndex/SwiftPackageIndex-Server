@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct API_PackageController_GetRoute_ModelTests {
+extension AllTests.API_PackageController_GetRoute_ModelTests {
     typealias PackageResult = PackageController.PackageResult
 
     @Test func init_no_packageName() async throws {

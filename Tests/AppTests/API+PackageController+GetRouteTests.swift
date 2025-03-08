@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct API_PackageController_GetRouteTests {
+extension AllTests.API_PackageController_GetRouteTests {
 
     typealias PackageResult = PackageController.PackageResult
 

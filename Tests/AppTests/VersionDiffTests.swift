@@ -27,7 +27,7 @@ import Testing
 // 3) tag is removed
 // 4) branch is removed
 // 5) tag is moved
-@Suite struct VersionDiffTests {
+extension AllTests.VersionDiffTests {
 
     @Test func ImmutableReference_diff_1() throws {
         // Branch changes commit hash

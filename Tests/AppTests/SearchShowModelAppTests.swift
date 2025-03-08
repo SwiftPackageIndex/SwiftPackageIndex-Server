@@ -20,7 +20,7 @@ import Testing
 import Vapor
 
 
-@Suite struct SearchShowModelAppTests {
+extension AllTests.SearchShowModelAppTests {
 
     @Test func SearchShow_Model_canonicalURLAllowList() async throws {
         try await withDependencies {

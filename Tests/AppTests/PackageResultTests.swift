@@ -18,7 +18,7 @@ import SemanticVersion
 import Testing
 
 
-@Suite struct PackageResultTests {
+extension AllTests.PackageResultTests {
     typealias PackageResult = PackageController.PackageResult
 
     @Test func joined5() async throws {

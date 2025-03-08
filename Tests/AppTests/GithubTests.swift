@@ -22,7 +22,7 @@ import Testing
 import Vapor
 
 
-@Suite struct GithubTests {
+extension AllTests.GithubTests {
 
     @Test func parseOwnerName() throws {
         do {

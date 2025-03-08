@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct IngestionTests {
+extension AllTests.IngestionTests {
 
     @Test func ingest_basic() async throws {
         try await withApp { app in

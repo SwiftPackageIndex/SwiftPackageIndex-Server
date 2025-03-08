@@ -21,7 +21,7 @@ import SnapshotTesting
 import Testing
 
 
-@Suite struct SearchTests {
+extension AllTests.SearchTests {
 
     @Test func DBRecord_packageURL() async throws {
         #expect(Search.DBRecord(matchType: .package,

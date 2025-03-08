@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct GitlabBuilderTests {
+extension AllTests.GitlabBuilderTests {
 
     @Test func SwiftVersion_rendering() throws {
         #expect("\(SwiftVersion.v4)" == "6.0.0")
