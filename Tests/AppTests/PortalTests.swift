@@ -172,7 +172,7 @@ class PortalTests: AppTestCase {
             $0.cognito.resetPassword = mock
             $0.environment.dbId = { nil }
         } operation: {
-            try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
+            try app.test(.POST, "reset-password", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
                 XCTAssertEqual(res.status, .ok)
                 XCTAssertTrue(res.body.string.contains("Successfully changed password"))
@@ -186,7 +186,7 @@ class PortalTests: AppTestCase {
             $0.cognito.resetPassword = mock
             $0.environment.dbId = { nil }
         } operation: {
-            try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
+            try app.test(.POST, "reset-password", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
                 XCTAssertTrue(res.body.string.contains("There was an error"))
             })
@@ -200,7 +200,7 @@ class PortalTests: AppTestCase {
             $0.cognito.resetPassword = mock
             $0.environment.dbId = { nil }
         } operation: {
-            try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
+            try app.test(.POST, "reset-password", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
                 XCTAssertTrue(res.body.string.contains("An unknown error occurred"))
             })
