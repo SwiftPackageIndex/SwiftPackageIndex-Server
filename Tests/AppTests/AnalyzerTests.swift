@@ -1441,7 +1441,7 @@ extension AllTests.AnalyzerTests {
         // Ensure `latest` remains set in case of AppError.noValidVersions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         let capturingLogger = CapturingLogger()
-        try await withApp(logHandler: capturingLogger) { app in
+        try await withApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -1456,6 +1456,7 @@ extension AllTests.AnalyzerTests {
                 1\tPerson 2
                 """
                 }
+                $0.logger.set(to: capturingLogger)
                 $0.shell.run = { @Sendable _, _ in return "" }
             } operation: {
                 let pkgId = UUID()

@@ -21,7 +21,6 @@ import PostgresNIO
 
 func withApp(_ setup: (Application) async throws -> Void = { _ in },
              _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-             logHandler: LogHandler? = nil,
              environment: Environment = .testing,
              _ test: (Application) async throws -> Void) async throws {
     try await TestSupport.setupDb(environment)
@@ -30,11 +29,7 @@ func withApp(_ setup: (Application) async throws -> Void = { _ in },
     return try await run {
         try await setup(app)
         try await withDependencies(updateValuesForOperation) {
-            try await withDependencies {
-                $0.logger.set(to: logHandler)
-            } operation: {
-                try await test(app)
-            }
+            try await test(app)
         }
     } defer: {
         try await app.asyncShutdown()

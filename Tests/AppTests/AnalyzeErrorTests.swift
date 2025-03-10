@@ -62,10 +62,11 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_refreshCheckout_failed() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case _ where cmd.description.contains("git clone https://github.com/foo/1"):
@@ -95,10 +96,11 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: capturingLogger)
             } operation: {
                 // setup
                 let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -124,10 +126,11 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
@@ -154,7 +157,7 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable path in
@@ -163,6 +166,7 @@ extension AllTests.AnalyzeErrorTests {
                     }
                     return true
                 }
+                $0.logger.set(to: capturingLogger)
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,
