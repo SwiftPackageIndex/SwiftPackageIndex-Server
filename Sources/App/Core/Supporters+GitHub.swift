@@ -35,7 +35,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "davelester",
             name: "Dave Lester",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=36f524e0508ed7052cc58d239e87e0da488d3d01&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=ee5a7043674e46bcb2a7c4cf66a5020680e31b32&v=4"
         ),
         .init(
             login: "phatblat",
