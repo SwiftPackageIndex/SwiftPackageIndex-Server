@@ -17,7 +17,7 @@ import Foundation
 import DependencyResolution
 import PackageCollectionsSigning
 
-#warning("Keep this?")
+
 protocol WithExample { }
 
 
