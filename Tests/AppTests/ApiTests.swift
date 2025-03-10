@@ -18,7 +18,7 @@ import Dependencies
 import PackageCollectionsSigning
 import SnapshotTesting
 import Testing
-import Vapor
+import XCTVapor
 
 
 @Suite struct ApiTests {

@@ -19,7 +19,7 @@ import Vapor
 
 
 @discardableResult
-public func configure(_ app: Application) async throws -> String {
+public func configure(_ app: Application, databasePort: Int? = nil) async throws -> String {
     #if DEBUG && os(macOS)
     // The bundle is only loaded if /Applications/InjectionIII.app exists on the local development machine.
     // Requires InjectionIII 4.7.3 or higher to be loaded for compatibility with Package.swift files.
@@ -55,7 +55,7 @@ public func configure(_ app: Application) async throws -> String {
     // Setup database connection
     guard
         let host = Environment.get("DATABASE_HOST"),
-        let port = Environment.get("DATABASE_PORT").flatMap(Int.init),
+        let port = databasePort ?? Environment.get("DATABASE_PORT").flatMap(Int.init),
         let username = Environment.get("DATABASE_USERNAME"),
         let password = Environment.get("DATABASE_PASSWORD"),
         let database = Environment.get("DATABASE_NAME")

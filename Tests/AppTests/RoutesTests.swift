@@ -75,22 +75,6 @@ import Testing
         }
     }
 
-    @Test func openapi() async throws {
-        try await withApp { app in
-            try await app.test(.GET, "openapi/openapi.json") { res async throws in
-                #expect(res.status == .ok)
-                struct Response: Codable, Equatable {
-                    var info: Info
-                    struct Info: Codable, Equatable {
-                        var title: String
-                    }
-                }
-                let decoded = try JSONDecoder().decode(Response.self, from: res.body)
-                #expect(decoded == Response(info: .init(title: "Swift Package Index API")))
-            }
-        }
-    }
-
     @Test func maintenanceMessage() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }

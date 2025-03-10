@@ -22,76 +22,76 @@ func docRoutes(_ app: Application) throws {
     // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", "documentation", "**") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", "tutorials", "**") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .tutorials))
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "documentation") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
-    }.excludeFromOpenAPI()
+    }
 
     // Stable URLs with reference (real reference or ~)
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
         let route = try await $0.getDocRoute(fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
         let route = try await $0.getDocRoute(fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
         let route = try await $0.getDocRoute(fragment: .faviconIco)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
         let route = try await $0.getDocRoute(fragment: .faviconSvg)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "css", "**") {
         let route = try await $0.getDocRoute(fragment: .css)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "data", "**") {
         let route = try await $0.getDocRoute(fragment: .data)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "images", "**") {
         let fragment: DocRoute.Fragment = $0.parameters.hasSuffix(".svg", caseInsensitive: true) ? .svgImages : .images
         let route = try await $0.getDocRoute(fragment: fragment)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "img", "**") {
         let fragment: DocRoute.Fragment = $0.parameters.hasSuffix(".svg", caseInsensitive: true) ? .svgImg : .img
         let route = try await $0.getDocRoute(fragment: fragment)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "index", "**") {
         let route = try await $0.getDocRoute(fragment: .index)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "js", "**") {
         let route = try await $0.getDocRoute(fragment: .js)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) {
         let route = try await $0.getDocRoute(fragment: .linkablePaths)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
         let route = try await $0.getDocRoute(fragment: .themeSettings)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
         let route = try await $0.getDocRoute(fragment: .tutorials)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
     app.get(":owner", ":repository", ":reference", "videos", "**") {
         let route = try await $0.getDocRoute(fragment: .videos)
         return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
+    }
 }
 
 
