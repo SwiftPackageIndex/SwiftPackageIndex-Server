@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 import Vapor
 
 
-class ResourceReloadIdentifierTests: AppTestCase {
-    func test_withAppVersion() throws {
+@Suite struct ResourceReloadIdentifierTests {
+    @Test func withAppVersion() throws {
         withDependencies {
             $0.environment.appVersion = { "1.2.3" }
         } operation: {
-            XCTAssertEqual(ResourceReloadIdentifier.value, "1.2.3")
+            #expect(ResourceReloadIdentifier.value == "1.2.3")
         }
     }
 }

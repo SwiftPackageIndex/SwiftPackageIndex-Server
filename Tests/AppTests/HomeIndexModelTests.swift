@@ -12,73 +12,76 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
 import Dependencies
-import XCTVapor
+import Testing
 
 
-class HomeIndexModelTests: AppTestCase {
+@Suite struct HomeIndexModelTests {
 
-    func test_query() async throws {
-        // setup
-        let pkgId = UUID()
-        let pkg = Package(id: pkgId, url: "1".url)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "1",
-                             owner: "foo").save(on: app.db)
-        try await App.Version(package: pkg,
-                              commitDate: Date(timeIntervalSince1970: 0),
-                              packageName: "Package",
-                              reference: .tag(.init(1, 2, 3))).save(on: app.db)
-        try await RecentPackage.refresh(on: app.db)
-        try await RecentRelease.refresh(on: app.db)
-        // Sleep for 1ms to ensure we can detect a difference between update times.
-        try await Task.sleep(nanoseconds: UInt64(1e6))
+    @Test func query() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1".url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "1",
+                                 owner: "foo").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  commitDate: .t0,
+                                  packageName: "Package",
+                                  reference: .tag(.init(1, 2, 3))).save(on: app.db)
+            try await RecentPackage.refresh(on: app.db)
+            try await RecentRelease.refresh(on: app.db)
+            // Sleep for 1ms to ensure we can detect a difference between update times.
+            try await Task.sleep(nanoseconds: UInt64(1e6))
 
-        try await withDependencies {
-            $0.date.now = .now
-        } operation: {
-            // MUT
-            let m = try await HomeIndex.Model.query(database: app.db)
+            try await withDependencies {
+                $0.date.now = .now
+            } operation: {
+                // MUT
+                let m = try await HomeIndex.Model.query(database: app.db)
 
-            // validate
-            let createdAt = try XCTUnwrap(pkg.createdAt)
+                // validate
+                let createdAt = try #require(pkg.createdAt)
 #if os(Linux)
-            if m.recentPackages == [
-                .init(
-                    date: createdAt,
-                    link: .init(label: "Package", url: "/foo/1")
-                )
-            ] {
-                logWarning()
-                // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
-                // and replace with original assert:
-                //     XCTAssertEqual(m.recentPackages, [
-                //         .init(
-                //             date: createdAt,
-                //             link: .init(label: "Package", url: "/foo/1")
-                //         )
-                //     ])
-            }
+                if m.recentPackages == [
+                    .init(
+                        date: createdAt,
+                        link: .init(label: "Package", url: "/foo/1")
+                    )
+                ] {
+                    logWarning()
+                    // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
+                    // and replace with original assert:
+                    //     #expect(m.recentPackages == [
+                    //         .init(
+                    //             date: createdAt,
+                    //             link: .init(label: "Package", url: "/foo/1")
+                    //         )
+                    //     ])
+                }
 #endif
-            XCTAssertEqual(m.recentPackages.count, 1)
-            let recent = try XCTUnwrap(m.recentPackages.first)
-            // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
-            // E.g.
-            // 1724071056.5824609
-            // 1724071056.5824614
-            // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
-            XCTAssertEqual(recent.date.timeIntervalSince1970, createdAt.timeIntervalSince1970, accuracy: 10e-5)
-            XCTAssertEqual(recent.link, .init(label: "Package", url: "/foo/1"))
-            XCTAssertEqual(m.recentReleases, [
-                .init(packageName: "Package",
-                      version: "1.2.3",
-                      date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Date.now)",
-                      url: "/foo/1"),
-            ])
-            // TEMPORARY - END
+                #expect(m.recentPackages.count == 1)
+                let recent = try #require(m.recentPackages.first)
+                // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
+                // E.g.
+                // 1724071056.5824609
+                // 1724071056.5824614
+                // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
+                #expect(fabs(recent.date.timeIntervalSince1970 - createdAt.timeIntervalSince1970) <= 10e-5)
+                #expect(recent.link == .init(label: "Package", url: "/foo/1"))
+                #expect(m.recentReleases == [
+                    .init(packageName: "Package",
+                          version: "1.2.3",
+                          date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Date.now)",
+                          url: "/foo/1"),
+                ])
+                // TEMPORARY - END
+            }
         }
     }
 

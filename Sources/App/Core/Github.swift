@@ -506,8 +506,8 @@ extension Github {
                     {
                         // Replace the image url and keep a copy of the old one in a `data` attribute
                         let s3Key = try S3Store.Key.readme(owner: owner, repository: repository, imageUrl: src)
-                        try imageElement.attr("src", s3Key.objectUrl)
-                        try imageElement.attr("data-original-src", src)
+                        _ = try imageElement.attr("src", s3Key.objectUrl)
+                        _ = try imageElement.attr("data-original-src", src)
                         imagesToCache.append(.init(originalUrl: src, s3Key: s3Key))
                     }
                 }

@@ -12,75 +12,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
 import Plot
+import Testing
 import Vapor
 
 
-class SiteURLTests: XCTestCase {
+@Suite struct SiteURLTests {
 
-    func test_pathComponents_simple() throws {
+    @Test func pathComponents_simple() throws {
         let p = SiteURL.privacy.pathComponents
-        XCTAssertEqual(p.map(\.description), ["privacy"])
+        #expect(p.map(\.description) == ["privacy"])
     }
 
-    func test_pathComponents_with_parameter() throws {
+    @Test func pathComponents_with_parameter() throws {
         let p = SiteURL.package(.key, .key, .none).pathComponents
-        XCTAssertEqual(p.map(\.description), [":owner", ":repository"])
+        #expect(p.map(\.description) == [":owner", ":repository"])
     }
 
-    func test_pathComponents_nested() throws {
+    @Test func pathComponents_nested() throws {
         let p = SiteURL.api(.version).pathComponents
-        XCTAssertEqual(p.map(\.description), ["api", "version"])
+        #expect(p.map(\.description) == ["api", "version"])
     }
 
-    func test_relativeURL() throws {
-        XCTAssertEqual(SiteURL.home.relativeURL(), "/")
-        XCTAssertEqual(SiteURL.images("foo.png").relativeURL(), "/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.relativeURL(), "/privacy")
+    @Test func relativeURL() throws {
+        #expect(SiteURL.home.relativeURL() == "/")
+        #expect(SiteURL.images("foo.png").relativeURL() == "/images/foo.png")
+        #expect(SiteURL.privacy.relativeURL() == "/privacy")
     }
 
-    func test_relativeURL_for_Package() throws {
-        XCTAssertEqual(
-            SiteURL.package(.value("foo"), .value("bar"), .none).relativeURL(),
-            "/foo/bar")
+    @Test func relativeURL_for_Package() throws {
+        #expect(
+            SiteURL.package(.value("foo"), .value("bar"), .none).relativeURL() == "/foo/bar")
     }
 
-    func test_relativeURL_with_anchor() throws {
-        XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
+    @Test func relativeURL_with_anchor() throws {
+        #expect(SiteURL.faq.relativeURL(anchor: "hello") == "/faq#hello")
     }
 
-    func test_relativeURL_with_parameters() throws {
+    @Test func relativeURL_with_parameters() throws {
         let url = SiteURL.search.relativeURL(parameters: [
             QueryParameter(key: "c d", value: 2),
             QueryParameter(key: "a b", value: 1)
         ])
-        XCTAssertEqual(url, "/search?c%20d=2&a%20b=1")
+        #expect(url == "/search?c%20d=2&a%20b=1")
     }
 
-    func test_absoluteURL() throws {
+    @Test func absoluteURL() throws {
         withDependencies {
             $0.environment.siteURL = { "https://indexsite.com" }
         } operation: {
-            XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
-            XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
-            XCTAssertEqual(SiteURL.privacy.absoluteURL(), "https://indexsite.com/privacy")
+            #expect(SiteURL.home.absoluteURL() == "https://indexsite.com/")
+            #expect(SiteURL.images("foo.png").absoluteURL() == "https://indexsite.com/images/foo.png")
+            #expect(SiteURL.privacy.absoluteURL() == "https://indexsite.com/privacy")
         }
     }
 
-    func test_absoluteURL_with_anchor() throws {
+    @Test func absoluteURL_with_anchor() throws {
         withDependencies {
             $0.environment.siteURL = { "https://indexsite.com" }
         } operation: {
-            XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
+            #expect(SiteURL.faq.absoluteURL(anchor: "hello") == "https://indexsite.com/faq#hello")
         }
     }
 
-    func test_absoluteURL_with_parameters() throws {
+    @Test func absoluteURL_with_parameters() throws {
         withDependencies {
             $0.environment.siteURL = { "https://indexsite.com" }
         } operation: {
@@ -88,109 +86,99 @@ class SiteURLTests: XCTestCase {
                 QueryParameter(key: "c d", value: 2),
                 QueryParameter(key: "a b", value: 1)
             ])
-            XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
+            #expect(url == "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
         }
     }
 
-    func test_url_escaping() throws {
+    @Test func url_escaping() throws {
         withDependencies {
             $0.environment.siteURL = { "https://indexsite.com" }
         } operation: {
-            XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo"), .none).absoluteURL(),
-                           "https://indexsite.com/foo%20bar/some%20repo")
+            #expect(SiteURL.package(.value("foo bar"), .value("some repo"), .none).absoluteURL() == "https://indexsite.com/foo%20bar/some%20repo")
         }
     }
 
-    func test_static_relativeURL() throws {
-        XCTAssertEqual(SiteURL.relativeURL("foo"), "/foo")
-        XCTAssertEqual(SiteURL.relativeURL("/foo"), "/foo")
+    @Test func static_relativeURL() throws {
+        #expect(SiteURL.relativeURL("foo") == "/foo")
+        #expect(SiteURL.relativeURL("/foo") == "/foo")
     }
 
-    func test_static_absoluteURL() throws {
+    @Test func static_absoluteURL() throws {
         withDependencies {
             $0.environment.siteURL = { "https://indexsite.com" }
         } operation: {
-            XCTAssertEqual(SiteURL.absoluteURL("foo"), "https://indexsite.com/foo")
-            XCTAssertEqual(SiteURL.absoluteURL("/foo"), "https://indexsite.com/foo")
+            #expect(SiteURL.absoluteURL("foo") == "https://indexsite.com/foo")
+            #expect(SiteURL.absoluteURL("/foo") == "https://indexsite.com/foo")
         }
     }
 
-    func test_api_path() throws {
-        XCTAssertEqual(SiteURL.api(.search).path, "api/search")
-        XCTAssertEqual(SiteURL.api(.version).path, "api/version")
+    @Test func api_path() throws {
+        #expect(SiteURL.api(.search).path == "api/search")
+        #expect(SiteURL.api(.version).path == "api/version")
         do {
             let uuid = UUID()
-            XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .buildReport)).path,
-                           "api/versions/\(uuid.uuidString)/build-report")
-            XCTAssertEqual(SiteURL.api(.builds(.value(uuid), .docReport)).path,
-                           "api/builds/\(uuid.uuidString)/doc-report")
+            #expect(SiteURL.api(.versions(.value(uuid), .buildReport)).path == "api/versions/\(uuid.uuidString)/build-report")
+            #expect(SiteURL.api(.builds(.value(uuid), .docReport)).path == "api/builds/\(uuid.uuidString)/doc-report")
         }
     }
 
-    func test_api_pathComponents() throws {
-        XCTAssertEqual(SiteURL.api(.search).pathComponents.map(\.description), ["api", "search"])
-        XCTAssertEqual(SiteURL.api(.version).pathComponents.map(\.description), ["api", "version"])
-        XCTAssertEqual(SiteURL.api(.versions(.key, .buildReport)).pathComponents.map(\.description),
-                       ["api", "versions", ":id", "build-report"])
-        XCTAssertEqual(SiteURL.api(.packages(.key, .key, .badge))
-                        .pathComponents.map(\.description),
-                       ["api", "packages", ":owner", ":repository", "badge"])
-        XCTAssertEqual(SiteURL.api(.packageCollections).pathComponents.map(\.description),
-                       ["api", "package-collections"])
+    @Test func api_pathComponents() throws {
+        #expect(SiteURL.api(.search).pathComponents.map(\.description) == ["api", "search"])
+        #expect(SiteURL.api(.version).pathComponents.map(\.description) == ["api", "version"])
+        #expect(SiteURL.api(.versions(.key, .buildReport)).pathComponents.map(\.description) == ["api", "versions", ":id", "build-report"])
+        #expect(SiteURL.api(.packages(.key, .key, .badge))
+                        .pathComponents.map(\.description) == ["api", "packages", ":owner", ":repository", "badge"])
+        #expect(SiteURL.api(.packageCollections).pathComponents.map(\.description) == ["api", "package-collections"])
     }
 
-    func test_apiBaseURL() throws {
+    @Test func apiBaseURL() throws {
         withDependencies {
             $0.environment.siteURL = { "https://example.com" }
         } operation: {
-            XCTAssertEqual(SiteURL.apiBaseURL, "https://example.com/api")
+            #expect(SiteURL.apiBaseURL == "https://example.com/api")
         }
     }
 
-    func test_packageBuildsURL() throws {
+    @Test func packageBuildsURL() throws {
         // owner/repo/builds
-        XCTAssertEqual(SiteURL.package(.value("foo"), .value("bar"), .builds).path,
-                       "foo/bar/builds")
-        XCTAssertEqual(SiteURL.package(.key, .key, .builds).pathComponents.map(\.description),
-                       [":owner", ":repository", "builds"])
+        #expect(SiteURL.package(.value("foo"), .value("bar"), .builds).path == "foo/bar/builds")
+        #expect(SiteURL.package(.key, .key, .builds).pathComponents.map(\.description) == [":owner", ":repository", "builds"])
         // /builds/{id}
         let id = UUID()
-        XCTAssertEqual(SiteURL.builds(.value(id)).path, "builds/\(id.uuidString)")
-        XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description), ["builds", ":id"])
+        #expect(SiteURL.builds(.value(id)).path == "builds/\(id.uuidString)")
+        #expect(SiteURL.builds(.key).pathComponents.map(\.description) == ["builds", ":id"])
     }
 
-    func test_packageCollectionURL() throws {
-        XCTAssertEqual(SiteURL.packageCollectionAuthor(.value("foo")).path,
-                       "foo/collection.json")
-        XCTAssertEqual(SiteURL.packageCollectionAuthor(.key).pathComponents
-                        .map(\.description),
-                       [":owner", "collection.json"])
+    @Test func packageCollectionURL() throws {
+        #expect(SiteURL.packageCollectionAuthor(.value("foo")).path == "foo/collection.json")
+        #expect(SiteURL.packageCollectionAuthor(.key).pathComponents
+                        .map(\.description) == [":owner", "collection.json"])
     }
 
-    func test_docs() throws {
-        XCTAssertEqual(SiteURL.docs(.builds).path, "docs/builds")
-        XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
+    @Test func docs() throws {
+        #expect(SiteURL.docs(.builds).path == "docs/builds")
+        #expect(SiteURL.docs(.builds).pathComponents.map(\.description) == ["docs", "builds"])
     }
 
-    func test_QueryParameter_encodedForQueryString() {
+    @Test func QueryParameter_encodedForQueryString() {
         // String parameter, no encoding needed
-        XCTAssertEqual(QueryParameter(key: "foo", value: "bar").encodedForQueryString, "foo=bar")
+        #expect(QueryParameter(key: "foo", value: "bar").encodedForQueryString == "foo=bar")
 
         // String parameter, encoding needed
-        XCTAssertEqual(QueryParameter(key: "foo", value: "b a r").encodedForQueryString, "foo=b%20a%20r")
+        #expect(QueryParameter(key: "foo", value: "b a r").encodedForQueryString == "foo=b%20a%20r")
 
         // Integer parameter
-        XCTAssertEqual(QueryParameter(key: "foo", value: 1).encodedForQueryString, "foo=1")
+        #expect(QueryParameter(key: "foo", value: 1).encodedForQueryString == "foo=1")
     }
 
-    func test_keywords() throws {
-        XCTAssertEqual(SiteURL.keywords(.value("foo")).path, "keywords/foo")
-        XCTAssertEqual(SiteURL.keywords(.key).pathComponents.map(\.description), ["keywords", ":keyword"])
+    @Test func keywords() throws {
+        #expect(SiteURL.keywords(.value("foo")).path == "keywords/foo")
+        #expect(SiteURL.keywords(.key).pathComponents.map(\.description) == ["keywords", ":keyword"])
     }
 
-    func test_collections() throws {
-        XCTAssertEqual(SiteURL.collections(.value("foo")).path, "collections/foo")
-        XCTAssertEqual(SiteURL.collections(.key).pathComponents.map(\.description), ["collections", ":key"])
+    @Test func collections() throws {
+        #expect(SiteURL.collections(.value("foo")).path == "collections/foo")
+        #expect(SiteURL.collections(.key).pathComponents.map(\.description) == ["collections", ":key"])
     }
 
 }

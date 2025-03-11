@@ -1,25 +1,4 @@
 Sitemap: https://swiftpackageindex.com/sitemap.xml
 
-User-agent: Bytespider
-Disallow: /
-
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ClaudeBot
-Disallow: /
-
-User-agent: anthropic-ai
-Disallow: /
-
-User-agent: Applebot
-Disallow: /
-
-User-agent: Google-Extended
-Disallow: /
-
-User-agent: Cohere-ai
-Disallow: /
-
-User-agent: Seekr
-Disallow: /
+User-agent: *
+Disallow: /api/

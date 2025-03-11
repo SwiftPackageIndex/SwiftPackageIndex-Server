@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import Authentication
 
+import Testing
 
-final class TierTests: XCTestCase {
 
-    func test_Comparable() throws {
-        XCTAssertTrue(Tier<V1>.tier1 < Tier<V1>.tier2)
-        XCTAssertTrue(Tier<V1>.tier2 < Tier<V1>.internal)
+@Suite struct TierTests {
 
-        XCTAssertFalse(Tier<V1>.tier1 > Tier<V1>.tier2)
+    @Test func Comparable() throws {
+        #expect(Tier<V1>.tier1 < Tier<V1>.tier2)
+        #expect(Tier<V1>.tier2 < Tier<V1>.internal)
 
-        XCTAssertTrue(Tier<V1>.tier1 <= Tier<V1>.tier1)
-        XCTAssertTrue(Tier<V1>.tier1 >= Tier<V1>.tier1)
+        #expect(!(Tier<V1>.tier1 > Tier<V1>.tier2))
+
+        #expect(Tier<V1>.tier1 <= Tier<V1>.tier1)
+        #expect(Tier<V1>.tier1 >= Tier<V1>.tier1)
     }
 
 }

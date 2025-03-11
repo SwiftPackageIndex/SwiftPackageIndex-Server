@@ -12,89 +12,98 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 import Vapor
 
 
-class AuthorControllerTests: AppTestCase {
+@Suite struct AuthorControllerTests {
 
-    func test_query() async throws {
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, owner: "owner").save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+    @Test func query() async throws {
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
-        // MUT
-        let pkg = try await AuthorController.query(on: app.db, owner: "owner")
+            // MUT
+            let pkg = try await AuthorController.query(on: app.db, owner: "owner")
 
-        // validate
-        XCTAssertEqual(pkg.map(\.model.id), [p.id])
-    }
-
-    func test_query_no_version() async throws {
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, owner: "owner").save(on: app.db)
-
-        // MUT
-        do {
-            _ = try await AuthorController.query(on: app.db, owner: "owner")
-            XCTFail("Expected Abort.notFound")
-        } catch let error as Abort {
             // validate
-            XCTAssertEqual(error.status, .notFound)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
+            #expect(pkg.map(\.model.id) == [p.id])
         }
     }
 
-    func test_query_sort_alphabetically() async throws {
-        // setup
-        for packageName in ["gamma", "alpha", "beta"] {
-            let p = Package(url: "\(packageName)".url)
-            try await p.save(on: app.db)
+    @Test func query_no_version() async throws {
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p, owner: "owner").save(on: app.db)
-            try await Version(package: p, latest: .defaultBranch, packageName: packageName).save(on: app.db)
+
+            // MUT
+            do {
+                _ = try await AuthorController.query(on: app.db, owner: "owner")
+                Issue.record("Expected Abort.notFound")
+            } catch let error as Abort {
+                // validate
+                #expect(error.status == .notFound)
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
         }
-
-        // MUT
-        let pkg = try await AuthorController.query(on: app.db, owner: "owner")
-
-        // validate
-        XCTAssertEqual(pkg.map(\.model.url), ["alpha", "beta", "gamma"])
     }
 
-    func test_show_owner() async throws {
+    @Test func query_sort_alphabetically() async throws {
+        try await withApp { app in
+            // setup
+            for packageName in ["gamma", "alpha", "beta"] {
+                let p = Package(url: "\(packageName)".url)
+                try await p.save(on: app.db)
+                try await Repository(package: p, owner: "owner").save(on: app.db)
+                try await Version(package: p, latest: .defaultBranch, packageName: packageName).save(on: app.db)
+            }
+
+            // MUT
+            let pkg = try await AuthorController.query(on: app.db, owner: "owner")
+
+            // validate
+            #expect(pkg.map(\.model.url) == ["alpha", "beta", "gamma"])
+        }
+    }
+
+    @Test func show_owner() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            let p = try await savePackage(on: app.db, "1")
-            try await Repository(package: p, owner: "owner").save(on: app.db)
-            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+            try await withApp { app in
+                let p = try await savePackage(on: app.db, "1")
+                try await Repository(package: p, owner: "owner").save(on: app.db)
+                try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
-            // MUT
-            try await app.test(.GET, "/owner", afterResponse: { response async in
-                XCTAssertEqual(response.status, .ok)
-            })
+                // MUT
+                try await app.test(.GET, "/owner", afterResponse: { response async in
+                    #expect(response.status == .ok)
+                })
+            }
         }
     }
 
-    func test_show_owner_empty() async throws {
+    @Test func show_owner_empty() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            let p = try await savePackage(on: app.db, "1")
-            try await Repository(package: p, owner: "owner").save(on: app.db)
-            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
-
-            // MUT
-            try await app.test(.GET, "/fake-owner", afterResponse: { response async in
-                XCTAssertEqual(response.status, .notFound)
-            })
+            try await withApp { app in
+                let p = try await savePackage(on: app.db, "1")
+                try await Repository(package: p, owner: "owner").save(on: app.db)
+                try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+                
+                // MUT
+                try await app.test(.GET, "/fake-owner", afterResponse: { response async in
+                    #expect(response.status == .notFound)
+                })
+            }
         }
     }
 

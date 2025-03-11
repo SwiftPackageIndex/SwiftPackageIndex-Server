@@ -502,8 +502,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /crelies/AdvancedList/documentation:
-    url: ${base_url}/crelies/AdvancedList/documentation
+  /chris-swift-dev/AdvancedList/documentation:
+    url: ${base_url}/chris-swift-dev/AdvancedList/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:

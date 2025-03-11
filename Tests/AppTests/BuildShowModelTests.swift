@@ -14,46 +14,49 @@
 
 @testable import App
 
-import XCTVapor
+import Testing
+import Vapor
 
 
-class BuildShowModelTests: AppTestCase {
+@Suite struct BuildShowModelTests {
 
     typealias Model = BuildShow.Model
 
-    func test_buildsURL() throws {
-        XCTAssertEqual(Model.mock.buildsURL, "/foo/bar/builds")
+    @Test func buildsURL() throws {
+        #expect(Model.mock.buildsURL == "/foo/bar/builds")
     }
 
-    func test_packageURL() throws {
-        XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
+    @Test func packageURL() throws {
+        #expect(Model.mock.packageURL == "/foo/bar")
     }
 
-    func test_init() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1".url)
-        try await Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db)
-        let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
-        try await version.save(on: app.db)
-        let buildId = UUID()
-        try await Build(id: buildId, version: version, platform: .iOS, status: .ok, swiftVersion: .v3)
-            .save(on: app.db)
-        let result = try await BuildResult.query(on: app.db, buildId: buildId)
-
-        // MUT
-        let model = BuildShow.Model(result: result, logs: "logs")
-
-        // validate
-        XCTAssertEqual(model?.packageName, "Bar")
-        XCTAssertEqual(model?.versionId, version.id)
-        XCTAssertEqual(model?.buildInfo.logs, "logs")
+    @Test func Model_init() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = try await savePackage(on: app.db, "1".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
+            try await version.save(on: app.db)
+            let buildId = UUID()
+            try await Build(id: buildId, version: version, platform: .iOS, status: .ok, swiftVersion: .v3)
+                .save(on: app.db)
+            let result = try await BuildResult.query(on: app.db, buildId: buildId)
+            
+            // MUT
+            let model = BuildShow.Model(result: result, logs: "logs")
+            
+            // validate
+            #expect(model?.packageName == "Bar")
+            #expect(model?.versionId == version.id)
+            #expect(model?.buildInfo.logs == "logs")
+        }
     }
 
 }

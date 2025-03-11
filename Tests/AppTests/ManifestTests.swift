@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
-import XCTest
+import Testing
 
 
-class ManifestTests: XCTestCase {
+@Suite struct ManifestTests {
 
-    func test_decode_Product_Type() throws {
+    @Test func decode_Product_Type() throws {
         // Test product type decoding.
         // JSON snippets via `swift package dump-package` from the following
         // Package.swift `products` definition:
@@ -45,8 +47,7 @@ class ManifestTests: XCTestCase {
                 }
             }
             """.utf8)
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
-                           .init(type: .executable))
+            #expect(try JSONDecoder().decode(Test.self, from: data) == .init(type: .executable))
         }
         do { // lib - automatic
             let data = Data("""
@@ -56,8 +57,7 @@ class ManifestTests: XCTestCase {
                 }
             }
             """.utf8)
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
-                           .init(type: .library(.automatic)))
+            #expect(try JSONDecoder().decode(Test.self, from: data) == .init(type: .library(.automatic)))
         }
         do { // lib - dynamic
             let data = Data("""
@@ -67,8 +67,7 @@ class ManifestTests: XCTestCase {
                 }
             }
             """.utf8)
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
-                           .init(type: .library(.dynamic)))
+            #expect(try JSONDecoder().decode(Test.self, from: data) == .init(type: .library(.dynamic)))
         }
         do { // lib - static
             let data = Data("""
@@ -78,8 +77,7 @@ class ManifestTests: XCTestCase {
                 }
             }
             """.utf8)
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
-                           .init(type: .library(.static)))
+            #expect(try JSONDecoder().decode(Test.self, from: data) == .init(type: .library(.static)))
         }
         do { // test
             let data = Data("""
@@ -89,30 +87,29 @@ class ManifestTests: XCTestCase {
                 }
             }
             """.utf8)
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
-                           .init(type: .test))
+            #expect(try JSONDecoder().decode(Test.self, from: data) == .init(type: .test))
         }
     }
 
-    func test_decode_basic() throws {
+    @Test func decode_basic() throws {
         let data = try fixtureData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
-        XCTAssertEqual(m.products, [.init(name: "Some Product",
+        #expect(m.name == "SPI-Server")
+        #expect(m.platforms == [.init(platformName: .macos, version: "10.15")])
+        #expect(m.products == [.init(name: "Some Product",
                                           targets: ["t1", "t2"],
                                           type: .library(.automatic))])
-        XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
-        XCTAssertEqual(m.targets, [.init(name: "App", type: .regular),
+        #expect(m.swiftLanguageVersions == ["4", "4.2", "5"])
+        #expect(m.targets == [.init(name: "App", type: .regular),
                                    .init(name: "Run", type: .regular),
                                    .init(name: "AppTests", type: .test)])
-        XCTAssertEqual(m.toolsVersion, .init(version: "5.2.0"))
+        #expect(m.toolsVersion == .init(version: "5.2.0"))
     }
 
-    func test_decode_products_complex() throws {
+    @Test func decode_products_complex() throws {
         let data = try fixtureData(for: "SwiftNIO.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.products, [
+        #expect(m.products == [
             .init(name: "NIOEchoServer",
                   targets: ["NIOEchoServer"],
                   type: .executable),
@@ -176,28 +173,27 @@ class ManifestTests: XCTestCase {
         ])
     }
 
-    func test_platform_list() throws {
+    @Test func platform_list() throws {
         // Test to ensure the platforms listed in the DTO struct Manifest.Platform.Name
         // do not accidentally diverge from those in the db entity's Platform.Name
-        XCTAssertEqual(Manifest.Platform.Name.allCases.map(\.rawValue).sorted(),
-                       Platform.Name.allCases.map(\.rawValue).sorted())
+        #expect(Manifest.Platform.Name.allCases.map(\.rawValue).sorted() == Platform.Name.allCases.map(\.rawValue).sorted())
     }
 
-    func test_decode_plugin_products() throws {
+    @Test func decode_plugin_products() throws {
         let data = try fixtureData(for: "manifest-plugin.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.products, [
+        #expect(m.products == [
             .init(name: "Swift-DocC", targets: ["Swift-DocC"], type: .plugin),
             .init(name: "Swift-DocC Preview", targets: ["Swift-DocC Preview"], type: .plugin),
         ])
     }
 
-    func test_issue_2875() throws {
+    @Test func issue_2875() throws {
         // Support decoding custom platform with different capitalisation
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2875
         let data = try fixtureData(for: "Lottie-ios.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.platforms, [
+        #expect(m.platforms == [
             .init(platformName: .ios, version: "11.0"),
             .init(platformName: .macos, version: "10.11"),
             .init(platformName: .tvos, version: "11.0"),

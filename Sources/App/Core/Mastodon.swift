@@ -31,7 +31,10 @@ enum Mastodon {
         components.scheme = "https"
         components.host = apiHost
         components.path = apiPath
-        components.queryItems = [URLQueryItem(name: "status", value: message)]
+        components.queryItems = [
+            URLQueryItem(name: "status", value: message),
+            URLQueryItem(name: "visibility", value: "unlisted")
+        ]
         guard let url = components.string else {
             throw Social.Error.invalidURL
         }

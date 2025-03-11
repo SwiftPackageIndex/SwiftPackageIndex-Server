@@ -15,55 +15,57 @@
 @testable import App
 
 import FluentKit
-import XCTest
+import Testing
 
 
 /// `JoinedQueryBuilder` is essentially a "pass-through" class that wraps a `QueryBuilder`
 /// and forwards method calls to it. This test class tests this behaviour in principle for `sort`
 /// but not for any other methods at this time, because the instrumentation is quite mechanical
 /// and essentially compiler checked.
-class JoinedQueryBuilderTests: AppTestCase {
+@Suite struct JoinedQueryBuilderTests {
 
-    func test_sort() async throws {
-        // setup
-        for idx in (0..<3).shuffled() {
-            try await Package(url: "\(idx)".url).save(on: app.db)
-        }
-        // query helper
-        func query() -> JoinedQueryBuilder<Package> {
-            JoinedQueryBuilder<Package>(
-                queryBuilder: Package.query(on: app.db)
-            )
-        }
-
-        do {  // test sort(_ sort: DatabaseQuery.Sort)
-            // MUT
-            let res = try await query()
-                .sort(DatabaseQuery.Sort.sort(.sql(unsafeRaw: "url"), .descending))
-                .all()
-
-            // validate
-            XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
-        }
-
-        do {  // test sort<Field>(_ field: KeyPath<...>, _ direction:)
-            // MUT
-            let res = try await query()
-                .sort(\.$url, .descending)
-                .all()
-
-            // validate
-            XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
-        }
-
-        do {  // test sort(_ field: DatabaseQuery.Field, _ direction:)
-            // MUT
-            let res = try await query()
-                .sort(DatabaseQuery.Field.sql(unsafeRaw: "url"), .descending)
-                .all()
-
-            // validate
-            XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
+    @Test func sort() async throws {
+        try await withApp { app in
+            // setup
+            for idx in (0..<3).shuffled() {
+                try await Package(url: "\(idx)".url).save(on: app.db)
+            }
+            // query helper
+            func query() -> JoinedQueryBuilder<Package> {
+                JoinedQueryBuilder<Package>(
+                    queryBuilder: Package.query(on: app.db)
+                )
+            }
+            
+            do {  // test sort(_ sort: DatabaseQuery.Sort)
+                  // MUT
+                let res = try await query()
+                    .sort(DatabaseQuery.Sort.sort(.sql(unsafeRaw: "url"), .descending))
+                    .all()
+                
+                // validate
+                #expect(res.map(\.url) == ["2", "1", "0"])
+            }
+            
+            do {  // test sort<Field>(_ field: KeyPath<...>, _ direction:)
+                  // MUT
+                let res = try await query()
+                    .sort(\.$url, .descending)
+                    .all()
+                
+                // validate
+                #expect(res.map(\.url) == ["2", "1", "0"])
+            }
+            
+            do {  // test sort(_ field: DatabaseQuery.Field, _ direction:)
+                  // MUT
+                let res = try await query()
+                    .sort(DatabaseQuery.Field.sql(unsafeRaw: "url"), .descending)
+                    .all()
+                
+                // validate
+                #expect(res.map(\.url) == ["2", "1", "0"])
+            }
         }
     }
 

@@ -14,57 +14,57 @@
 
 @testable import App
 
+import Testing
 import Vapor
-import XCTest
 
 
-class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
+@Suite struct PackageController_BuildsRoute_BuildInfoTests {
 
-    func test_buildStatus() throws {
+    @Test func buildStatus() throws {
         // Test build status aggregation, in particular see
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
         // setup
         // MUT & verification
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].compatibility, .compatible)
-        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].compatibility, .unknown)
-        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].compatibility, .unknown)
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].compatibility, .compatible)
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.failed)].compatibility == .compatible)
+        #expect([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].compatibility == .unknown)
+        #expect([mkBuildInfo(.failed), mkBuildInfo(.triggered)].compatibility == .unknown)
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.triggered)].compatibility == .compatible)
     }
 
-    func test_noneSucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.failed), mkBuildInfo(.failed)].noneSucceeded)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].noneSucceeded)
+    @Test func noneSucceeded() throws {
+        #expect([mkBuildInfo(.failed), mkBuildInfo(.failed)].noneSucceeded)
+        #expect(![mkBuildInfo(.ok), mkBuildInfo(.failed)].noneSucceeded)
     }
 
-    func test_anySucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].anySucceeded)
-        XCTAssertFalse([mkBuildInfo(.failed), mkBuildInfo(.failed)].anySucceeded)
+    @Test func anySucceeded() throws {
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.failed)].anySucceeded)
+        #expect(![mkBuildInfo(.failed), mkBuildInfo(.failed)].anySucceeded)
     }
 
-    func test_nonePending() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].nonePending)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.triggered)].nonePending)
+    @Test func nonePending() throws {
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.failed)].nonePending)
+        #expect(![mkBuildInfo(.ok), mkBuildInfo(.triggered)].nonePending)
         // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
         // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
+        #expect(![mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
     }
 
-    func test_anyPending() throws {
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].anyPending)
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.triggered)].anyPending)
+    @Test func anyPending() throws {
+        #expect(![mkBuildInfo(.ok), mkBuildInfo(.failed)].anyPending)
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.triggered)].anyPending)
         // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
+        #expect([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
         // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
+        #expect(![mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
     }
 
-    func test_Platform_isCompatible() throws {
-        XCTAssertTrue(Build.Platform.iOS.isCompatible(with: .iOS))
-        XCTAssertFalse(Build.Platform.iOS.isCompatible(with: .macOS))
+    @Test func Platform_isCompatible() throws {
+        #expect(Build.Platform.iOS.isCompatible(with: .iOS))
+        #expect(!Build.Platform.iOS.isCompatible(with: .macOS))
 
-        XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macOS))
-        XCTAssertTrue(Build.Platform.macosXcodebuild.isCompatible(with: .macOS))
+        #expect(Build.Platform.macosSpm.isCompatible(with: .macOS))
+        #expect(Build.Platform.macosXcodebuild.isCompatible(with: .macOS))
     }
 
 }

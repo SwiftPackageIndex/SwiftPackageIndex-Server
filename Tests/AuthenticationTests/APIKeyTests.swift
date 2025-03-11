@@ -12,33 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import Authentication
 
 import JWTKit
+import Testing
 
 
-final class APIKeyTests: XCTestCase {
+@Suite struct APIKeyTests {
 
-    func test_verify() throws {
+    @Test func verify() throws {
         // Ensure verification rejects expired tokens
         let s = Signer(secretSigningKey: "secret")
         let token = try s.generateToken(for: "foo", expiringOn: .distantPast, contact: "bar", tier: .tier1)
         do {
             _ = try s.verifyToken(token)
-            XCTFail("Expected a JWTError.claimVerificationFailure to the thrown")
+            Issue.record("Expected a JWTError.claimVerificationFailure to the thrown")
         } catch let JWTError.claimVerificationFailure(name: name, reason: reason) {
-            XCTAssertEqual(name, "exp")
-            XCTAssertEqual(reason, "expired")
+            #expect(name == "exp")
+            #expect(reason == "expired")
         }
     }
 
-    func test_isAuthorized() throws {
-        XCTAssertTrue(APIKey.mock(tier: .internal).isAuthorized(for: .tier1))
-        XCTAssertTrue(APIKey.mock(tier: .internal).isAuthorized(for: .tier2))
-        XCTAssertTrue(APIKey.mock(tier: .tier1).isAuthorized(for: .tier1))
-        XCTAssertFalse(APIKey.mock(tier: .tier1).isAuthorized(for: .tier2))
+    @Test func isAuthorized() throws {
+        #expect(APIKey.mock(tier: .internal).isAuthorized(for: .tier1))
+        #expect(APIKey.mock(tier: .internal).isAuthorized(for: .tier2))
+        #expect(APIKey.mock(tier: .tier1).isAuthorized(for: .tier1))
+        #expect(!APIKey.mock(tier: .tier1).isAuthorized(for: .tier2))
     }
 
 }

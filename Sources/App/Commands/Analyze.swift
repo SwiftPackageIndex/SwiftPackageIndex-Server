@@ -180,7 +180,7 @@ extension Analyze {
         // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
         // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
         // This might not be needed in Vapor 5 / FluentKit 2
-        // TODO: verify this is still needed once we upgrade to Vapor 5 / FluentKit 2
+        // TODO: verify if this is still needed once we upgrade to Vapor 5 / FluentKit 2
         try await withEscapedDependencies { dependencies in
             try await database.transaction { tx in
                 try await dependencies.yield {

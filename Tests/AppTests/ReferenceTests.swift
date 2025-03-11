@@ -12,71 +12,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+import Foundation
 
 @testable import App
 
 import SemanticVersion
+import Testing
 
 
-class ReferenceTests: XCTestCase {
+@Suite struct ReferenceTests {
 
-    func test_init() throws {
-        XCTAssertEqual(Reference("1.2.3"), .tag(1, 2, 3))
-        XCTAssertEqual(Reference("1.2.3-b1"), .tag(1, 2, 3, "b1"))
-        XCTAssertEqual(Reference("main"), .branch("main"))
+    @Test func Refernce_init() throws {
+        #expect(Reference("1.2.3") == .tag(1, 2, 3))
+        #expect(Reference("1.2.3-b1") == .tag(1, 2, 3, "b1"))
+        #expect(Reference("main") == .branch("main"))
     }
 
-    func test_Codable() throws {
+    @Test func Codable() throws {
         do { // branch
             let ref = Reference.branch("foo")
             let json = try JSONEncoder().encode(ref)
             let decoded = try JSONDecoder().decode(Reference.self, from: json)
-            XCTAssertEqual(decoded, .branch("foo"))
+            #expect(decoded == .branch("foo"))
         }
         do { // tag
             let ref = Reference.tag(.init(1, 2, 3))
             let json = try JSONEncoder().encode(ref)
             let decoded = try JSONDecoder().decode(Reference.self, from: json)
-            XCTAssertEqual(decoded, .tag(.init(1, 2, 3)))
+            #expect(decoded == .tag(.init(1, 2, 3)))
         }
     }
 
-    func test_isRelease() throws {
-        XCTAssertTrue(Reference.tag(.init(1, 0, 0)).isRelease)
-        XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)
-        XCTAssertFalse(Reference.branch("main").isRelease)
+    @Test func isRelease() throws {
+        #expect(Reference.tag(.init(1, 0, 0)).isRelease)
+        #expect(!Reference.tag(.init(1, 0, 0, "beta1")).isRelease)
+        #expect(!Reference.branch("main").isRelease)
     }
 
-    func test_tagName() throws {
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3)).tagName, "1.2.3")
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3), "v1.2.3").tagName, "v1.2.3")
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1")).tagName, "1.2.3-b1")
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).tagName,
-                       "1.2.3-b1+test")
-        XCTAssertEqual(Reference.branch("").tagName, nil)
+    @Test func tagName() throws {
+        #expect(Reference.tag(.init(1, 2, 3)).tagName == "1.2.3")
+        #expect(Reference.tag(.init(1, 2, 3), "v1.2.3").tagName == "v1.2.3")
+        #expect(Reference.tag(.init(1, 2, 3, "b1")).tagName == "1.2.3-b1")
+        #expect(Reference.tag(.init(1, 2, 3, "b1", "test")).tagName == "1.2.3-b1+test")
+        #expect(Reference.branch("").tagName == nil)
     }
 
-    func test_versionKind() throws {
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3)).versionKind, .release)
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1")).versionKind, .preRelease)
-        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).versionKind, .preRelease)
-        XCTAssertEqual(Reference.branch("main").versionKind, .defaultBranch)
-        XCTAssertEqual(Reference.branch("").versionKind, .defaultBranch)
+    @Test func versionKind() throws {
+        #expect(Reference.tag(.init(1, 2, 3)).versionKind == .release)
+        #expect(Reference.tag(.init(1, 2, 3, "b1")).versionKind == .preRelease)
+        #expect(Reference.tag(.init(1, 2, 3, "b1", "test")).versionKind == .preRelease)
+        #expect(Reference.branch("main").versionKind == .defaultBranch)
+        #expect(Reference.branch("").versionKind == .defaultBranch)
     }
 
-    func test_pathEncoded() throws {
-        XCTAssertEqual(Reference.branch("foo").pathEncoded, "foo")
-        XCTAssertEqual(Reference.branch("foo/bar").pathEncoded, "foo-bar")
-        XCTAssertEqual(Reference.branch("foo-bar").pathEncoded, "foo-bar")
-        XCTAssertEqual(Reference.tag(.init("1.2.3")!).pathEncoded, "1.2.3")
+    @Test func pathEncoded() throws {
+        #expect(Reference.branch("foo").pathEncoded == "foo")
+        #expect(Reference.branch("foo/bar").pathEncoded == "foo-bar")
+        #expect(Reference.branch("foo-bar").pathEncoded == "foo-bar")
+        #expect(Reference.tag(.init("1.2.3")!).pathEncoded == "1.2.3")
         do {
-            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar"))
-            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar")
+            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar"))
+            #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar")
         }
         do {
-            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
-            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar+bar-baz")
+            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
+            #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar+bar-baz")
         }
     }
 

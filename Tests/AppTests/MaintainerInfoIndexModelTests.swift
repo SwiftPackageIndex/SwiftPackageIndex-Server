@@ -15,48 +15,50 @@
 @testable import App
 
 import Dependencies
+import DependenciesTestSupport
 import SnapshotTesting
-import XCTVapor
+import Testing
 
 
-class MaintainerInfoIndexModelTests: SnapshotTestCase {
+@Suite(.dependency(\.date.now, .t0))
+struct MaintainerInfoIndexModelTests {
 
-    func test_badgeURL() throws {
+    @Test func badgeURL() throws {
         withDependencies {
             $0.environment.siteURL = { "https://spi.com" }
         } operation: {
             let model = MaintainerInfoIndex.Model.mock
 
-            XCTAssertEqual(model.badgeURL(for: .swiftVersions), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions")
-            XCTAssertEqual(model.badgeURL(for: .platforms), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms")
+            #expect(model.badgeURL(for: .swiftVersions) == "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions")
+            #expect(model.badgeURL(for: .platforms) == "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms")
         }
     }
 
-    func test_badgeMarkdown() throws {
+    @Test func badgeMarkdown() throws {
         // Test badge markdown structure
         withDependencies {
             $0.environment.siteURL = { "https://spi.com" }
         } operation: {
             let model = MaintainerInfoIndex.Model.mock
-            
+
             let badgeURL = model.badgeURL(for: .swiftVersions)
-            XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions), "[![](\(badgeURL))](https://spi.com/example/package)")
+            #expect(model.badgeMarkdown(for: .swiftVersions) == "[![](\(badgeURL))](https://spi.com/example/package)")
         }
     }
 
-    func test_scoreCategories_dependencies() throws {
+    @Test func scoreCategories_dependencies() throws {
         // setup
         var model = MaintainerInfoIndex.Model.mock
 
         do {
             model.scoreDetails?.numberOfDependencies = 0
-            let categories = model.scoreCategories
-            XCTAssertEqual(categories["Dependencies"]?.description, "Has no dependencies.")
+            let categories = model.scoreCategories()
+            #expect(categories["Dependencies"]?.description == "Has no dependencies.")
         }
         do {
             model.scoreDetails?.numberOfDependencies = nil
-            let categories = model.scoreCategories
-            XCTAssertEqual(categories["Dependencies"]?.description, "No dependency information available.")
+            let categories = model.scoreCategories()
+            #expect(categories["Dependencies"]?.description == "No dependency information available.")
         }
     }
 

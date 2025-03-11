@@ -1,5 +1,5 @@
 {
-  "originHash" : "c68e60d7c703a8fa9fb0a3a11024cf6b2304fb294ba9f124de1d41f024b11cc9",
+  "originHash" : "7842eb8158770d2bd9ff4b5fd598106f03684dea930e4cac87a4fb62f4670c6d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/redis.git",
       "state" : {
-        "revision" : "383ed57e5b5acd4dd447c2967aa665dc3bbe5be9",
-        "version" : "4.11.0"
+        "revision" : "b4527022376f93ade3fa366f2c3465ed3489fca4",
+        "version" : "4.11.1"
       }
     },
     {
@@ -267,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms.git",
       "state" : {
-        "revision" : "f6919dfc309e7f1b56224378b11e28bab5bccc42",
-        "version" : "1.2.0"
+        "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
+        "version" : "1.2.1"
       }
     },
     {
@@ -375,8 +375,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "52b5e1a09dc016e64ce253e19ab3124b7fae9ac9",
-        "version" : "1.7.0"
+        "revision" : "ec2862d1364536fc22ec56a3094e7a034bbc7da8",
+        "version" : "1.8.1"
       }
     },
     {
@@ -456,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "b4a26ae126c4471d5f7a308ebf0dae78aeaef3b6",
-        "version" : "2.29.1"
+        "revision" : "0cc3528ff48129d64ab9cab0b1cd621634edfc6b",
+        "version" : "2.29.3"
       }
     },
     {
@@ -474,8 +474,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",
       "state" : {
-        "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
-        "version" : "1.0.2"
+        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
+        "version" : "1.0.3"
       }
     },
     {
@@ -519,17 +519,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "f5bfff796ee8e3bc9a685b7ffba1bf20663eb370",
-        "version" : "1.18.0"
+        "revision" : "b2d4cb30735f4fbc3a01963a9c658336dd21e9ba",
+        "version" : "1.18.1"
       }
     },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "64889f0c732f210a935a0ad7cda38f77f876262d",
-        "version" : "509.1.1"
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
       }
     },
     {
@@ -551,21 +551,12 @@
       }
     },
     {
-      "identity" : "swiftopenapi",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
-      "state" : {
-        "revision" : "44f9468f5ac0ce9e931062dcc667b4a8e2c498d0",
-        "version" : "2.20.1"
-      }
-    },
-    {
       "identity" : "swiftsoup",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "6b4930da67b462d3f200472c902dd016d37a554d",
-        "version" : "2.7.7"
+        "revision" : "64e4daa41b0f22affa94a6063d509c137c26909c",
+        "version" : "2.8.5"
       }
     },
     {
@@ -575,15 +566,6 @@
       "state" : {
         "revision" : "fb619ab6485a88787ef9c78ba70e7415f8ebf981",
         "version" : "4.106.4"
-      }
-    },
-    {
-      "identity" : "vaportoopenapi",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
-      "state" : {
-        "revision" : "edafaebdff03366a4d37b59099e63ff34422bf01",
-        "version" : "4.7.1"
       }
     },
     {
@@ -600,8 +582,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b444594f79844b0d6d76d70fbfb3f7f71728f938",
-        "version" : "1.5.1"
+        "revision" : "39de59b2d47f7ef3ca88a039dff3084688fe27f4",
+        "version" : "1.5.2"
       }
     },
     {

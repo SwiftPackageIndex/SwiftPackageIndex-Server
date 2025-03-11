@@ -35,7 +35,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "davelester",
             name: "Dave Lester",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=36f524e0508ed7052cc58d239e87e0da488d3d01&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=ee5a7043674e46bcb2a7c4cf66a5020680e31b32&v=4"
         ),
         .init(
             login: "phatblat",
@@ -233,11 +233,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/3351751?u=c27bedf869c3dbf75fe6e8857169d68b12e0678e&v=4"
         ),
         .init(
-            login: "ezefranca",
-            name: "Ezequiel Santos",
-            avatarUrl: "https://avatars.githubusercontent.com/u/3648336?u=39111e8438c92ea7babe652322829d0e6b4d416e&v=4"
-        ),
-        .init(
             login: "vsanthanam",
             name: "Varun Santhanam",
             avatarUrl: "https://avatars.githubusercontent.com/u/3914230?u=1437d22b9ada924bb0abd7c6e5e9323b53cade93&v=4"
@@ -261,11 +256,6 @@ extension Array<Supporters.Community> {
             login: "JonPulfer",
             name: "Jonathan Pulfer",
             avatarUrl: "https://avatars.githubusercontent.com/u/5426561?u=1b82042a13a776a8a1f14bc2bd8c2046dd16bf7f&v=4"
-        ),
-        .init(
-            login: "skarol",
-            name: "Karolina Samorek",
-            avatarUrl: "https://avatars.githubusercontent.com/u/5767416?u=5b1f75e68c1f993b5013091c33b1cd283221ae53&v=4"
         ),
         .init(
             login: "MatyasKriz",
@@ -386,6 +376,11 @@ extension Array<Supporters.Community> {
             login: "dotgrid",
             name: "Paul F",
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
+        ),
+        .init(
+            login: "TTOzzi",
+            name: nil,
+            avatarUrl: "https://avatars.githubusercontent.com/u/50410213?u=1f2d2eaa941378d4001dab3caca614224751c8bb&v=4"
         ),
         .init(
             login: "sliemeobn",

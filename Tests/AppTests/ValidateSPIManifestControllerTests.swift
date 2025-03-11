@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import SPIManifest
+import Testing
 
 
-final class ValidateSPIManifestControllerTests: XCTestCase {
+@Suite struct ValidateSPIManifestControllerTests {
 
-    func test_validationResult_basic() throws {
+    @Test func validationResult_basic() throws {
         let yml = ValidateSPIManifest.Model.placeholderManifest
 
         // MUT
         let res = ValidateSPIManifestController.validationResult(manifest: yml)
 
         // validate
-        XCTAssertEqual(res, .valid(try SPIManifest.Manifest(yml: yml)))
+        #expect(try res == .valid(SPIManifest.Manifest(yml: yml)))
     }
 
-    func test_validationResult_decodingError() throws {
+    @Test func validationResult_decodingError() throws {
         let yml = """
             broken:
             """
@@ -40,10 +39,10 @@ final class ValidateSPIManifestControllerTests: XCTestCase {
         let res = ValidateSPIManifestController.validationResult(manifest: yml)
 
         // validate
-        XCTAssertEqual(res, .invalid("Decoding failed: Key not found: 'version'."))
+        #expect(res == .invalid("Decoding failed: Key not found: 'version'."))
     }
 
-    func test_validationResult_tooLarge() throws {
+    @Test func validationResult_tooLarge() throws {
         let targets = (0..<200).map { "Target_\($0)" }.joined(separator: ", ")
         let yml = """
             version: 1
@@ -51,13 +50,13 @@ final class ValidateSPIManifestControllerTests: XCTestCase {
               configs:
                 - documentation_targets: [\(targets)]
             """
-        XCTAssert(yml.count > SPIManifest.Manifest.maxByteSize)
+        #expect(yml.count > SPIManifest.Manifest.maxByteSize)
 
         // MUT
         let res = ValidateSPIManifestController.validationResult(manifest: yml)
 
         // validate
-        XCTAssertEqual(res, .invalid("File must not exceed \(SPIManifest.Manifest.maxByteSize) bytes. File size: \(yml.count) bytes."))
+        #expect(res == .invalid("File must not exceed \(SPIManifest.Manifest.maxByteSize) bytes. File size: \(yml.count) bytes."))
     }
 
 }

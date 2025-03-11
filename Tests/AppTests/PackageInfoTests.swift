@@ -14,46 +14,51 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
 
-class PackageInfoTests: AppTestCase {
+@Suite struct PackageInfoTests {
 
-    func test_title_package_name() async throws {
+    @Test func title_package_name() async throws {
         // Ensure title is populated from package.name()
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, name: "repo name", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch, packageName: "package name")
-            .save(on: app.db)
-        let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
-            .query(on: app.db, version: .defaultBranch)
-            .first())
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, name: "repo name", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch, packageName: "package name")
+                .save(on: app.db)
+            let joined = try #require(try await Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
+                .first())
 
-        // MUT
-        let pkgInfo = PackageInfo(package: joined)
+            // MUT
+            let pkgInfo = PackageInfo(package: joined)
 
-        // validate
-        XCTAssertEqual(pkgInfo?.title, "package name")
+            // validate
+            #expect(pkgInfo?.title == "package name")
+        }
     }
 
-    func test_title_repo_name() async throws {
+    @Test func title_repo_name() async throws {
         // Ensure title is populated from repoName if package.name() is nil
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, name: "repo name", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch, packageName: nil)
-            .save(on: app.db)
-        let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
-            .query(on: app.db, version: .defaultBranch)
-            .first())
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, name: "repo name", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch, packageName: nil)
+                .save(on: app.db)
+            let joined = try #require(try await Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
+                .first())
 
-        // MUT
-        let pkgInfo = PackageInfo(package: joined)
+            // MUT
+            let pkgInfo = PackageInfo(package: joined)
 
-        // validate
-        XCTAssertEqual(pkgInfo?.title, "repo name")
+            // validate
+            #expect(pkgInfo?.title == "repo name")
+        }
     }
+    
 }

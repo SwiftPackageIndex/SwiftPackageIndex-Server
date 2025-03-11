@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
 import InlineSnapshotTesting
 import SwiftSoup
+import Testing
 
 
-final class DocumentationPageProcessorTests: AppTestCase {
+@Suite struct DocumentationPageProcessorTests {
 
-    func test_header_linkTitle() throws {
+    @Test func header_linkTitle() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2249
         try withDependencies {
             $0.timeZone = .utc
@@ -35,7 +34,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 .init(archive: coreArchive, isCurrent: false),
                 .init(archive: signerArchive, isCurrent: true)
             ]
-            let processor = try XCTUnwrap(
+            let processor = try #require(
                 DocumentationPageProcessor(
                     repositoryOwner: "owner",
                     repositoryOwnerName: "Owner Name",
@@ -64,7 +63,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteBaseUrls() throws {
+    @Test func rewriteBaseUrls() throws {
         // Test rewriting of a `baseURL = "/"` (dynamic hosting) index.html
         let html = try fixtureString(for: "doc-index-dynamic-hosting.html")
         do {
@@ -84,7 +83,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteScriptBaseUrl() throws {
+    @Test func rewriteScriptBaseUrl() throws {
         do {  // test rewriting of "/" base url
             let doc = try SwiftSoup.parse(#"""
                 <script>var baseUrl = "/"</script>
@@ -119,7 +118,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteScriptBaseUrl_whiteSpace() throws {
+    @Test func rewriteScriptBaseUrl_whiteSpace() throws {
         // test rewriting of "/" base url with whitespace
         do {
             let doc = try SwiftSoup.parse(#"""
@@ -193,7 +192,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteAttribute_current() throws {
+    @Test func rewriteAttribute_current() throws {
         do {  // test rewriting of un-prefixed src attributes
             let doc = try SwiftSoup.parse(#"""
                 <script src="/js/index-1.js"></script>
@@ -251,7 +250,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteAttribute_toReference() throws {
+    @Test func rewriteAttribute_toReference() throws {
         do {  // test rewriting of un-prefixed src attributes
             let doc = try SwiftSoup.parse(#"""
                 <script src="/js/index-1.js"></script>

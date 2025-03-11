@@ -84,7 +84,7 @@ extension Element {
             for imageElement in imageElements {
                 if let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src")),
                    let absoluteUrl = imageUrl.rewriteRelative(to: repoTriple, fileType: .raw) {
-                    try imageElement.attr("src", absoluteUrl)
+                    _ = try imageElement.attr("src", absoluteUrl)
                 }
             }
         } catch {
@@ -99,7 +99,7 @@ extension Element {
             for linkElement in linkElements {
                 if let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href")),
                    let absoluteUrl = linkUrl.rewriteRelative(to: repoTriple, fileType: .blob) {
-                    try linkElement.attr("href", absoluteUrl)
+                    _ = try linkElement.attr("href", absoluteUrl)
                 }
             }
         } catch {
@@ -116,7 +116,7 @@ extension Element {
                 if linkDestination.hasPrefix("#") {
                     // GitHub adds `user-content` to all anchor destinations but does not change
                     // the anchors that link to the destinations or match the case that it uses. :rollseyes:
-                    try linkElement.attr("href", "#user-content-\(linkDestination.dropFirst().lowercased())")
+                    _ = try linkElement.attr("href", "#user-content-\(linkDestination.dropFirst().lowercased())")
                 }
             }
         } catch {
@@ -131,7 +131,7 @@ extension Element {
             for imageElement in imageElements {
                 let originalUrl = try imageElement.attr("data-canonical-src")
                 if originalUrl.hasPrefix("http") {
-                    try imageElement.attr("src", originalUrl)
+                    _ = try imageElement.attr("src", originalUrl)
                 }
             }
         } catch {
@@ -145,7 +145,7 @@ extension Element {
             let linkElements = try select("a")
             for linkElement in linkElements {
                 // Disable Turbo on *all* link elements.
-                try linkElement.attr("data-turbo", "false")
+                _ = try linkElement.attr("data-turbo", "false")
             }
         } catch {
             // Errors are being intentionally eaten here. The worst that can happen if the

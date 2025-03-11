@@ -15,27 +15,30 @@
 @testable import App
 
 import SQLKit
-import XCTest
+import Testing
 
 
-class SQLKitExtensionTests: AppTestCase {
+@Suite struct SQLKitExtensionTests {
 
-    func test_OrderByGroup() throws {
-        let b = SQLOrderBy(SQLIdentifier("id"), .ascending)
-            .then(SQLIdentifier("foo"), .descending)
-        XCTAssertEqual(renderSQL(b), #""id" ASC, "foo" DESC"#)
+    @Test func OrderByGroup() async throws {
+        try await withApp { app in
+            let b = SQLOrderBy(SQLIdentifier("id"), .ascending)
+                .then(SQLIdentifier("foo"), .descending)
+            #expect(app.db.renderSQL(b) == #""id" ASC, "foo" DESC"#)
+        }
     }
 
-    func test_OrderByGroup_complex() throws {
-        let packageName = SQLIdentifier("package_name")
-        let mergedTerms = SQLBind("a b")
-        let score = SQLIdentifier("score")
+    @Test func OrderByGroup_complex() async throws {
+        try await withApp { app in
+            let packageName = SQLIdentifier("package_name")
+            let mergedTerms = SQLBind("a b")
+            let score = SQLIdentifier("score")
 
-        let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
-            .then(score, .descending)
-            .then(packageName, .ascending)
-        XCTAssertEqual(renderSQL(orderBy),
-                       #"LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC"#)
+            let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
+                .then(score, .descending)
+                .then(packageName, .ascending)
+            #expect(app.db.renderSQL(orderBy) == #"LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC"#)
+        }
     }
 
 }

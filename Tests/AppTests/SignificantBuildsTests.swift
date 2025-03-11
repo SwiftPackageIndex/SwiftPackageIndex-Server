@@ -14,12 +14,12 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
 
-class SignificantBuildsTests: XCTestCase {
+@Suite struct SignificantBuildsTests {
 
-    func test_swiftVersionCompatibility() throws {
+    @Test func swiftVersionCompatibility() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .ok),
@@ -28,13 +28,13 @@ class SignificantBuildsTests: XCTestCase {
         ])
 
         // MUT
-        let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
+        let res = try #require(sb.swiftVersionCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [.v2, .v3])
+        #expect(res.sorted() == [.v2, .v3])
     }
 
-    func test_swiftVersionCompatibility_allPending() throws {
+    @Test func swiftVersionCompatibility_allPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .triggered),
@@ -46,10 +46,10 @@ class SignificantBuildsTests: XCTestCase {
         let res = sb.swiftVersionCompatibility()
 
         // validate
-        XCTAssertEqual(res, .pending)
+        #expect(res == .pending)
     }
 
-    func test_swiftVersionCompatibility_partialPending() throws {
+    @Test func swiftVersionCompatibility_partialPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .ok),
@@ -58,13 +58,13 @@ class SignificantBuildsTests: XCTestCase {
         ])
 
         // MUT
-        let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
+        let res = try #require(sb.swiftVersionCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [ .v3 ])
+        #expect(res.sorted() == [ .v3 ])
     }
 
-    func test_platformCompatibility() throws {
+    @Test func platformCompatibility() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .ok),
@@ -73,13 +73,13 @@ class SignificantBuildsTests: XCTestCase {
         ])
 
         // MUT
-        let res = try XCTUnwrap(sb.platformCompatibility().values)
+        let res = try #require(sb.platformCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [.macosSpm, .linux])
+        #expect(res.sorted() == [.macosSpm, .linux])
     }
 
-    func test_platformCompatibility_allPending() throws {
+    @Test func platformCompatibility_allPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .triggered),
@@ -91,10 +91,10 @@ class SignificantBuildsTests: XCTestCase {
         let res = sb.platformCompatibility()
 
         // validate
-        XCTAssertEqual(res, .pending)
+        #expect(res == .pending)
     }
 
-    func test_platformCompatibility_partialPending() throws {
+    @Test func platformCompatibility_partialPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v3, .linux, .ok),
@@ -103,10 +103,10 @@ class SignificantBuildsTests: XCTestCase {
         ])
 
         // MUT
-        let res = try XCTUnwrap(sb.platformCompatibility().values)
+        let res = try #require(sb.platformCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [ .linux ])
+        #expect(res.sorted() == [ .linux ])
     }
 
 }

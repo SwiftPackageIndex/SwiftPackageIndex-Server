@@ -16,12 +16,17 @@
 
 import Dependencies
 import SemanticVersion
-import XCTVapor
+import Testing
 
 
-final class MastodonTests: AppTestCase {
+@Suite struct MastodonTests {
 
-    func test_endToEnd() async throws {
+    @Test func apiURL() throws {
+        let url = try Mastodon.apiURL(with: "message")
+        #expect(url.contains("visibility=unlisted"), "was: \(url)")
+    }
+
+    @Test func endToEnd() async throws {
         let message = QueueIsolated<String?>(nil)
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
@@ -47,7 +52,7 @@ final class MastodonTests: AppTestCase {
                 if message.value == nil {
                     message.setValue(msg)
                 } else {
-                    XCTFail("message must only be set once")
+                    Issue.record("message must only be set once")
                 }
             }
             $0.shell.run = { @Sendable cmd, path in
@@ -57,67 +62,69 @@ final class MastodonTests: AppTestCase {
                 return ""
             }
         } operation: {
-            // setup
-            let url = "https://github.com/foo/bar"
+            try await withApp { app in
+                // setup
+                let url = "https://github.com/foo/bar"
 
-            try await withDependencies {
-                $0.date.now = .now
-                $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
-                $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
-                $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
-                $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
-            } operation: {
-                // run first two processing steps
-                try await reconcile(client: app.client, database: app.db)
-                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await withDependencies {
+                    $0.date.now = .now
+                    $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
+                    $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
+                    $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+                    $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
+                } operation: {
+                    // run first two processing steps
+                    try await reconcile(client: app.client, database: app.db)
+                    try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
-                // MUT - analyze, triggering the post
-                try await Analyze.analyze(client: app.client,
-                                          database: app.db,
-                                          mode: .limit(10))
+                    // MUT - analyze, triggering the post
+                    try await Analyze.analyze(client: app.client,
+                                              database: app.db,
+                                              mode: .limit(10))
 
-                do {
-                    let msg = try XCTUnwrap(message.value)
-                    XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
+                    do {
+                        let msg = try #require(message.value)
+                        #expect(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
+                    }
+
+                    // run stages again to simulate the cycle...
+                    message.setValue(nil)
+                    try await reconcile(client: app.client, database: app.db)
                 }
 
-                // run stages again to simulate the cycle...
-                message.setValue(nil)
-                try await reconcile(client: app.client, database: app.db)
-            }
-
-            try await withDependencies {
-                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
-            } operation: {
-                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
-
-                // MUT - analyze, triggering posts if any
-                try await Analyze.analyze(client: app.client,
-                                          database: app.db,
-                                          mode: .limit(10))
-            }
-
-            // validate - there are no new posts to send
-            XCTAssertNil(message.value)
-
-            // Now simulate receiving a package update: version 2.0.0
-            try await withDependencies {
-                $0.git.getTags = { @Sendable _ in [.tag(2, 0, 0)] }
-            } operation: {
                 try await withDependencies {
-                    // fast forward our clock by the deadtime interval again (*2) and re-ingest
-                    $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime * 2)
+                    $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
                 } operation: {
                     try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
-                    // MUT - analyze again
+
+                    // MUT - analyze, triggering posts if any
                     try await Analyze.analyze(client: app.client,
                                               database: app.db,
                                               mode: .limit(10))
                 }
 
-                // validate
-                let msg = try XCTUnwrap(message.value)
-                XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
+                // validate - there are no new posts to send
+                #expect(message.value == nil)
+
+                // Now simulate receiving a package update: version 2.0.0
+                try await withDependencies {
+                    $0.git.getTags = { @Sendable _ in [.tag(2, 0, 0)] }
+                } operation: {
+                    try await withDependencies {
+                        // fast forward our clock by the deadtime interval again (*2) and re-ingest
+                        $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime * 2)
+                    } operation: {
+                        try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+                        // MUT - analyze again
+                        try await Analyze.analyze(client: app.client,
+                                                  database: app.db,
+                                                  mode: .limit(10))
+                    }
+
+                    // validate
+                    let msg = try #require(message.value)
+                    #expect(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
+                }
             }
         }
     }

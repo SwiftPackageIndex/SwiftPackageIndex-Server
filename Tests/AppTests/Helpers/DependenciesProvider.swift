@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
+import Dependencies
+import DependenciesTestSupport
 import Testing
 
 
-@Suite struct ArrayStringExtensionTests {
+struct DependenciesProvider {
+  init(updateValues: @escaping @Sendable (inout DependencyValues) -> Void) {
+    self.updateValues = updateValues
+  }
 
-    @Test func pluralised() throws {
-        #expect([String]().pluralized() == "None")
-        #expect(["a"].pluralized() == "a")
-        #expect(["a", "b"].pluralized() == "a and b")
-        #expect(["a", "b", "c"].pluralized() == "a, b, and c")
+  var updateValues: @Sendable (inout DependencyValues) -> Void
+}
+
+
+extension Trait where Self == _DependenciesTrait {
+    static func dependencies(
+        _ provider: DependenciesProvider
+    ) -> Self {
+        .dependencies(provider.updateValues)
     }
-
 }

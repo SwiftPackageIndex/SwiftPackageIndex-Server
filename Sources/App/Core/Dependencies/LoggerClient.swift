@@ -39,6 +39,22 @@ extension LoggerClient {
 }
 
 
+#if DEBUG
+extension LoggerClient {
+    func set(to handler: LogHandler?) {
+        if let handler {
+            let logger = Logger(label: "test", factory: { _ in handler })
+            set(to: logger)
+        }
+    }
+
+    static var noop: Self {
+        .init(log: { _, _ in }, set: { _ in })
+    }
+}
+#endif
+
+
 extension LoggerClient: DependencyKey {
     static var liveValue: Self {
         .init(

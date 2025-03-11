@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+import Foundation
 
 @testable import App
 
 import Dependencies
+import Testing
 
 
-class BlogActionsModelTests: AppTestCase {
+@Suite struct BlogActionsModelTests {
 
-    func test_init_loadSummaries() async throws {
+    @Test func init_loadSummaries() async throws {
         try withDependencies {
             $0.fileManager.contents = { @Sendable _ in
                 """
@@ -45,19 +46,19 @@ class BlogActionsModelTests: AppTestCase {
                 // MUT
                 let summaries = try BlogActions.Model().summaries
 
-                XCTAssertEqual(summaries.count, 2)
-                XCTAssertEqual(summaries.map(\.slug), ["post-2", "post-1"])
-                XCTAssertEqual(summaries.map(\.published), [false, true])
-
-                let firstSummary = try XCTUnwrap(summaries).first
+                #expect(summaries.count == 2)
+                #expect(summaries.map(\.slug) == ["post-2", "post-1"])
+                #expect(summaries.map(\.published) == [false, true])
 
                 // Note that we are testing that the first item in this list is the *last* item in the source YAML
                 // as the init should reverse the order of posts so that they display in reverse chronological order
-                XCTAssertEqual(firstSummary, BlogActions.Model.PostSummary(slug: "post-2",
-                                                                           title: "Blog post title two",
-                                                                           summary: "Summary of blog post two",
-                                                                           publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
-                                                                           published: false))
+                #expect(summaries.first == BlogActions.Model.PostSummary(
+                    slug: "post-2",
+                    title: "Blog post title two",
+                    summary: "Summary of blog post two",
+                    publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
+                    published: false)
+                )
             }
 
             try withDependencies {  // Ensure prod shows only published summaries
@@ -67,13 +68,13 @@ class BlogActionsModelTests: AppTestCase {
                 let summaries = try BlogActions.Model().summaries
 
                 // validate
-                XCTAssertEqual(summaries.map(\.slug), ["post-1"])
-                XCTAssertEqual(summaries.map(\.published), [true])
+                #expect(summaries.map(\.slug) == ["post-1"])
+                #expect(summaries.map(\.published) == [true])
             }
         }
     }
 
-    func test_postSummary_postMarkdown_load() async throws {
+    @Test func postSummary_postMarkdown_load() async throws {
         withDependencies {
             $0.fileManager.contents = { @Sendable _ in
                 """
@@ -86,11 +87,11 @@ class BlogActionsModelTests: AppTestCase {
             // MUT
             let markdown = summary.postMarkdown
 
-            XCTAssertEqual(markdown, "<p>This is some Markdown with <a href=\"https://example.com\">a link</a> and some <em>formatting</em>.</p>")
+            #expect(markdown == "<p>This is some Markdown with <a href=\"https://example.com\">a link</a> and some <em>formatting</em>.</p>")
         }
     }
 
-    func test_decode_posts_yml() async throws {
+    @Test func decode_posts_yml() async throws {
         // setup
         try withDependencies {
             $0.fileManager.contents = FileManagerClient.liveValue.contents(atPath:)
@@ -98,9 +99,9 @@ class BlogActionsModelTests: AppTestCase {
         } operation: {
             // MUT
             let summaries = try BlogActions.Model.allSummaries()
-            
+
             // validate
-            XCTAssert(summaries.count > 0)
+            #expect(summaries.count > 0)
         }
     }
 

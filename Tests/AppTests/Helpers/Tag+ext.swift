@@ -12,28 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Foundation
-import SnapshotTesting
-import Dependencies
+import Testing
 
 
-class SnapshotTestCase: AppTestCase {
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-    }
-    
-    override func invokeTest() {
-        // To force a re-record of all snapshots, use `record: .all` rather than `record: .missing`.
-        withSnapshotTesting(record: .missing, diffTool: .ksdiff) {
-            withDependencies {
-                $0.date.now = .t0
-            } operation: {
-                super.invokeTest()
-            }
-        }
-    }
-
+extension Tag {
+    @Tag static var performance: Self
 }

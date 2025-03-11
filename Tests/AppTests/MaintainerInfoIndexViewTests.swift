@@ -14,21 +14,20 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
-final class MaintainerInfoIndexViewTests: XCTestCase {
 
-    func test_spiManifestCommonUseCasesDocLink() throws {
-        XCTAssertEqual(
-            MaintainerInfoIndex.View.spiManifestCommonUseCasesDocLink(.linuxImages),
-            "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest/commonusecases#linuxImages"
+@Suite struct MaintainerInfoIndexViewTests {
+
+    @Test func spiManifestCommonUseCasesDocLink() throws {
+        #expect(
+            MaintainerInfoIndex.View.spiManifestCommonUseCasesDocLink(.linuxImages) == "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest/commonusecases#linuxImages"
         )
     }
     
-    func test_spiManifestDocLink() throws {
-        XCTAssertEqual(
-            MaintainerInfoIndex.View.spiManifestDocLink(),
-            "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest"
+    @Test func spiManifestDocLink() throws {
+        #expect(
+            MaintainerInfoIndex.View.spiManifestDocLink() == "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest"
         )
     }
     
