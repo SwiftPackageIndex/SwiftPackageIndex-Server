@@ -144,51 +144,39 @@ func routes(_ app: Application) throws {
     if environment.current() != .production {
         do {
             redirect.get(SiteURL.portal.pathComponents, use: Portal.PortalController.show)
-                .excludeFromOpenAPI()
         }
         
         do {
             auth.get(SiteURL.login.pathComponents, use: Portal.LoginController.show)
             auth.post(SiteURL.login.pathComponents, use: Portal.LoginController.login)
-                .excludeFromOpenAPI()
         }
         
         do {
             auth.get(SiteURL.signup.pathComponents, use: Portal.SignupController.show)
-                .excludeFromOpenAPI()
             auth.post(SiteURL.signup.pathComponents, use: Portal.SignupController.signup)
-                .excludeFromOpenAPI()
         }
         
         do {
             auth.get(SiteURL.verify.pathComponents, use: Portal.VerifyController.show)
-                .excludeFromOpenAPI()
             auth.post(SiteURL.verify.pathComponents, use: Portal.VerifyController.verify)
-                .excludeFromOpenAPI()
         }
         
         do {
             auth.post(SiteURL.logout.pathComponents, use: Portal.LogoutController.logout)
-                .excludeFromOpenAPI()
         }
         
         do {
             auth.post(SiteURL.deleteAccount.pathComponents, use: Portal.DeleteAccountController.deleteAccount)
-                .excludeFromOpenAPI()
         }
         
         do {
             app.get(SiteURL.forgotPassword.pathComponents, use: Portal.ForgotPasswordController.show)
-                .excludeFromOpenAPI()
             app.post(SiteURL.forgotPassword.pathComponents, use: Portal.ForgotPasswordController.forgotPasswordEmail)
-                .excludeFromOpenAPI()
         }
         
         do {
             app.get(SiteURL.resetPassword.pathComponents, use: Portal.ResetController.show)
-                .excludeFromOpenAPI()
             app.post(SiteURL.resetPassword.pathComponents, use: Portal.ResetController.resetPassword)
-                .excludeFromOpenAPI()
         }
     }
 
