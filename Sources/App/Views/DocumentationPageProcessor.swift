@@ -280,19 +280,37 @@ struct DocumentationPageProcessor {
                         .li(
                             .a(
                                 .href(SiteURL.privacy.relativeURL()),
-                                "Privacy and Cookies"
+                                "Privacy"
                             )
                         ),
                         .li(
                             .a(
                                 .href("https://swiftpackageindex.statuspage.io"),
-                                "Uptime and System Status"
+                                "System Status"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(SiteURL.buildMonitor.relativeURL()),
+                                "Build System Monitor"
                             )
                         ),
                         .li(
                             .a(
                                 .href(ExternalURL.mastodon),
                                 "Mastodon"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(ExternalURL.podcast),
+                                "Podcast"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(SiteURL.readyForSwift6.relativeURL()),
+                                "Ready for Swift 6"
                             )
                         )
                     )
