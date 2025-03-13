@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import Testing
+import Dependencies
 
 
-@Suite struct AllTests { }
+@Suite(.dependency(\.date.now, .t0)) struct AllTests { }
 
 
 extension AllTests {
@@ -29,7 +30,6 @@ extension AllTests {
     @Suite struct API_PackageSchemaTests { }
     @Suite struct ApiTests { }
     @Suite struct AppEnvironmentTests { }
-    @Suite struct AppTestCase { }
     @Suite struct AppTests { }
     @Suite struct ArrayExtensionTests { }
     @Suite struct ArrayStringExtensionTests { }
@@ -46,7 +46,6 @@ extension AllTests {
     @Suite struct BuildTriggerTests { }
     @Suite struct CustomCollectionControllerTests { }
     @Suite struct CustomCollectionTests { }
-    @Suite struct DatabasePoolTests { }
     @Suite struct DefaultStringInterpolationTests { }
     @Suite struct DocUploadTests { }
     @Suite struct DocumentationPageProcessorTests { }
@@ -60,6 +59,7 @@ extension AllTests {
     @Suite struct GitTests { }
     @Suite struct GithubTests { }
     @Suite struct GitlabBuilderTests { }
+    @Suite struct LiveGitlabBuilderTests { }
     @Suite struct HomeIndexModelTests { }
     @Suite struct IngestionTests { }
     @Suite struct IntExtTests { }
@@ -89,7 +89,6 @@ extension AllTests {
     @Suite struct PipelineTests { }
     @Suite struct PlausibleTests { }
     @Suite struct ProductTests { }
-    @Suite struct QueryPerformanceTests { }
     @Suite struct QueryPlanTests { }
     @Suite struct RSSTests { }
     @Suite struct ReAnalyzeVersionsTests { }
@@ -110,16 +109,13 @@ extension AllTests {
     @Suite struct SignificantBuildsTests { }
     @Suite struct SiteURLTests { }
     @Suite struct SitemapTests { }
-    @Suite struct SnapshotTestCase { }
     @Suite struct SocialTests { }
     @Suite struct StatsTests { }
     @Suite struct StringExtTests { }
     @Suite struct SwiftVersionTests { }
     @Suite struct TargetTests { }
-    @Suite struct Util { }
     @Suite struct ValidateSPIManifestControllerTests { }
     @Suite struct VersionDiffTests { }
     @Suite struct VersionTests { }
     @Suite struct ViewUtilsTests { }
-    @Suite struct WebpageSnapshotTests { }
 }

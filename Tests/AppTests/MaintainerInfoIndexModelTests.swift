@@ -20,8 +20,7 @@ import SnapshotTesting
 import Testing
 
 
-@Suite(.dependency(\.date.now, .t0))
-struct MaintainerInfoIndexModelTests {
+extension AllTests.MaintainerInfoIndexModelTests {
 
     @Test func badgeURL() throws {
         withDependencies {
