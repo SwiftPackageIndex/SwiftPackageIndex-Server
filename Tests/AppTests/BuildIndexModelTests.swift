@@ -20,7 +20,7 @@ import Plot
 import Testing
 
 
-@Suite struct BuildIndexModelTests {
+extension AllTests.BuildIndexModelTests {
 
     @Test func init_no_name() async throws {
         // Tests behaviour when we're lacking data

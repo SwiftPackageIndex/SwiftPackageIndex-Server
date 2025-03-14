@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct FundingLinkTests {
+extension AllTests.FundingLinkTests {
 
     @Test func fundingLink_missingSchemeFix() async throws {
         // URL with both a scheme and a host.

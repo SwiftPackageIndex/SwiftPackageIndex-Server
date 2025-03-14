@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct HomeIndexModelTests {
+extension AllTests.HomeIndexModelTests {
 
     @Test func query() async throws {
         try await withApp { app in

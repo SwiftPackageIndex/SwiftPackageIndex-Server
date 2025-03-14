@@ -22,17 +22,17 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageCollectionTests {
+extension AllTests.PackageCollectionTests {
 
-    let encoder: JSONEncoder = {
+    typealias VersionResult = PackageCollection.VersionResult
+    typealias VersionResultGroup = PackageCollection.VersionResultGroup
+
+    var encoder: JSONEncoder {
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
         e.dateEncodingStrategy = .iso8601
         return e
-    }()
-
-    typealias VersionResult = PackageCollection.VersionResult
-    typealias VersionResultGroup = PackageCollection.VersionResultGroup
+    }
 
     @Test func query_filter_urls() async throws {
         // Tests PackageResult.query with the url filter option

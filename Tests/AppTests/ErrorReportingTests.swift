@@ -20,9 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct ErrorReportingTests {
-
-    let capturingLogger = CapturingLogger()
+extension AllTests.ErrorReportingTests {
 
     @Test func Analyze_recordError() async throws {
         try await withApp { app in
@@ -38,13 +36,15 @@ import Testing
     }
 
     @Test func Ingestion_error_reporting() async throws {
-        try await withApp(logHandler: capturingLogger) { app in
+        let capturingLogger = CapturingLogger()
+        try await withApp { app in
             // setup
             try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
 
             try await withDependencies {
                 $0.date.now = .now
                 $0.github.fetchMetadata = { @Sendable _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
+                $0.logger.set(to: capturingLogger)
             } operation: {
                 // MUT
                 try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -59,16 +59,18 @@ import Testing
     }
 
     @Test func Analyzer_error_reporting() async throws {
-        try await withDependencies {
-            $0.fileManager.fileExists = { @Sendable _ in true }
-            $0.shell.run = { @Sendable cmd, _ in
-                if cmd.description == "git tag" { return "1.0.0" }
-                // returning a blank string will cause an exception when trying to
-                // decode it as the manifest result - we use this to simulate errors
-                return "invalid"
-            }
-        } operation: {
-            try await withApp(logHandler: capturingLogger) { app in
+        try await withApp { app in
+            let capturingLogger = CapturingLogger()
+            try await withDependencies {
+                $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: capturingLogger)
+                $0.shell.run = { @Sendable cmd, _ in
+                    if cmd.description == "git tag" { return "1.0.0" }
+                    // returning a blank string will cause an exception when trying to
+                    // decode it as the manifest result - we use this to simulate errors
+                    return "invalid"
+                }
+            } operation: {
                 // setup
                 try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
 

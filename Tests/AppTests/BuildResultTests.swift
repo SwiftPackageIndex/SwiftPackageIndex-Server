@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct BuildResultTests {
+extension AllTests.BuildResultTests {
 
     @Test func query() async throws {
         try await withApp { app in

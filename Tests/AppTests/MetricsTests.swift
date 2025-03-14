@@ -21,7 +21,7 @@ import Prometheus
 import Testing
 
 
-@Suite struct MetricsTests {
+extension AllTests.MetricsTests {
 
     @Test func basic() async throws {
         try await withDependencies {

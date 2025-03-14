@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct DefaultStringInterpolationTests {
+extension AllTests.DefaultStringInterpolationTests {
 
     @Test func inWords_timeDifference() throws {
         let m = 60

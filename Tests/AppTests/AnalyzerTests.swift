@@ -26,7 +26,7 @@ import Vapor
 @preconcurrency import ShellOut
 
 
-@Suite struct AnalyzerTests {
+extension AllTests.AnalyzerTests {
 
     @Test func analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we
@@ -1441,7 +1441,7 @@ import Vapor
         // Ensure `latest` remains set in case of AppError.noValidVersions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         let capturingLogger = CapturingLogger()
-        try await withApp(logHandler: capturingLogger) { app in
+        try await withApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -1456,6 +1456,7 @@ import Vapor
                 1\tPerson 2
                 """
                 }
+                $0.logger.set(to: capturingLogger)
                 $0.shell.run = { @Sendable _, _ in return "" }
             } operation: {
                 let pkgId = UUID()

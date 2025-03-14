@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageController_BuildsRoute_BuildInfoTests {
+extension AllTests.PackageController_BuildsRoute_BuildInfoTests {
 
     @Test func buildStatus() throws {
         // Test build status aggregation, in particular see

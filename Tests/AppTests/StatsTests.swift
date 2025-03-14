@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct StatsTests {
+extension AllTests.StatsTests {
 
     @Test func fetch() async throws {
         try await withApp { app in

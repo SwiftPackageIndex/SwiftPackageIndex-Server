@@ -20,7 +20,7 @@ import Testing
 import Vapor
 
 
-@Suite struct SiteURLTests {
+extension AllTests.SiteURLTests {
 
     @Test func pathComponents_simple() throws {
         let p = SiteURL.privacy.pathComponents

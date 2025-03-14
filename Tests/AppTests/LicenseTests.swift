@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct LicenseTests {
+extension AllTests.LicenseTests {
 
     @Test func init_from_dto() throws {
         #expect(License(from: Github.Metadata.LicenseInfo(key: "mit")) == .mit)

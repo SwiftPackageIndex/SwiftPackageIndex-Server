@@ -19,7 +19,7 @@ import Testing
 @preconcurrency import Parsing
 
 
-@Suite struct QueryPlanTests {
+extension AllTests.QueryPlanTests {
     
     @Test func cost_parse() throws {
         #expect(

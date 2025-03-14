@@ -23,7 +23,7 @@ import Vapor
 @preconcurrency import Plot
 
 
-@Suite struct SitemapTests {
+extension AllTests.SitemapTests {
 
     @Test(.dependency(\.date.now, .t0))
     func siteMapIndex() async throws {

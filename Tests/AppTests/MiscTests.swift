@@ -20,7 +20,7 @@ import Testing
 
 
 /// Tests for utilities and extesions that don't each need a full separate test class
-@Suite struct MiscTests {
+extension AllTests.MiscTests {
 
     @Test func Array_queryString() throws {
         // Single parameter

@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct ReAnalyzeVersionsTests {
+extension AllTests.ReAnalyzeVersionsTests {
 
     @Test func reAnalyzeVersions() async throws {
         // Basic end-to-end test

@@ -21,7 +21,7 @@ import ShellOut
 import Testing
 
 
-@Suite struct GitLiveTests {
+extension AllTests.GitLiveTests {
 
     @Test func commitCount() async throws {
         try await withGitRepository(defaultDependencies) { path throws in
@@ -116,7 +116,7 @@ private func withGitRepository(
 }
 
 
-extension GitLiveTests {
+extension AllTests.GitLiveTests {
 #if compiler(>=6.1)
 #warning("Move this into a trait on @Test")
     // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details

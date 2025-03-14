@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct RoutesTests {
+extension AllTests.RoutesTests {
 
     @Test func documentation_images() async throws {
         try await withDependencies {

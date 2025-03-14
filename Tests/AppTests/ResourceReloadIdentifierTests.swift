@@ -19,7 +19,8 @@ import Testing
 import Vapor
 
 
-@Suite struct ResourceReloadIdentifierTests {
+extension AllTests.ResourceReloadIdentifierTests {
+
     @Test func withAppVersion() throws {
         withDependencies {
             $0.environment.appVersion = { "1.2.3" }
@@ -27,4 +28,5 @@ import Vapor
             #expect(ResourceReloadIdentifier.value == "1.2.3")
         }
     }
+
 }

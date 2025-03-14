@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct Joined3Tests {
+extension AllTests.Joined3Tests {
 
     @Test func query_no_version() async throws {
         try await withApp { app in

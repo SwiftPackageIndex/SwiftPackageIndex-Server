@@ -19,7 +19,7 @@ import SemanticVersion
 import Testing
 
 
-@Suite struct MastodonTests {
+extension AllTests.MastodonTests {
 
     @Test func apiURL() throws {
         let url = try Mastodon.apiURL(with: "message")

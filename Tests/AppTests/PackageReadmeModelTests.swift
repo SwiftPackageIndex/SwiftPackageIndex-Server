@@ -21,7 +21,7 @@ import SwiftSoup
 import Testing
 
 
-@Suite struct PackageReadmeModelTests {
+extension AllTests.PackageReadmeModelTests {
 
     @Test func Element_extractReadme() throws {
         let element = Element.extractReadme("""

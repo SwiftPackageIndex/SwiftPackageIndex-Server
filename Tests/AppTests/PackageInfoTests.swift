@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct PackageInfoTests {
+extension AllTests.PackageInfoTests {
 
     @Test func title_package_name() async throws {
         // Ensure title is populated from package.name()

@@ -23,7 +23,7 @@ import Testing
 import Vapor
 
 
-@Suite struct SocialTests {
+extension AllTests.SocialTests {
 
     @Test func versionUpdateMessage() throws {
         #expect(

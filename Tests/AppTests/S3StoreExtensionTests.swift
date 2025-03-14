@@ -19,7 +19,7 @@ import S3Store
 import Testing
 
 
-@Suite struct S3StoreExtensionTests {
+extension AllTests.S3StoreExtensionTests {
 
     @Test func Key_readme() throws {
         try withDependencies {

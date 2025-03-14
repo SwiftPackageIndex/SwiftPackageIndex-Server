@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct ErrorMiddlewareTests {
+extension AllTests.ErrorMiddlewareTests {
 
     func setup(_ app: Application) async throws {
         // set up some test routes

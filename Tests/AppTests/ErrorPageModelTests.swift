@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct ErrorPageModelTests {
+extension AllTests.ErrorPageModelTests {
 
     @Test func error_500() throws {
         // setup

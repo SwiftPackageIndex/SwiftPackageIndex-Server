@@ -20,7 +20,7 @@ import SemanticVersion
 import Testing
 
 
-@Suite struct ReferenceTests {
+extension AllTests.ReferenceTests {
 
     @Test func Refernce_init() throws {
         #expect(Reference("1.2.3") == .tag(1, 2, 3))

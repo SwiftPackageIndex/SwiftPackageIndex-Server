@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct SignificantBuildsTests {
+extension AllTests.SignificantBuildsTests {
 
     @Test func swiftVersionCompatibility() throws {
         // setup

@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct PlausibleTests {
+extension AllTests.PlausibleTests {
 
     @Test func User_identifier() throws {
         #expect(User.api(for: "token") == .init(name: "api", identifier: "3c469e9d"))

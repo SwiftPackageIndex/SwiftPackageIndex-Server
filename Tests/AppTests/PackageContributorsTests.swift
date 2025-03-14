@@ -18,7 +18,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct PackageContributorsTests  {
+extension AllTests.PackageContributorsTests  {
 
     @Test func packageAuthors_hasAuthors() throws {
         let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)

@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct IntExtTests {
+extension AllTests.IntExtTests {
 
     @Test func pluralizedCount() throws {
         #expect(0.labeled("executable") == "no executables")

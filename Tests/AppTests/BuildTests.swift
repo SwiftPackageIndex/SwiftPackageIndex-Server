@@ -24,7 +24,7 @@ import Testing
 import Vapor
 
 
-@Suite struct BuildTests {
+extension AllTests.BuildTests {
 
     @Test func save() async throws {
         try await withApp { app in

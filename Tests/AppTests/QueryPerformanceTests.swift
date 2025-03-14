@@ -20,12 +20,17 @@ import Testing
 import Vapor
 
 
-@Suite(
-    .serialized,
-    .tags(.performance),
-    .disabled(if: !runQueryPerformanceTests())
-)
-struct QueryPerformanceTests {
+extension AllTests {
+    @Suite(
+        .serialized,
+        .tags(.performance),
+        .disabled(if: !runQueryPerformanceTests())
+    )
+    struct QueryPerformanceTests { }
+}
+
+
+extension AllTests.QueryPerformanceTests {
     // Set this to true when running locally to convert warnings to test failures for easier updating of values.
     static let failOnWarning = false
 
@@ -220,7 +225,7 @@ extension SQLQueryBuilder {
 }
 
 
-private extension QueryPerformanceTests {
+private extension AllTests.QueryPerformanceTests {
 
     func assertQueryPerformance(_ query: SQLQueryBuilder,
                                 expectedCost: Double,

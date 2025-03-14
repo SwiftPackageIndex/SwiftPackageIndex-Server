@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct DocumentationTargetTests {
+extension AllTests.DocumentationTargetTests {
 
     @Test func external() async throws {
         // Test external doc url lookup

@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct LiveTests {
+extension AllTests.LiveTests {
 
     @Test(
         .disabled("Only run this test manually to confirm posting works")
