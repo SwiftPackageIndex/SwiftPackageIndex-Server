@@ -37,14 +37,26 @@ actor DatabasePool {
     var availableDatabases: Set<DatabaseInfo> = .init()
 
     func setUp() async throws {
-        for _ in (0..<maxCount) {
-            availableDatabases.insert(try await launchDB())
+        try await withThrowingTaskGroup(of: DatabaseInfo.self) { group in
+            for _ in (0..<maxCount) {
+                group.addTask {
+                    try await self.launchDB()
+                }
+            }
+            for try await info in group {
+                availableDatabases.insert(info)
+            }
         }
     }
 
     func tearDown() async throws {
-        for dbInfo in availableDatabases {
-            try await removeDB(dbInfo: dbInfo)
+        try await withThrowingTaskGroup { group in
+            for dbInfo in availableDatabases {
+                group.addTask {
+                    try await self.removeDB(dbInfo: dbInfo)
+                }
+            }
+            try await group.waitForAll()
         }
     }
 
