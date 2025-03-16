@@ -13,72 +13,39 @@
 // limitations under the License.
 
 import Dependencies
-import DependenciesMacros
+import IssueReporting
 import Logging
-import Synchronization
 
 
-@DependencyClient
-struct LoggerClient {
-    var log: @Sendable (_ level: Logging.Logger.Level, Logging.Logger.Message) -> Void
-    var set: @Sendable (_ to: Logging.Logger) -> Void
-}
-
-
-extension LoggerClient {
-    func critical(_ message: Logging.Logger.Message) { log(.critical, message) }
-    func debug(_ message: Logging.Logger.Message) { log(.debug, message) }
-    func error(_ message: Logging.Logger.Message) { log(.error, message) }
-    func info(_ message: Logging.Logger.Message) { log(.info, message) }
-    func warning(_ message: Logging.Logger.Message) { log(.warning, message) }
-    func trace(_ message: Logging.Logger.Message) { log(.trace, message) }
-    func report(error: Error, file: String = #fileID, function: String = #function, line: UInt = #line) {
-        logger.report(error: error, file: file, function: function, line: line)
+private enum LoggerClient: DependencyKey {
+    static var liveValue: Logger {
+        reportIssue("The default logger is being used. Override this dependency in the entry point of your app.")
+        return Logging.Logger(label: "default")
     }
-    var logger: Logging.Logger { Self._logger.withLock { $0 } }
-}
-
-
-#if DEBUG
-extension LoggerClient {
-    func set(to handler: LogHandler?) {
-        if let handler {
-            let logger = Logger(label: "test", factory: { _ in handler })
-            set(to: logger)
-        }
-    }
-
-    static var noop: Self {
-        .init(log: { _, _ in }, set: { _ in })
-    }
-}
-#endif
-
-
-extension LoggerClient: DependencyKey {
-    static var liveValue: Self {
-        .init(
-            log: { level, message in
-                _logger.withLock { $0.log(level: level, message) }
-            },
-            set: { logger in
-                _logger.withLock { $0 = logger }
-            }
-        )
-    }
-
-    private static let _logger = Mutex(Logging.Logger(component: "default"))
 }
 
 
 extension LoggerClient: TestDependencyKey {
-    static var testValue: Self { liveValue }
+    static var testValue: Logger {
+        unimplemented("testValue"); return .init(label: "test")
+    }
 }
 
 
 extension DependencyValues {
-    var logger: LoggerClient {
+    public var logger: Logger {
         get { self[LoggerClient.self] }
         set { self[LoggerClient.self] = newValue }
     }
 }
+
+
+#if DEBUG
+extension Logger {
+    static var noop: Self { .init(label: "noop") { _ in SwiftLogNoOpLogHandler() } }
+
+    static func testLogger(_ handler: LogHandler) -> Self {
+        .init(label: "test", factory: { _ in handler })
+    }
+}
+#endif
