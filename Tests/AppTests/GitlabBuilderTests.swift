@@ -82,6 +82,7 @@ extension AllTests.GitlabBuilderTests {
                 )
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
+            $0.logger = .noop
         } operation: {
             // MUT
             _ = try await Gitlab.Builder.triggerBuild(buildId: buildId,
@@ -112,6 +113,7 @@ extension AllTests.GitlabBuilderTests {
                 #expect(swiftVersion == "6.0")
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
+            $0.logger = .noop
         } operation: {
             // MUT
             _ = try await Gitlab.Builder.triggerBuild(buildId: .id0,

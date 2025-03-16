@@ -1059,6 +1059,7 @@ extension AllTests.AnalyzerTests {
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1080,6 +1081,7 @@ extension AllTests.AnalyzerTests {
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1100,6 +1102,7 @@ extension AllTests.AnalyzerTests {
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1126,6 +1129,9 @@ extension AllTests.AnalyzerTests {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
+        try await withDependencies {
+            $0.logger = .noop
+        } operation: {
         try await withTempDir { @Sendable tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
@@ -1148,6 +1154,7 @@ extension AllTests.AnalyzerTests {
             assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
 #endif
         }
+    }
     }
 
     @Test func issue_577() async throws {
@@ -1456,7 +1463,7 @@ extension AllTests.AnalyzerTests {
                 1\tPerson 2
                 """
                 }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable _, _ in return "" }
             } operation: {
                 let pkgId = UUID()

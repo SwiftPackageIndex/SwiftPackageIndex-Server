@@ -23,6 +23,10 @@ func withApp(_ setup: (Application) async throws -> Void = { _ in },
              _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
              environment: Environment = .testing,
              _ test: (Application) async throws -> Void) async throws {
+    prepareDependencies {
+        $0.logger = .noop
+    }
+
     try await TestSupport.setupDb(environment)
     let app = try await TestSupport.setupApp(environment)
 
@@ -47,10 +51,6 @@ enum TestSupport {
     static func setupApp(_ environment: Environment, databasePort: Int? = nil) async throws -> Application {
         let app = try await Application.make(environment)
         try await configure(app, databasePort: databasePort)
-
-        // Silence app logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
-
         return app
     }
 
