@@ -1456,7 +1456,7 @@ extension AllTests.AnalyzerTests {
                 1\tPerson 2
                 """
                 }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable _, _ in return "" }
             } operation: {
                 let pkgId = UUID()

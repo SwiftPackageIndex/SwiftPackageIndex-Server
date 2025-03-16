@@ -23,14 +23,15 @@ struct ReconcileCommand: AsyncCommand {
     var help: String { "Reconcile package list with server" }
 
     func run(using context: CommandContext, signature: Signature) async throws {
+        prepareDependencies{
+            $0.logger = Logger(component: "reconcile")
+        }
         @Dependency(\.logger) var logger
-        logger.set(to: Logger(component: "reconcile"))
 
         logger.info("Reconciling...")
 
         do {
-            try await reconcile(client: context.application.client,
-                                database: context.application.db)
+            try await reconcile(client: context.application.client, database: context.application.db)
         } catch {
             logger.error("\(error)")
         }
@@ -38,8 +39,7 @@ struct ReconcileCommand: AsyncCommand {
         logger.info("done.")
 
         do {
-            try await AppMetrics.push(client: context.application.client,
-                                      jobName: "reconcile")
+            try await AppMetrics.push(client: context.application.client, jobName: "reconcile")
         } catch {
             logger.warning("\(error)")
         }

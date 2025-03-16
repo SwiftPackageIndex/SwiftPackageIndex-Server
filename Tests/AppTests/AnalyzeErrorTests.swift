@@ -66,7 +66,7 @@ extension AllTests.AnalyzeErrorTests {
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case _ where cmd.description.contains("git clone https://github.com/foo/1"):
@@ -100,7 +100,7 @@ extension AllTests.AnalyzeErrorTests {
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // setup
                 let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -130,7 +130,7 @@ extension AllTests.AnalyzeErrorTests {
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
@@ -166,7 +166,7 @@ extension AllTests.AnalyzeErrorTests {
                     }
                     return true
                 }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,

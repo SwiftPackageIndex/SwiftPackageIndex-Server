@@ -413,7 +413,7 @@ extension AllTests.IngestionTests {
                         summary: "desc")
                 }
                 $0.github.fetchReadme = { @Sendable _, _ in nil }
-                $0.logger.set(to: capturingLogger)
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // MUT
                 try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))

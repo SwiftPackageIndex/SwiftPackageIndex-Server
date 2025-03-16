@@ -82,10 +82,13 @@ enum Ingestion {
         var help: String { "Run package ingestion (fetching repository metadata)" }
 
         func run(using context: CommandContext, signature: SPICommand.Signature) async {
+            prepareDependencies {
+                $0.logger = Logger(component: "ingest")
+            }
+            @Dependency(\.logger) var logger
+
             let client = context.application.client
             let db = context.application.db
-            @Dependency(\.logger) var logger
-            logger.set(to: Logger(component: "ingest"))
 
             Self.resetMetrics()
 

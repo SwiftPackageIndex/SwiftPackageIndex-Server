@@ -178,6 +178,7 @@ extension AllTests.GithubTests {
         await withDependencies {
             $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in .badRequest }
+            $0.logger = .noop
         } operation: {
             do {
                 _ = try await Github.fetchMetadata(owner: "alamofire",
@@ -219,6 +220,7 @@ extension AllTests.GithubTests {
         await withDependencies {
             $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in .tooManyRequests }
+            $0.logger = .noop
         } operation: {
             // MUT
             do {
@@ -273,7 +275,7 @@ extension AllTests.GithubTests {
             $0.httpClient.post = { @Sendable _, _, _ in
                     .init(status: .forbidden, headers: ["X-RateLimit-Remaining": "0"])
             }
-            $0.logger.set(to: capturingLogger)
+            $0.logger = .testLogger(capturingLogger)
         } operation: {
             // MUT
             do {
@@ -367,6 +369,7 @@ extension AllTests.GithubTests {
         await withDependencies {
             $0.github.token = { "secr3t" }
             $0.httpClient.get = { @Sendable _, headers in .notFound }
+            $0.logger = .noop
         } operation: {
             // MUT
             let res = await Github.fetchReadme(owner: "foo", repository: "bar")
