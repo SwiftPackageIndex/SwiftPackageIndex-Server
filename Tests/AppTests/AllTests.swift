@@ -55,7 +55,6 @@ extension AllTests {
     @Suite struct ErrorPageModelTests { }
     @Suite struct ErrorReportingTests { }
     @Suite struct FundingLinkTests { }
-    @Suite struct GitLiveTests { }
     @Suite struct GitTests { }
     @Suite struct GithubTests { }
     @Suite struct GitlabBuilderTests { }
