@@ -15,7 +15,10 @@
 import Foundation
 
 import App
+import PostgresNIO
 import ShellOut
+import Vapor
+
 
 
 actor DatabasePool {
@@ -40,7 +43,9 @@ actor DatabasePool {
         try await withThrowingTaskGroup(of: Database.self) { group in
             for _ in (0..<maxCount) {
                 group.addTask {
-                    try await self.launchDB()
+                    let db = try await self.launchDB()
+                    try await db.setup(for: .testing)
+                    return db
                 }
             }
             for try await info in group {
@@ -107,34 +112,40 @@ actor DatabasePool {
 }
 
 
-import PostgresNIO
-import Vapor
-
 extension DatabasePool.Database {
 
-    func setupDb(_ environment: Environment) async throws {
-        await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
+    struct ConnectionDetails {
+        var host: String
+        var port: Int
+        var username: String
+        var password: String
 
-        // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
-        // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
-        // and to ensure the database resetting cannot impact any other network hosts.
-        let host = Environment.get("DATABASE_HOST")!
-        precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
-                     "DATABASE_HOST must be a local db, was: \(host)")
-
-        let testDbName = Environment.get("DATABASE_NAME")!
-        let snapshotName = testDbName + "_snapshot"
-
-        // Create initial db snapshot
-        try await createSchema(environment, databaseName: testDbName)
-        try await createSnapshot(original: testDbName, snapshot: snapshotName, environment: environment)
-
-        try await restoreSnapshot(original: testDbName, snapshot: snapshotName, environment: environment)
+        init(with environment: Environment, port: Int) {
+            // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
+            // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
+            // and to ensure the database resetting cannot impact any other network hosts.
+            self.host = Environment.get("DATABASE_HOST")!
+            precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
+                         "DATABASE_HOST must be a local db, was: \(host)")
+            self.port = port
+            self.username = Environment.get("DATABASE_USERNAME")!
+            self.password = Environment.get("DATABASE_PASSWORD")!
+        }
     }
 
-    func createSchema(_ environment: Environment, databaseName: String) async throws {
+    func setup(for environment: Environment) async throws {
+        await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
+        let details = ConnectionDetails(with: environment, port: port)
+
+        // Create initial db snapshot
+        try await createSchema(environment, details: details)
+        try await createSnapshot(details: details)
+    }
+
+    func createSchema(_ environment: Environment, details: ConnectionDetails) async throws {
         do {
-            try await _withDatabase("postgres", port: port, environment) {  // Connect to `postgres` db in order to reset the test db
+            try await _withDatabase("postgres", details: details) {  // Connect to `postgres` db in order to reset the test db
+                let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
             }
@@ -152,9 +163,11 @@ extension DatabasePool.Database {
         }
     }
 
-    func createSnapshot(original: String, snapshot: String, environment: Environment) async throws {
+    func createSnapshot(details: ConnectionDetails) async throws {
+        let original = Environment.get("DATABASE_NAME")!
+        let snapshot = original + "_snapshot"
         do {
-            try await _withDatabase("postgres", port: port, environment) { client in
+            try await _withDatabase("postgres", details: details) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
             }
@@ -164,12 +177,12 @@ extension DatabasePool.Database {
         }
     }
 
-    func restoreSnapshot(original: String,
-                         snapshot: String,
-                         environment: Environment) async throws {
+    func restoreSnapshot(details: ConnectionDetails) async throws {
+        let original = Environment.get("DATABASE_NAME")!
+        let snapshot = original + "_snapshot"
         // delete db and re-create from snapshot
         do {
-            try await _withDatabase("postgres", port: port, environment) { client in
+            try await _withDatabase("postgres", details: details) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
             }
@@ -182,26 +195,24 @@ extension DatabasePool.Database {
 }
 
 
-private func connect(to databaseName: String,
-                     port: Int,
-                     _ environment: Environment) async throws -> PostgresClient {
-    #warning("don't load dot file, just pass in host, port, username, password tuple - or make this a method and the other values properties")
-    await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
-    let host = Environment.get("DATABASE_HOST")!
-    let username = Environment.get("DATABASE_USERNAME")!
-    let password = Environment.get("DATABASE_PASSWORD")!
-
-    let config = PostgresClient.Configuration(host: host, port: port, username: username, password: password, database: databaseName, tls: .disable)
+private func connect(to databaseName: String, details: DatabasePool.Database.ConnectionDetails) async throws -> PostgresClient {
+    let config = PostgresClient.Configuration(
+        host: details.host,
+        port: details.port,
+        username: details.username,
+        password: details.password,
+        database: databaseName,
+        tls: .disable
+    )
 
     return .init(configuration: config)
 }
 
 
 private func _withDatabase(_ databaseName: String,
-                           port: Int,
-                           _ environment: Environment,
+                           details: DatabasePool.Database.ConnectionDetails,
                            _ query: @escaping (PostgresClient) async throws -> Void) async throws {
-    let client = try await connect(to: databaseName, port: port, environment)
+    let client = try await connect(to: databaseName, details: details)
     try await withThrowingTaskGroup(of: Void.self) { taskGroup in
         taskGroup.addTask { await client.run() }
 

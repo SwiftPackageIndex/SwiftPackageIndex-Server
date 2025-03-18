@@ -30,7 +30,9 @@ func withSPIApp(
     }
 
     try await DatabasePool.shared.withDatabase { database in
-        try await database.setupDb(environment)
+#warning("make this a method on Database?")
+        let details = DatabasePool.Database.ConnectionDetails(with: environment, port: database.port)
+        try await database.restoreSnapshot(details: details)
         let app = try await Application.make(environment)
         try await configure(app, databasePort: database.port)
 
