@@ -20,9 +20,9 @@ import PostgresNIO
 
 
 func withApp(
+    environment: Environment = .testing,
     _ setup: @Sendable (Application) async throws -> Void = { _ in },
     _ updateValuesForOperation: @Sendable (inout DependencyValues) async throws -> Void = { _ in },
-    environment: Environment = .testing,
     _ test: @Sendable (Application) async throws -> Void
 ) async throws {
     prepareDependencies {
