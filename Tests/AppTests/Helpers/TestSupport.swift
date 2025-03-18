@@ -29,10 +29,10 @@ func withSPIApp(
         $0.logger = .noop
     }
 
-    try await DatabasePool.shared.withDatabase { dbInfo in
-        try await dbInfo.setupDb(environment)
+    try await DatabasePool.shared.withDatabase { database in
+        try await database.setupDb(environment)
         let app = try await Application.make(environment)
-        try await configure(app, databasePort: dbInfo.port)
+        try await configure(app, databasePort: database.port)
 
         return try await run {
             try await setup(app)

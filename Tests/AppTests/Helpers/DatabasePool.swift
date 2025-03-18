@@ -21,8 +21,7 @@ import ShellOut
 actor DatabasePool {
     typealias DatabaseID = UUID
 
-    #warning("rename to Database")
-    struct DatabaseInfo: Hashable {
+    struct Database: Hashable {
         var id: DatabaseID
         var port: Int
     }
@@ -35,10 +34,10 @@ actor DatabasePool {
         self.maxCount = maxCount
     }
 
-    var availableDatabases: Set<DatabaseInfo> = .init()
+    var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
-        try await withThrowingTaskGroup(of: DatabaseInfo.self) { group in
+        try await withThrowingTaskGroup(of: Database.self) { group in
             for _ in (0..<maxCount) {
                 group.addTask {
                     try await self.launchDB()
@@ -52,43 +51,43 @@ actor DatabasePool {
 
     func tearDown() async throws {
         try await withThrowingTaskGroup { group in
-            for dbInfo in availableDatabases {
+            for db in availableDatabases {
                 group.addTask {
-                    try await self.removeDB(dbInfo: dbInfo)
+                    try await self.removeDB(database: db)
                 }
             }
             try await group.waitForAll()
         }
     }
 
-    func withDatabase(_ operation: @Sendable (DatabaseInfo) async throws -> Void) async throws {
-        let dbID = try await retainDatabase()
+    func withDatabase(_ operation: @Sendable (Database) async throws -> Void) async throws {
+        let db = try await retainDatabase()
         do {
             // print("⚠️ available", availableDatabases.map(\.port).sorted())
-            try await operation(dbID)
-            try await releaseDatabase(dbInfo: dbID)
+            try await operation(db)
+            try await releaseDatabase(database: db)
         } catch {
-            try await releaseDatabase(dbInfo: dbID)
+            try await releaseDatabase(database: db)
             throw error
         }
     }
 
-    private func retainDatabase() async throws -> DatabaseInfo {
-        var dbInfo = availableDatabases.randomElement()
-        while dbInfo == nil {
+    private func retainDatabase() async throws -> Database {
+        var database = availableDatabases.randomElement()
+        while database == nil {
             try await Task.sleep(for: .milliseconds(100))
-            dbInfo = availableDatabases.randomElement()
+            database = availableDatabases.randomElement()
         }
-        guard let dbInfo else { fatalError("dbInfo cannot be nil here") }
-        availableDatabases.remove(dbInfo)
-        return dbInfo
+        guard let database else { fatalError("database cannot be nil here") }
+        availableDatabases.remove(database)
+        return database
     }
 
-    private func releaseDatabase(dbInfo: DatabaseInfo) async throws {
-        availableDatabases.insert(dbInfo)
+    private func releaseDatabase(database: Database) async throws {
+        availableDatabases.insert(database)
     }
 
-    private func launchDB(maxAttempts: Int = 3) async throws -> DatabaseInfo {
+    private func launchDB(maxAttempts: Int = 3) async throws -> Database {
         let id = UUID()
         let port = Int.random(in: 10_000...65_000)
         _ = try? await ShellOut.shellOut(to: .removeDB(id: id))
@@ -99,10 +98,10 @@ actor DatabasePool {
         return .init(id: id, port: port)
     }
 
-    private func removeDB(dbInfo: DatabaseInfo, maxAttempts: Int = 3) async throws {
+    private func removeDB(database: Database, maxAttempts: Int = 3) async throws {
         try await run(maxAttempts: 3) { attempt in
-            // print("⚠️ Removing DB \(dbInfo.id) on port \(dbInfo.port) (attempt: \(attempt))")
-            try await ShellOut.shellOut(to: .removeDB(id: dbInfo.id))
+            // print("⚠️ Removing DB \(database.id) on port \(database.port) (attempt: \(attempt))")
+            try await ShellOut.shellOut(to: .removeDB(id: database.id))
         }
     }
 }
@@ -111,7 +110,7 @@ actor DatabasePool {
 import PostgresNIO
 import Vapor
 
-extension DatabasePool.DatabaseInfo {
+extension DatabasePool.Database {
 
     func setupDb(_ environment: Environment) async throws {
         await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
