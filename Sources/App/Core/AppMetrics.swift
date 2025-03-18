@@ -26,9 +26,11 @@ enum AppMetrics {
     static func bootstrap() {
         // prevent tests from boostrapping multiple times
         guard !initialized.withLock({ $0 }) else { return }
-        defer { initialized.withLock{ $0 = true } }
-        let client = PrometheusClient()
-        MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
+        initialized.withLock {
+            let client = PrometheusClient()
+            MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
+            $0 = true
+        }
     }
 
     // metrics
