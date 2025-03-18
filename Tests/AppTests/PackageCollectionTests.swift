@@ -869,7 +869,7 @@ extension AllTests.PackageCollectionTests {
         // so we don't fail for that reason
         let revokedUrl = fixtureUrl(for: "revoked.cer")
         #expect(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
-        let revokedKey = try #require(try fixtureData(for: "revoked.pem"))
+        let revokedKey = try fixtureData(for: "revoked.pem")
 
         await withDependencies {
             $0.environment.collectionSigningCertificateChain = {

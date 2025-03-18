@@ -188,11 +188,8 @@ extension AllTests.AnalyzeErrorTests {
 
 
 extension AllTests.AnalyzeErrorTests {
-#if compiler(>=6.1)
-#warning("Move this into a trait on @Test")
-    // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
-#endif
-    var defaultDependencies: (inout DependencyValues) async throws -> Void {
+    // Cannot be a trait, because it references the member `socialPosts`
+    var defaultDependencies: @Sendable (inout DependencyValues) async throws -> Void {
         {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }

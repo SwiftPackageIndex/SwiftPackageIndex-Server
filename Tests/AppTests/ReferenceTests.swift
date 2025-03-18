@@ -71,11 +71,11 @@ extension AllTests.ReferenceTests {
         #expect(Reference.branch("foo-bar").pathEncoded == "foo-bar")
         #expect(Reference.tag(.init("1.2.3")!).pathEncoded == "1.2.3")
         do {
-            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar"))
+            let s = SemanticVersion(1, 2, 3, "foo/bar")
             #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar")
         }
         do {
-            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
+            let s = SemanticVersion(1, 2, 3, "foo/bar", "bar/baz")
             #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar+bar-baz")
         }
     }

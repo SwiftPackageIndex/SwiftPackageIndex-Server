@@ -21,30 +21,45 @@ import ShellOut
 import Testing
 
 
+private extension DependenciesProvider {
+    static var `default`: Self {
+        .init {
+            $0.logger = .noop
+            $0.shell = .liveValue
+        }
+    }
+}
+
+
+extension AllTests {
+    @Suite(.dependencies(.default)) struct GitLiveTests { }
+}
+
+
 extension AllTests.GitLiveTests {
 
     @Test func commitCount() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.commitCount(at: path) == 57)
         }
     }
 
     @Test func firstCommitDate() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.firstCommitDate(at: path)
                     == Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
         }
     }
 
     @Test func lastCommitDate() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.lastCommitDate(at: path)
                     == Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
         }
     }
 
     @Test func getTags() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(
                 try await Git.getTags(at: path) == [
                     .tag(0,2,0),
@@ -72,14 +87,14 @@ extension AllTests.GitLiveTests {
     }
 
     @Test func hasBranch() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.hasBranch(.branch("master"), at: path) == true)
             #expect(try await Git.hasBranch(.branch("main"), at: path) == false)
         }
     }
 
     @Test func revisionInfo() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.revisionInfo(.tag(0,5,2), at: path)
                     == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
                              date: .init(timeIntervalSince1970: 1554248253)))
@@ -90,7 +105,7 @@ extension AllTests.GitLiveTests {
     }
 
     @Test func shortlog() async throws {
-        try await withGitRepository(defaultDependencies) { path throws in
+        try await withGitRepository { path throws in
             #expect(try await Git.shortlog(at: path) == """
                 36\tNeil Pankey
                 21\tJacob Williams
@@ -101,30 +116,11 @@ extension AllTests.GitLiveTests {
 }
 
 
-private func withGitRepository(
-    _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-    _ test: (_ zipFilePath: String) async throws -> Void
-) async throws {
-    try await withDependencies(updateValuesForOperation) {
-        try await withTempDir { tempDir in
-            let fixtureFile = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
-            try await ShellOut.shellOut(to: .init(command: "unzip", arguments: [fixtureFile]), at: tempDir)
-            let path = "\(tempDir)/ErrNo"
-            try await test(path)
-        }
-    }
-}
-
-
-extension AllTests.GitLiveTests {
-#if compiler(>=6.1)
-#warning("Move this into a trait on @Test")
-    // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
-#endif
-    var defaultDependencies: (inout DependencyValues) async throws -> Void {
-        {
-            $0.logger = .noop
-            $0.shell = .liveValue
-        }
+private func withGitRepository(_ test: (_ zipFilePath: String) async throws -> Void) async throws {
+    try await withTempDir { tempDir in
+        let fixtureFile = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
+        try await ShellOut.shellOut(to: .init(command: "unzip", arguments: [fixtureFile]), at: tempDir)
+        let path = "\(tempDir)/ErrNo"
+        try await test(path)
     }
 }

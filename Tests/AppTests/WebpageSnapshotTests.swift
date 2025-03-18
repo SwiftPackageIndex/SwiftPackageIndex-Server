@@ -335,7 +335,7 @@ extension AllTests.WebpageSnapshotTests {
     }
 
     @Test func MarkdownPage_document_styling() throws {
-        let data = try #require(try fixtureData(for: "markdown-test.md"))
+        let data = try fixtureData(for: "markdown-test.md")
         let markdown = try #require(String(data: data, encoding: .utf8))
         let html = MarkdownParser().parse(markdown).html
         let page = { MarkdownPage(path: "", html: html).document() }

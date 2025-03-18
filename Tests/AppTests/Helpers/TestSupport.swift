@@ -19,10 +19,12 @@ import Vapor
 import PostgresNIO
 
 
-func withApp(_ setup: (Application) async throws -> Void = { _ in },
-             _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-             environment: Environment = .testing,
-             _ test: (Application) async throws -> Void) async throws {
+func withApp(
+    environment: Environment = .testing,
+    _ setup: @Sendable (Application) async throws -> Void = { _ in },
+    _ updateValuesForOperation: @Sendable (inout DependencyValues) async throws -> Void = { _ in },
+    _ test: @Sendable (Application) async throws -> Void
+) async throws {
     prepareDependencies {
         $0.logger = .noop
     }
