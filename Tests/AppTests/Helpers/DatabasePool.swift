@@ -27,6 +27,10 @@ actor DatabasePool {
     struct Database: Hashable {
         var id: DatabaseID
         var port: Int
+
+        var connectionDetails: ConnectionDetails {
+            .init(port: port)
+        }
     }
 
     static let shared = DatabasePool(maxCount: 8)
@@ -40,6 +44,7 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
+        await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
         try await withThrowingTaskGroup(of: Database.self) { group in
             for _ in (0..<maxCount) {
                 group.addTask {
@@ -120,7 +125,7 @@ extension DatabasePool.Database {
         var username: String
         var password: String
 
-        init(with environment: Environment, port: Int) {
+        init(port: Int) {
             // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
             // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
             // and to ensure the database resetting cannot impact any other network hosts.
@@ -134,8 +139,7 @@ extension DatabasePool.Database {
     }
 
     func setup(for environment: Environment) async throws {
-        await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
-        let details = ConnectionDetails(with: environment, port: port)
+        let details = ConnectionDetails(port: port)
 
         // Create initial db snapshot
         try await createSchema(environment, details: details)
