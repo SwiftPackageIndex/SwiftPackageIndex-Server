@@ -33,7 +33,7 @@ actor DatabasePool {
         }
     }
 
-    static let shared = DatabasePool(maxCount: 8)
+    static let shared = DatabasePool(maxCount: Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4)
 
     var maxCount: Int
 
