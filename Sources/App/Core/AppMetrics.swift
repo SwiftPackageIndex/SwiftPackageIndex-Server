@@ -141,13 +141,13 @@ enum AppMetrics {
 extension AppMetrics {
 
     static func counter<V: Numeric>(_ name: String) -> PromCounter<V>? {
-        @Dependency(\.prometheus) var prometheus
-        return prometheus?.createCounter(forType: V.self, named: name)
+        @Dependency(\.metricsSystem.prometheus) var prometheus
+        return try? prometheus().createCounter(forType: V.self, named: name)
     }
 
     static func gauge<V: DoubleRepresentable>(_ name: String) -> PromGauge<V>? {
-        @Dependency(\.prometheus) var prometheus
-        return prometheus?.createGauge(forType: V.self, named: name)
+        @Dependency(\.metricsSystem.prometheus) var prometheus
+        return try? prometheus().createGauge(forType: V.self, named: name)
     }
 
 }
@@ -162,11 +162,7 @@ extension AppMetrics {
     static func push(client: Client, jobName: String) async throws {
         @Dependency(\.environment) var environment
         @Dependency(\.logger) var logger
-        @Dependency(\.prometheus) var prometheus
-
-        guard let prometheus else {
-            throw AppError.genericError(nil, "Prometheus client unavailable (nil)")
-        }
+        @Dependency(\.metricsSystem.prometheus) var prometheus
 
         guard let pushGatewayUrl = environment.metricsPushGatewayUrl() else {
             throw AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL")
@@ -174,7 +170,7 @@ extension AppMetrics {
         let url = URI(string: "\(pushGatewayUrl)/metrics/job/\(jobName)")
 
         do {
-            let metrics: String = await prometheus.collect()
+            let metrics: String = try await prometheus().collect()
             _ = try await client.post(url) { req in
                 // append "\n" to avoid
                 //   text format parsing error in line 4: unexpected end of input stream

@@ -18,12 +18,17 @@ import Synchronization
 @preconcurrency import Prometheus
 
 
-enum AppMetricsClient {
+struct MetricsSystemClient {
+    var prometheus: @Sendable () throws -> PrometheusClient
+}
+
+
+extension MetricsSystemClient {
     private static let initialized = Mutex(false)
 
-    static func bootstrap() {
-        guard !initialized.withLock({ $0 }) else { return }
-        initialized.withLock {
+    func bootstrap() {
+        guard !Self.initialized.withLock({ $0 }) else { return }
+        Self.initialized.withLock {
             let client = PrometheusClient()
             MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
             $0 = true
@@ -32,23 +37,33 @@ enum AppMetricsClient {
 }
 
 
-extension AppMetricsClient: DependencyKey {
-    static var liveValue: PrometheusClient? {
-        try? MetricsSystem.prometheus()
+extension MetricsSystemClient: DependencyKey {
+    static var liveValue: Self {
+        .init(prometheus: { try MetricsSystem.prometheus() })
     }
 }
 
 
-extension AppMetricsClient: TestDependencyKey {
-    static var testValue: PrometheusClient? {
-        unimplemented("testValue"); return nil
+extension MetricsSystemClient: TestDependencyKey {
+    static var testValue: Self {
+        .init(prometheus: { unimplemented("testValue"); return .init() })
     }
 }
 
 
 extension DependencyValues {
-    public var prometheus: PrometheusClient? {
-        get { self[AppMetricsClient.self] }
-        set { self[AppMetricsClient.self] = newValue }
+    var metricsSystem: MetricsSystemClient {
+        get { self[MetricsSystemClient.self] }
+        set { self[MetricsSystemClient.self] = newValue }
     }
 }
+
+
+#if DEBUG
+extension MetricsSystemClient {
+    static var mock: Self {
+        let prometheus = PrometheusClient()
+        return .init(prometheus: { prometheus })
+    }
+}
+#endif
