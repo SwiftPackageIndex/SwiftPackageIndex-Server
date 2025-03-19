@@ -61,18 +61,6 @@ extension AllTests.MetricsTests {
     @Test func versions_added() async throws {
         try await withApp { app in
             // setup
-            let initialAddedBranch = try #require(
-                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .branch))
-            )
-            let initialAddedTag = try #require(
-                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .tag))
-            )
-            let initialDeletedBranch = try #require(
-                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .branch))
-            )
-            let initialDeletedTag = try #require(
-                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag))
-            )
             let pkg = try await savePackage(on: app.db, "1")
             let new = [
                 try Version(package: pkg, reference: .branch("main")),
@@ -91,16 +79,16 @@ extension AllTests.MetricsTests {
 
             // validation
             #expect(
-                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .branch)) == initialAddedBranch + 1
+                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .branch)) == 1
             )
             #expect(
-                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .tag)) == initialAddedTag + 2
+                AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .tag)) == 2
             )
             #expect(
-                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .branch)) == initialDeletedBranch + 1
+                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .branch)) == 1
             )
             #expect(
-                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag)) == initialDeletedTag + 1
+                AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag)) == 1
             )
         }
     }
@@ -164,7 +152,6 @@ extension AllTests.MetricsTests {
 
                 // validation
                 #expect((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
-                print(AppMetrics.buildTriggerDurationSeconds!.get())
             }
         }
     }
