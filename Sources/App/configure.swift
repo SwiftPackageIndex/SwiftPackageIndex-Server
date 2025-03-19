@@ -365,7 +365,7 @@ public func configure(_ app: Application, databasePort: Int? = nil) async throws
     try routes(app)
 
     // bootstrap app metrics
-    AppMetrics.bootstrap()
+    AppMetricsClient.bootstrap()
 
     return host
 }

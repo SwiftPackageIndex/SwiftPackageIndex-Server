@@ -21,20 +21,6 @@ import Vapor
 
 enum AppMetrics {
 
-    static let initialized = Mutex(false)
-
-    static func bootstrap() {
-        // prevent tests from boostrapping multiple times
-        guard !initialized.withLock({ $0 }) else { return }
-        initialized.withLock {
-            let client = PrometheusClient()
-            MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
-            $0 = true
-        }
-    }
-
-    // metrics
-
     static var analyzeCandidatesCount: PromGauge<Int>? {
         gauge("spi_analyze_candidates_count")
     }
@@ -155,13 +141,13 @@ enum AppMetrics {
 extension AppMetrics {
 
     static func counter<V: Numeric>(_ name: String) -> PromCounter<V>? {
-        try? MetricsSystem.prometheus()
-            .createCounter(forType: V.self, named: name)
+        @Dependency(\.prometheus) var prometheus
+        return prometheus?.createCounter(forType: V.self, named: name)
     }
 
     static func gauge<V: DoubleRepresentable>(_ name: String) -> PromGauge<V>? {
-        try? MetricsSystem.prometheus()
-            .createGauge(forType: V.self, named: name)
+        @Dependency(\.prometheus) var prometheus
+        return prometheus?.createGauge(forType: V.self, named: name)
     }
 
 }
@@ -176,6 +162,11 @@ extension AppMetrics {
     static func push(client: Client, jobName: String) async throws {
         @Dependency(\.environment) var environment
         @Dependency(\.logger) var logger
+        @Dependency(\.prometheus) var prometheus
+
+        guard let prometheus else {
+            throw AppError.genericError(nil, "Prometheus client unavailable (nil)")
+        }
 
         guard let pushGatewayUrl = environment.metricsPushGatewayUrl() else {
             throw AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL")
@@ -183,7 +174,7 @@ extension AppMetrics {
         let url = URI(string: "\(pushGatewayUrl)/metrics/job/\(jobName)")
 
         do {
-            let metrics: String = try await MetricsSystem.prometheus().collect()
+            let metrics: String = await prometheus.collect()
             _ = try await client.post(url) { req in
                 // append "\n" to avoid
                 //   text format parsing error in line 4: unexpected end of input stream

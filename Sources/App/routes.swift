@@ -211,7 +211,8 @@ func routes(_ app: Application) throws {
 
     do {  // Metrics
         app.get("metrics") { req -> String in
-            try await MetricsSystem.prometheus().collect()
+            @Dependency(\.prometheus) var prometheus
+            return await prometheus?.collect() ?? ""
         }
     }
 }

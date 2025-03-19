@@ -164,7 +164,6 @@ extension AllTests.MetricsTests {
 
                 // validation
                 #expect((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
-                print(AppMetrics.buildTriggerDurationSeconds!.get())
             }
         }
     }

@@ -16,7 +16,10 @@ import Testing
 import Dependencies
 
 
-@Suite(.dependency(\.date.now, .t0)) struct AllTests { }
+@Suite(
+    .dependency(\.date.now, .t0),
+    .dependency(\.prometheus, .init())
+) struct AllTests { }
 
 
 extension AllTests {
