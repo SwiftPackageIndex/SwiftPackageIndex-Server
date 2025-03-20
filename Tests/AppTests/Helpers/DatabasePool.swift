@@ -40,25 +40,45 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
+        // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
-        try await withThrowingTaskGroup(of: Database.self) { group in
-            for _ in (0..<maxCount) {
-                group.addTask {
-                    let db = try await self.launchDB()
-                    try await db.setup(for: .testing)
-                    return db
+
+        // Re-use up to maxCount running dbs
+        let runningDbs = try await runningDatabases()
+        for db in runningDbs.prefix(maxCount) {
+            availableDatabases.insert(db)
+        }
+
+        do { // Delete overprovisioned dbs
+            let overprovisioned = runningDbs.dropFirst(maxCount)
+            try await tearDown(databases: overprovisioned)
+        }
+
+        do { // Create missing dbs
+            let underprovisionedCount = max(maxCount - availableDatabases.count, 0)
+            try await withThrowingTaskGroup(of: Database.self) { group in
+                for _ in (0..<underprovisionedCount) {
+                    group.addTask {
+                        let db = try await self.launchDB()
+                        try await db.setup(for: .testing)
+                        return db
+                    }
                 }
-            }
-            for try await info in group {
-                availableDatabases.insert(info)
+                for try await db in group {
+                    availableDatabases.insert(db)
+                }
             }
         }
     }
 
     func tearDown() async throws {
+        try await tearDown(databases: runningDatabases())
+    }
+
+    func tearDown(databases: any Collection<Database>) async throws {
         guard Environment.databasePoolTearDown else { return }
         try await withThrowingTaskGroup { group in
-            for db in try await runningDatabases() {
+            for db in databases {
                 group.addTask {
                     try await self.removeDB(database: db)
                 }
