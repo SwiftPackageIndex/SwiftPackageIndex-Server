@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 import App
 import PostgresNIO
 import ShellOut
@@ -22,10 +20,7 @@ import Vapor
 
 
 actor DatabasePool {
-    typealias DatabaseID = UUID
-
     struct Database: Hashable {
-        var id: DatabaseID
         var port: Int
 
         var connectionDetails: ConnectionDetails {
@@ -98,20 +93,19 @@ actor DatabasePool {
     }
 
     private func launchDB(maxAttempts: Int = 3) async throws -> Database {
-        let id = UUID()
         let port = Int.random(in: 10_000...65_000)
-        _ = try? await ShellOut.shellOut(to: .removeDB(id: id))
+        _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
         try await run(maxAttempts: 3) { attempt in
-            print("⚠️ Launching DB \(id) on port \(port) (attempt: \(attempt))")
-            try await ShellOut.shellOut(to: .launchDB(id: id, port: port))
+            print("⚠️ Launching DB on port \(port) (attempt: \(attempt))")
+            try await ShellOut.shellOut(to: .launchDB(port: port))
         }
-        return .init(id: id, port: port)
+        return .init(port: port)
     }
 
     private func removeDB(database: Database, maxAttempts: Int = 3) async throws {
         try await run(maxAttempts: 3) { attempt in
-            // print("⚠️ Removing DB \(database.id) on port \(database.port) (attempt: \(attempt))")
-            try await ShellOut.shellOut(to: .removeDB(id: database.id))
+            // print("⚠️ Removing DB on port \(database.port) (attempt: \(attempt))")
+            try await ShellOut.shellOut(to: .removeDB(port: database.port))
         }
     }
 }
