@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 import ShellOut
 
 
 extension ShellOutCommand {
-    static func launchDB(id: UUID, port: Int) -> ShellOutCommand {
+    static func launchDB(port: Int) -> ShellOutCommand {
         .init(command: "docker", arguments: [
-            "run", "--name", "spi_test_\(id)",
+            "run", "--name", "spi_test_\(port)",
             "-e", "POSTGRES_DB=spi_test",
             "-e", "POSTGRES_USER=spi_test",
             "-e", "POSTGRES_PASSWORD=xxx",
@@ -32,9 +30,9 @@ extension ShellOutCommand {
         ])
     }
 
-    static func removeDB(id: UUID) -> ShellOutCommand {
+    static func removeDB(port: Int) -> ShellOutCommand {
         .init(command: "docker", arguments: [
-            "rm", "-f", "spi_test_\(id)"
+            "rm", "-f", "spi_test_\(port)"
         ])
     }
 }
