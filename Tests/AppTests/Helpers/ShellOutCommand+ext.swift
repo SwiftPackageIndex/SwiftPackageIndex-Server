@@ -35,4 +35,10 @@ extension ShellOutCommand {
             "rm", "-f", "spi_test_\(port)"
         ])
     }
+
+    static var getContainerNames: ShellOutCommand {
+        .init(command: "docker", arguments: [
+            "ps", "--format", "{{.Names}}"
+        ])
+    }
 }
