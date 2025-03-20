@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import App
+@testable import App
+
 import PostgresNIO
 import ShellOut
 import Vapor
@@ -28,7 +29,7 @@ actor DatabasePool {
         }
     }
 
-    static let shared = DatabasePool(maxCount: Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4)
+    static let shared = DatabasePool(maxCount: Environment.databasePoolSize)
 
     var maxCount: Int
 
@@ -55,8 +56,9 @@ actor DatabasePool {
     }
 
     func tearDown() async throws {
+        guard Environment.databasePoolTearDown else { return }
         try await withThrowingTaskGroup { group in
-            for db in availableDatabases {
+            for db in try await runningDatabases() {
                 group.addTask {
                     try await self.removeDB(database: db)
                 }
@@ -68,13 +70,22 @@ actor DatabasePool {
     func withDatabase(_ operation: @Sendable (Database) async throws -> Void) async throws {
         let db = try await retainDatabase()
         do {
-            // print("⚠️ available", availableDatabases.map(\.port).sorted())
             try await operation(db)
             try await releaseDatabase(database: db)
         } catch {
             try await releaseDatabase(database: db)
             throw error
         }
+    }
+
+    private func runningDatabases() async throws -> [Database] {
+        let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
+        return stdout
+            .components(separatedBy: "\n")
+            .filter { $0.starts(with: "spi_test_") }
+            .map { String($0.dropFirst("spi_test_".count)) }
+            .compactMap(Int.init)
+            .map(Database.init(port:))
     }
 
     private func retainDatabase() async throws -> Database {
@@ -220,3 +231,13 @@ private func _withDatabase(_ databaseName: String,
     }
 }
 
+
+extension Environment {
+    static var databasePoolSize: Int {
+        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
+    }
+
+    static var databasePoolTearDown: Bool {
+        Environment.get("DATABASEPOOL_TEARDOWN").flatMap(\.asBool) ?? true
+    }
+}
