@@ -99,13 +99,20 @@ actor DatabasePool {
     }
 
     private func runningDatabases() async throws -> [Database] {
-        let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
-        return stdout
-            .components(separatedBy: "\n")
-            .filter { $0.starts(with: "spi_test_") }
-            .map { String($0.dropFirst("spi_test_".count)) }
-            .compactMap(Int.init)
-            .map(Database.init(port:))
+        if isRunningInCI() {
+            // We don't have docker available in CI to probe for running dbs.
+            // Instead, we have a hard-coded list of dbs we launch in the GH workflow
+            // file and correspondingly, we hard-code their ports here.
+            return (6000..<6008).map(Database.init)
+        } else {
+            let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
+            return stdout
+                .components(separatedBy: "\n")
+                .filter { $0.starts(with: "spi_test_") }
+                .map { String($0.dropFirst("spi_test_".count)) }
+                .compactMap(Int.init)
+                .map(Database.init(port:))
+        }
     }
 
     private func retainDatabase() async throws -> Database {
