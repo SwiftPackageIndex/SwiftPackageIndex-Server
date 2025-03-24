@@ -43,36 +43,47 @@ actor DatabasePool {
         // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
 
-        // Re-use up to maxCount running dbs
-        let runningDbs = try await runningDatabases()
-        for db in runningDbs.prefix(maxCount) {
-            availableDatabases.insert(db)
-        }
+        if isRunningInCI() {
+            // We don't have docker available in CI to probe for running dbs.
+            // Instead, we have a hard-coded list of dbs we launch in the GH workflow
+            // file and correspondingly, we hard-code their ports here.
+            availableDatabases = Set((6000..<6008).map(Database.init))
+        } else {
+            // Re-use up to maxCount running dbs
+            let runningDbs = try await runningDatabases()
+            for db in runningDbs.prefix(maxCount) {
+                availableDatabases.insert(db)
+            }
 
-        do { // Delete overprovisioned dbs
-            let overprovisioned = runningDbs.dropFirst(maxCount)
-            try await tearDown(databases: overprovisioned)
-        }
+            do { // Delete overprovisioned dbs
+                let overprovisioned = runningDbs.dropFirst(maxCount)
+                try await tearDown(databases: overprovisioned)
+            }
 
-        do { // Create missing dbs
-            let underprovisionedCount = max(maxCount - availableDatabases.count, 0)
-            try await withThrowingTaskGroup(of: Database.self) { group in
-                for _ in (0..<underprovisionedCount) {
-                    group.addTask {
-                        let db = try await self.launchDB()
-                        try await db.setup(for: .testing)
-                        return db
+            do { // Create missing dbs
+                let underprovisionedCount = max(maxCount - availableDatabases.count, 0)
+                try await withThrowingTaskGroup(of: Database.self) { group in
+                    for _ in (0..<underprovisionedCount) {
+                        group.addTask {
+                            let db = try await self.launchDB()
+                            try await db.setup(for: .testing)
+                            return db
+                        }
                     }
-                }
-                for try await db in group {
-                    availableDatabases.insert(db)
+                    for try await db in group {
+                        availableDatabases.insert(db)
+                    }
                 }
             }
         }
     }
 
     func tearDown() async throws {
-        try await tearDown(databases: runningDatabases())
+        if isRunningInCI() {
+            // Let CI's tear down deal with the databases, there's nothing we can or should do here.
+        } else {
+            try await tearDown(databases: runningDatabases())
+        }
     }
 
     func tearDown(databases: any Collection<Database>) async throws {
@@ -99,20 +110,13 @@ actor DatabasePool {
     }
 
     private func runningDatabases() async throws -> [Database] {
-        if isRunningInCI() {
-            // We don't have docker available in CI to probe for running dbs.
-            // Instead, we have a hard-coded list of dbs we launch in the GH workflow
-            // file and correspondingly, we hard-code their ports here.
-            return (6000..<6008).map(Database.init)
-        } else {
-            let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
-            return stdout
-                .components(separatedBy: "\n")
-                .filter { $0.starts(with: "spi_test_") }
-                .map { String($0.dropFirst("spi_test_".count)) }
-                .compactMap(Int.init)
-                .map(Database.init(port:))
-        }
+        let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
+        return stdout
+            .components(separatedBy: "\n")
+            .filter { $0.starts(with: "spi_test_") }
+            .map { String($0.dropFirst("spi_test_".count)) }
+            .compactMap(Int.init)
+            .map(Database.init(port:))
     }
 
     private func retainDatabase() async throws -> Database {
