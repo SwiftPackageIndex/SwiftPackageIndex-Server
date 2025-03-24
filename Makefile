@@ -35,7 +35,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution --no-parallel \
+	&& swift test --disable-automatic-resolution \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
