@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     container:
-      image: registry.gitlab.com/finestructure/spi-base:24ac06a943249eb837e56205275a82935646cac6
+      image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
