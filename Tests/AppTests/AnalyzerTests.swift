@@ -26,7 +26,7 @@ import Vapor
 @preconcurrency import ShellOut
 
 
-@Suite struct AnalyzerTests {
+extension AllTests.AnalyzerTests {
 
     @Test func analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we
@@ -763,7 +763,7 @@ import Vapor
 
             do {  // validate
                 #expect(try await Version.query(on: app.db).count() == 2)
-                let versions = try #require(await Version.query(on: app.db).sort(\.$commit).all())
+                let versions = try await Version.query(on: app.db).sort(\.$commit).all()
                 #expect(versions[0].docArchives == [.init(name: "foo", title: "Foo")])
                 #expect(versions[1].docArchives == nil)
             }
@@ -1059,6 +1059,7 @@ import Vapor
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1080,6 +1081,7 @@ import Vapor
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1100,6 +1102,7 @@ import Vapor
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.logger = .noop
             $0.shell = .liveValue
         } operation: {
             // setup
@@ -1126,6 +1129,9 @@ import Vapor
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
+        try await withDependencies {
+            $0.logger = .noop
+        } operation: {
         try await withTempDir { @Sendable tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
@@ -1148,6 +1154,7 @@ import Vapor
             assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
 #endif
         }
+    }
     }
 
     @Test func issue_577() async throws {
@@ -1441,7 +1448,7 @@ import Vapor
         // Ensure `latest` remains set in case of AppError.noValidVersions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         let capturingLogger = CapturingLogger()
-        try await withApp(logHandler: capturingLogger) { app in
+        try await withApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -1456,6 +1463,7 @@ import Vapor
                 1\tPerson 2
                 """
                 }
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable _, _ in return "" }
             } operation: {
                 let pkgId = UUID()

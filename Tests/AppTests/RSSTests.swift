@@ -21,7 +21,7 @@ import SnapshotTesting
 import Testing
 
 
-@Suite struct RSSTests {
+extension AllTests.RSSTests {
 
     @Test func recentPackage_rssGuid() throws {
         let recentPackage = RecentPackage.mock(repositoryOwner: "owner", repositoryName: "name")

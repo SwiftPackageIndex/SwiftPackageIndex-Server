@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct CustomCollectionTests {
+extension AllTests.CustomCollectionTests {
 
     @Test func CustomCollection_save() async throws {
         try await withApp { app in

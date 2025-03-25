@@ -21,7 +21,7 @@ import ShellOut
 import Testing
 
 
-@Suite struct GitTests {
+extension AllTests.GitTests {
 
     @Test func tag() async throws {
         try await withDependencies {

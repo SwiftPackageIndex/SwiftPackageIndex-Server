@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct API_PackageSchemaTests {
+extension AllTests.API_PackageSchemaTests {
 
     @Test func PackageSchema_init() throws {
         let schema = API.PackageSchema(

@@ -22,17 +22,17 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageCollectionTests {
+extension AllTests.PackageCollectionTests {
 
-    let encoder: JSONEncoder = {
+    typealias VersionResult = PackageCollection.VersionResult
+    typealias VersionResultGroup = PackageCollection.VersionResultGroup
+
+    var encoder: JSONEncoder {
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
         e.dateEncodingStrategy = .iso8601
         return e
-    }()
-
-    typealias VersionResult = PackageCollection.VersionResult
-    typealias VersionResultGroup = PackageCollection.VersionResultGroup
+    }
 
     @Test func query_filter_urls() async throws {
         // Tests PackageResult.query with the url filter option
@@ -869,7 +869,7 @@ import Vapor
         // so we don't fail for that reason
         let revokedUrl = fixtureUrl(for: "revoked.cer")
         #expect(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
-        let revokedKey = try #require(try fixtureData(for: "revoked.pem"))
+        let revokedKey = try fixtureData(for: "revoked.pem")
 
         await withDependencies {
             $0.environment.collectionSigningCertificateChain = {

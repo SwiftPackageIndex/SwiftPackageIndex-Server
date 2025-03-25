@@ -142,30 +142,6 @@
         }
     }
 
-    &.rfs6 {
-        --panel-accent: var(--rfs6-panel-accent);
-        --panel-button-background: var(--rfs6-panel-background);
-        position: relative;
-        margin-top: 20px;
-
-        p {
-            margin: 0 15px 0 0;
-        }
-
-        &::before {
-            content: '';
-            position: absolute;
-            top: -17px;
-            right: -5px;
-            display: block;
-            width: 40px;
-            height: 40px;
-            background-repeat: no-repeat;
-            background-size: 100%;
-            background-image: var(--image-checkered-flag-cta);
-        }
-    }
-
     @media screen and (max-width: $mobile-breakpoint) {
         max-width: 300px;
         margin: 0 auto;

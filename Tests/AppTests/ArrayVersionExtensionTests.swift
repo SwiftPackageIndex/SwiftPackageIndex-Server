@@ -19,7 +19,7 @@ import SemanticVersion
 import Testing
 
 
-@Suite struct ArrayVersionExtensionTests {
+extension AllTests.ArrayVersionExtensionTests {
 
     @Test func Array_canonicalDocumentationTarget() async throws {
         try await withApp { app in

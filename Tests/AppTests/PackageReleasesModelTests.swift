@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct PackageReleasesModelTests {
+extension AllTests.PackageReleasesModelTests {
 
     @Test func initialise() async throws {
         // Setup

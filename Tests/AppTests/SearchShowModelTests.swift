@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct SearchShowModelTests {
+extension AllTests.SearchShowModelTests {
 
     @Test func SearchShow_Model_init() throws {
         let results: [Search.Result] = .mock()

@@ -253,7 +253,8 @@ func routes(_ app: Application) throws {
 
     do {  // Metrics
         app.get("metrics") { req -> String in
-            try await MetricsSystem.prometheus().collect()
+            @Dependency(\.metricsSystem.prometheus) var prometheus
+            return try await prometheus().collect()
         }
     }
 }

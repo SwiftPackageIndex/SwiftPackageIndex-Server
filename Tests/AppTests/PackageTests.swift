@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct PackageTests {
+extension AllTests.PackageTests {
 
     @Test func Equatable() throws {
         #expect(Package(id: .id0, url: "1".url) == Package(id: .id0, url: "2".url))

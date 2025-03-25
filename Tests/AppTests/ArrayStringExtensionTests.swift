@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct ArrayStringExtensionTests {
+extension AllTests.ArrayStringExtensionTests {
 
     @Test func pluralised() throws {
         #expect([String]().pluralized() == "None")

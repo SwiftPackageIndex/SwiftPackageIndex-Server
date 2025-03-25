@@ -18,7 +18,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct AlertingTests {
+extension AllTests.AlertingTests {
 
     @Test func validatePlatformsPresent() throws {
         let all = Build.Platform.allCases.map {

@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct API_DependencyControllerTests {
+extension AllTests.API_DependencyControllerTests {
 
     @Test func query() async throws {
         try await withApp { app in

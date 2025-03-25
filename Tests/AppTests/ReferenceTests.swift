@@ -20,7 +20,7 @@ import SemanticVersion
 import Testing
 
 
-@Suite struct ReferenceTests {
+extension AllTests.ReferenceTests {
 
     @Test func Refernce_init() throws {
         #expect(Reference("1.2.3") == .tag(1, 2, 3))
@@ -71,11 +71,11 @@ import Testing
         #expect(Reference.branch("foo-bar").pathEncoded == "foo-bar")
         #expect(Reference.tag(.init("1.2.3")!).pathEncoded == "1.2.3")
         do {
-            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar"))
+            let s = SemanticVersion(1, 2, 3, "foo/bar")
             #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar")
         }
         do {
-            let s = try #require(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
+            let s = SemanticVersion(1, 2, 3, "foo/bar", "bar/baz")
             #expect(Reference.tag(s).pathEncoded == "1.2.3-foo-bar+bar-baz")
         }
     }

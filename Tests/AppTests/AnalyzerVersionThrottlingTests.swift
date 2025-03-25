@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct AnalyzerVersionThrottlingTests {
+extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func throttle_keep_old() async throws {
         // Test keeping old when within throttling window

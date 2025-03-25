@@ -18,7 +18,7 @@ import ShellOut
 import Testing
 
 
-@Suite struct ShellOutCommandExtensionTests {
+extension AllTests.ShellOutCommandExtensionTests {
 
     @Test func gitClean() throws {
         #expect(ShellOutCommand.gitClean.description == "git clean -fdx")

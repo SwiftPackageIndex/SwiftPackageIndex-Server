@@ -18,7 +18,7 @@ import Plot
 import Testing
 
 
-@Suite struct BuildMonitorIndexModelTests {
+extension AllTests.BuildMonitorIndexModelTests {
 
     @Test func init_from_Build() async throws {
         try await withApp { app in

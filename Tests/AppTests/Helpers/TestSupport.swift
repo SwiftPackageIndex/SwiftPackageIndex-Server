@@ -19,22 +19,23 @@ import Vapor
 import PostgresNIO
 
 
-func withApp(_ setup: (Application) async throws -> Void = { _ in },
-             _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-             logHandler: LogHandler? = nil,
-             environment: Environment = .testing,
-             _ test: (Application) async throws -> Void) async throws {
+func withApp(
+    environment: Environment = .testing,
+    _ setup: @Sendable (Application) async throws -> Void = { _ in },
+    _ updateValuesForOperation: @Sendable (inout DependencyValues) async throws -> Void = { _ in },
+    _ test: @Sendable (Application) async throws -> Void
+) async throws {
+    prepareDependencies {
+        $0.logger = .noop
+    }
+
     try await TestSupport.setupDb(environment)
     let app = try await TestSupport.setupApp(environment)
 
     return try await run {
         try await setup(app)
         try await withDependencies(updateValuesForOperation) {
-            try await withDependencies {
-                $0.logger.set(to: logHandler)
-            } operation: {
-                try await test(app)
-            }
+            try await test(app)
         }
     } defer: {
         try await app.asyncShutdown()
@@ -52,10 +53,6 @@ enum TestSupport {
     static func setupApp(_ environment: Environment, databasePort: Int? = nil) async throws -> Application {
         let app = try await Application.make(environment)
         try await configure(app, databasePort: databasePort)
-
-        // Silence app logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
-
         return app
     }
 

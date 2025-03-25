@@ -19,7 +19,7 @@ import Testing
 import XCTVapor
 
 
-@Suite struct KeywordControllerTests {
+extension AllTests.KeywordControllerTests {
 
     @Test func query() async throws {
         try await withApp { app in

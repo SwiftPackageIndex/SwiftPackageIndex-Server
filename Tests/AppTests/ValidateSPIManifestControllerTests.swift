@@ -18,7 +18,7 @@ import SPIManifest
 import Testing
 
 
-@Suite struct ValidateSPIManifestControllerTests {
+extension AllTests.ValidateSPIManifestControllerTests {
 
     @Test func validationResult_basic() throws {
         let yml = ValidateSPIManifest.Model.placeholderManifest

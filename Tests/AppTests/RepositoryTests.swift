@@ -20,7 +20,7 @@ import SQLKit
 import Testing
 
 
-@Suite struct RepositoryTests {
+extension AllTests.RepositoryTests {
 
     @Test func save() async throws {
         try await withApp { app in

@@ -55,8 +55,10 @@ struct TriggerBuildsCommand: AsyncCommand {
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
+        prepareDependencies {
+            $0.logger = Logger(component: "trigger-builds")
+        }
         @Dependency(\.logger) var logger
-        logger.set(to: Logger(component: "trigger-builds"))
 
         Self.resetMetrics()
 

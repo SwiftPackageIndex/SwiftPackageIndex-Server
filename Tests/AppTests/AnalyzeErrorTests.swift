@@ -21,6 +21,13 @@ import Testing
 import Vapor
 
 
+extension AllTests {
+    @Suite struct AnalyzeErrorTests {
+        let socialPosts = LockIsolated<[String]>([])
+    }
+}
+
+
 // Test analysis error handling.
 //
 // This suite of tests ensures that errors in batch analysis do not impact processing
@@ -28,13 +35,9 @@ import Vapor
 //
 // We analyze two packages where the first package is set up to encounter
 // various error states and ensure the second package is successfully processed.
-@Suite struct AnalyzeErrorTests {
-
-    let badPackageID: Package.Id = .id0
-    let goodPackageID: Package.Id = .id1
-
-    let capturingLogger = CapturingLogger()
-    let socialPosts = LockIsolated<[String]>([])
+extension AllTests.AnalyzeErrorTests {
+    var badPackageID: Package.Id { .id0 }
+    var goodPackageID: Package.Id { .id1 }
 
     struct SimulatedError: Error { }
 
@@ -58,10 +61,12 @@ import Vapor
     }
 
     @Test func analyze_refreshCheckout_failed() async throws {
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        let capturingLogger = CapturingLogger()
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case _ where cmd.description.contains("git clone https://github.com/foo/1"):
@@ -90,10 +95,12 @@ import Vapor
     }
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        let capturingLogger = CapturingLogger()
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // setup
                 let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -118,10 +125,12 @@ import Vapor
     }
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        let capturingLogger = CapturingLogger()
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
@@ -147,7 +156,8 @@ import Vapor
     }
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
-        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
+        let capturingLogger = CapturingLogger()
+        try await withApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable path in
@@ -156,6 +166,7 @@ import Vapor
                     }
                     return true
                 }
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,
@@ -176,12 +187,9 @@ import Vapor
 }
 
 
-extension AnalyzeErrorTests {
-#if compiler(>=6.1)
-#warning("Move this into a trait on @Test")
-    // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
-#endif
-    var defaultDependencies: (inout DependencyValues) async throws -> Void {
+extension AllTests.AnalyzeErrorTests {
+    // Cannot be a trait, because it references the member `socialPosts`
+    var defaultDependencies: @Sendable (inout DependencyValues) async throws -> Void {
         {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
@@ -193,7 +201,7 @@ extension AnalyzeErrorTests {
 }
 
 
-extension AnalyzeErrorTests {
+extension AllTests.AnalyzeErrorTests {
     func defaultValidation(_ app: Application) async throws {
         let versions = try await Version.query(on: app.db)
             .filter(\.$package.$id == goodPackageID)

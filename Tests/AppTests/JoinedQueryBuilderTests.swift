@@ -22,7 +22,7 @@ import Testing
 /// and forwards method calls to it. This test class tests this behaviour in principle for `sort`
 /// but not for any other methods at this time, because the instrumentation is quite mechanical
 /// and essentially compiler checked.
-@Suite struct JoinedQueryBuilderTests {
+extension AllTests.JoinedQueryBuilderTests {
 
     @Test func sort() async throws {
         try await withApp { app in

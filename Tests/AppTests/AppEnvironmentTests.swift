@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct AppEnvironmentTests {
+extension AllTests.AppEnvironmentTests {
 
     @Test func Filemanager_checkoutsDirectory() throws {
         withDependencies {

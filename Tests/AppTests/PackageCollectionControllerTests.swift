@@ -21,7 +21,7 @@ import SnapshotTesting
 import Testing
 
 
-@Suite struct PackageCollectionControllerTests {
+extension AllTests.PackageCollectionControllerTests {
 
     @Test(
         .disabled(
@@ -173,7 +173,7 @@ import Testing
 }
 
 
-extension PackageCollectionControllerTests {
+extension AllTests.PackageCollectionControllerTests {
     var encoder: JSONEncoder {
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]

@@ -20,7 +20,7 @@ import Dependencies
 import Testing
 
 
-@Suite struct BlogActionsModelTests {
+extension AllTests.BlogActionsModelTests {
 
     @Test func init_loadSummaries() async throws {
         try withDependencies {

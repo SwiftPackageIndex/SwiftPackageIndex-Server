@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct SwiftVersionTests {
+extension AllTests.SwiftVersionTests {
 
     @Test func swiftVerRegex() throws {
         #expect(SwiftVersion.swiftVerRegex.matches("1"))

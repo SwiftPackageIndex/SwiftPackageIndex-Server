@@ -21,7 +21,7 @@ import Testing
 import XCTVapor
 
 
-@Suite struct ApiTests {
+extension AllTests.ApiTests {
 
     @Test func version() async throws {
         try await withApp { app in
@@ -1181,7 +1181,7 @@ private extension HTTPHeaders {
 }
 
 
-extension ApiTests {
+extension AllTests.ApiTests {
     struct TestEvent: Equatable {
         var kind: Plausible.Event.Kind
         var path: Plausible.Path

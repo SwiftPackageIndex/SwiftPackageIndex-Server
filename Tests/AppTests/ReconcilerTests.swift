@@ -19,7 +19,7 @@ import Testing
 import Vapor
 
 
-@Suite struct ReconcilerTests {
+extension AllTests.ReconcilerTests {
 
     @Test func fetchCurrentPackageList() async throws {
         try await withApp { app in

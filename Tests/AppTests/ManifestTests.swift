@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct ManifestTests {
+extension AllTests.ManifestTests {
 
     @Test func decode_Product_Type() throws {
         // Test product type decoding.

@@ -19,7 +19,7 @@ import Foundation
 import Testing
 
 
-@Suite struct StringExtTests {
+extension AllTests.StringExtTests {
 
     @Test func pluralised() throws {
         #expect("version".pluralized(for: 0) == "versions")

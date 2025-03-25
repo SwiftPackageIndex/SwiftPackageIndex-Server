@@ -18,7 +18,7 @@ import Testing
 import Vapor
 
 
-@Suite struct BuildShowModelTests {
+extension AllTests.BuildShowModelTests {
 
     typealias Model = BuildShow.Model
 

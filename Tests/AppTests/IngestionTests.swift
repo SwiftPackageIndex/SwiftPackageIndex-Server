@@ -21,7 +21,7 @@ import Testing
 import Vapor
 
 
-@Suite struct IngestionTests {
+extension AllTests.IngestionTests {
 
     @Test func ingest_basic() async throws {
         try await withApp { app in
@@ -383,7 +383,7 @@ import Vapor
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't create repository records
         let capturingLogger = CapturingLogger()
-        try await withApp(logHandler: capturingLogger) { app in
+        try await withApp { app in
             // setup
             try await Package(id: .id0, url: "https://github.com/foo/0", status: .ok, processingStage: .reconciliation)
                 .save(on: app.db)
@@ -413,6 +413,7 @@ import Vapor
                         summary: "desc")
                 }
                 $0.github.fetchReadme = { @Sendable _, _ in nil }
+                $0.logger = .testLogger(capturingLogger)
             } operation: {
                 // MUT
                 try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))

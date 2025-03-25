@@ -20,7 +20,7 @@ import PostgresKit
 import Testing
 
 
-@Suite struct VersionTests {
+extension AllTests.VersionTests {
 
     @Test func save() async throws {
         try await withApp { app in

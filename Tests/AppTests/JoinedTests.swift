@@ -17,7 +17,7 @@
 import Testing
 
 
-@Suite struct JoinedTests {
+extension AllTests.JoinedTests {
     typealias JPR = Joined<Package, Repository>
 
     @Test func query_owner_repository() async throws {

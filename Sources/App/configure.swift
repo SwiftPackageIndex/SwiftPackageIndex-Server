@@ -30,9 +30,7 @@ public func configure(_ app: Application, databasePort: Int? = nil) async throws
     let _ = Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/macOSInjection.bundle")?.load()
     #endif
 
-    @Dependency(\.logger) var logger
     app.logger.component = "server"
-    logger.set(to: app.logger)
 
     // It will be tempting to uncomment/re-add these lines in the future. We should not enable
     // server-side compression as long as we pass requests through Cloudflare, which compresses
@@ -378,7 +376,8 @@ public func configure(_ app: Application, databasePort: Int? = nil) async throws
     try routes(app)
 
     // bootstrap app metrics
-    AppMetrics.bootstrap()
+    @Dependency(\.metricsSystem) var metricsSystem
+    metricsSystem.bootstrap()
 
     return host
 }
