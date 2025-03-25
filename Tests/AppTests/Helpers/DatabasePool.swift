@@ -40,8 +40,6 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
-        print("ℹ️ DatabasePool size:", Environment.databasePoolSize)
-
         // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
 
@@ -49,7 +47,18 @@ actor DatabasePool {
             // We don't have docker available in CI to probe for running dbs.
             // Instead, we have a hard-coded list of dbs we launch in the GH workflow
             // file and correspondingly, we hard-code their ports here.
-            availableDatabases = Set((6000..<6008).map(Database.init))
+            let runningDbs = Set((6000..<6008).map(Database.init))
+            try await withThrowingTaskGroup(of: Database.self) { group in
+                for db in runningDbs {
+                    group.addTask {
+                        try await db.setup(for: .testing)
+                        return db
+                    }
+                }
+                for try await db in group {
+                    availableDatabases.insert(db)
+                }
+            }
         } else {
             // Re-use up to maxCount running dbs
             let runningDbs = try await runningDatabases()
@@ -78,11 +87,11 @@ actor DatabasePool {
                 }
             }
         }
+
+        print("ℹ️ availableDatabases:", availableDatabases.count)
     }
 
     func tearDown() async throws {
-        print("ℹ️ DatabasePool size:", Environment.databasePoolSize)
-
         if isRunningInCI() {
             // Let CI's tear down deal with the databases, there's nothing we can or should do here.
         } else {
