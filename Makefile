@@ -104,6 +104,13 @@ db-up: db-up-dev db-up-test redis-up-dev
 db-up-dev:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16-alpine
 
+# NB: It is not required to bring up the test databases via this make target. The test runner will spawn databases 
+# automatically. This can be configured via the environment variable:
+#   DATABASEPOOL_SIZE
+# A good default for this is 8. Higher values don't improve performance much. If unset, this defaults to 4.
+# By setting the optional variable
+#   DATABASEPOOL_TEARDOWN
+# the database containers will be removed after the test run completes. Default is `false`.
 db-up-test:
 	./scripts/start-test-dbs.sh
 
