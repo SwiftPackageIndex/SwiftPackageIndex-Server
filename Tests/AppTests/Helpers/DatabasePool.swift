@@ -47,24 +47,12 @@ actor DatabasePool {
             // We don't have docker available in CI to probe for running dbs.
             // Instead, we have a hard-coded list of dbs we launch in the GH workflow
             // file and correspondingly, we hard-code their ports here.
-            let runningDbs = Set((6000..<6008).map(Database.init))
-            try await withThrowingTaskGroup(of: Database.self) { group in
-                for db in runningDbs {
-                    group.addTask {
-                        try await db.setup(for: .testing)
-                        return db
-                    }
-                }
-                for try await db in group {
-                    availableDatabases.insert(db)
-                }
-            }
+            let runningDbs = (6000..<6008).map(Database.init)
+            availableDatabases = try await Set(setupDatabases(runningDbs))
         } else {
             // Re-use up to maxCount running dbs
             let runningDbs = try await runningDatabases()
-            for db in runningDbs.prefix(maxCount) {
-                availableDatabases.insert(db)
-            }
+            availableDatabases = try await Set(setupDatabases(runningDbs.prefix(maxCount)))
 
             do { // Delete overprovisioned dbs
                 let overprovisioned = runningDbs.dropFirst(maxCount)
@@ -130,6 +118,22 @@ actor DatabasePool {
             .map { String($0.dropFirst("spi_test_".count)) }
             .compactMap(Int.init)
             .map(Database.init(port:))
+    }
+
+    private func setupDatabases(_ databases: any Collection<Database>) async throws -> [Database] {
+        try await withThrowingTaskGroup(of: Database.self) { group in
+            for db in databases {
+                group.addTask {
+                    try await db.setup(for: .testing)
+                    return db
+                }
+            }
+            var availableDatabases = [Database]()
+            for try await db in group {
+                availableDatabases.append(db)
+            }
+            return availableDatabases
+        }
     }
 
     private func retainDatabase() async throws -> Database {
