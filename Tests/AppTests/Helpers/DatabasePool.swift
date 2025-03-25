@@ -40,6 +40,8 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
+        print("ℹ️ DatabasePool size:", Environment.databasePoolSize)
+
         // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
 
@@ -79,6 +81,8 @@ actor DatabasePool {
     }
 
     func tearDown() async throws {
+        print("ℹ️ DatabasePool size:", Environment.databasePoolSize)
+
         if isRunningInCI() {
             // Let CI's tear down deal with the databases, there's nothing we can or should do here.
         } else {
