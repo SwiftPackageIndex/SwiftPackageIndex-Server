@@ -40,6 +40,9 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
 
@@ -100,6 +103,9 @@ actor DatabasePool {
     }
 
     func withDatabase(_ operation: @Sendable (Database) async throws -> Void) async throws {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         let db = try await retainDatabase()
         do {
             try await operation(db)
@@ -121,6 +127,10 @@ actor DatabasePool {
     }
 
     private func setupDatabases(_ databases: any Collection<Database>) async throws -> [Database] {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
+    return
         try await withThrowingTaskGroup(of: Database.self) { group in
             for db in databases {
                 group.addTask {
@@ -137,8 +147,16 @@ actor DatabasePool {
     }
 
     private func retainDatabase() async throws -> Database {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         var database = availableDatabases.randomElement()
+        var retry = 0
         while database == nil {
+            defer { retry += 1 }
+            if retry > 0 && retry % 50 == 0 {
+                print("ℹ️ \(#function) available databases: \(availableDatabases.count) retry \(retry)")
+            }
             try await Task.sleep(for: .milliseconds(100))
             database = availableDatabases.randomElement()
         }
