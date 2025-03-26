@@ -29,6 +29,10 @@ actor DatabasePool {
         }
     }
 
+    struct Error: Swift.Error {
+        var message: String
+    }
+
     static let shared = DatabasePool(maxCount: Environment.databasePoolSize)
 
     var maxCount: Int
@@ -156,6 +160,9 @@ actor DatabasePool {
             defer { retry += 1 }
             if retry > 0 && retry % 50 == 0 {
                 print("ℹ️ \(#function) available databases: \(availableDatabases.count) retry \(retry)")
+            }
+            if retry >= 1000 {
+                throw Error(message: "Retry count exceeded")
             }
             try await Task.sleep(for: .milliseconds(100))
             database = availableDatabases.randomElement()
