@@ -55,13 +55,17 @@ actor DatabasePool {
         print("ℹ️ availableDatabases", availableDatabases.count)
         for db in availableDatabases {
             print("ℹ️ setting up db \(db.port)")
-//            try await db.setup(for: .testing)
+            try await db.setup(for: .testing)
             print("ℹ️ DONE setting up db \(db.port)")
         }
     }
 
     func tearDown() async throws {
-        try await tearDown(databases: runningDatabases())
+        if isRunningInCI() {
+            // Let the CI system deal with the databases, there's nothing we can or should do here.
+        } else {
+            try await tearDown(databases: runningDatabases())
+        }
     }
 
     func tearDown(databases: any Collection<Database>) async throws {
@@ -182,8 +186,11 @@ extension DatabasePool.Database {
     }
 
     func createSchema(_ environment: Environment, details: ConnectionDetails) async throws {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         do {
-            try await _withDatabase("postgres", details: details) {  // Connect to `postgres` db in order to reset the test db
+            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
@@ -203,10 +210,13 @@ extension DatabasePool.Database {
     }
 
     func createSnapshot(details: ConnectionDetails) async throws {
+        let start = Date()
+        print("ℹ️ \(#function) start")
+        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         let original = Environment.get("DATABASE_NAME")!
         let snapshot = original + "_snapshot"
         do {
-            try await _withDatabase("postgres", details: details) { client in
+            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
             }
@@ -221,7 +231,7 @@ extension DatabasePool.Database {
         let snapshot = original + "_snapshot"
         // delete db and re-create from snapshot
         do {
-            try await _withDatabase("postgres", details: details) { client in
+            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
             }
@@ -250,14 +260,18 @@ private func connect(to databaseName: String, details: DatabasePool.Database.Con
 
 private func _withDatabase(_ databaseName: String,
                            details: DatabasePool.Database.ConnectionDetails,
-                           _ query: @escaping (PostgresClient) async throws -> Void) async throws {
+                           timeout: Duration,
+                           _ query: @Sendable @escaping (PostgresClient) async throws -> Void) async throws {
     let client = connect(to: databaseName, details: details)
-    try await withThrowingTaskGroup { taskGroup in
-        taskGroup.addTask { await client.run() }
-
-        try await query(client)
-
-        taskGroup.cancelAll()
+    try await run(timeout: timeout) {
+        try await withThrowingTaskGroup { taskGroup in
+            taskGroup.addTask { await client.run() }
+            taskGroup.addTask {
+                try await query(client)
+            }
+            try await taskGroup.next()
+            taskGroup.cancelAll()
+        }
     }
 }
 
@@ -275,3 +289,35 @@ extension Environment {
 
 #warning("remove later")
 extension String: Swift.Error { }
+
+
+private enum TimeoutError: Error {
+    case timeout
+    case noResult
+}
+
+
+private func run(timeout: Duration, operation: @escaping @Sendable () async throws -> Void) async throws {
+    try await withThrowingTaskGroup(of: Bool.self) { group in
+        group.addTask {
+            try? await Task.sleep(for: timeout)
+            return false
+        }
+        group.addTask {
+            try await operation()
+            return true
+        }
+        let res = await group.nextResult()
+        group.cancelAll()
+        switch res {
+            case .success(false):
+                throw TimeoutError.timeout
+            case .success(true):
+                break
+            case .failure(let error):
+                throw error
+            case .none:
+                throw TimeoutError.noResult
+        }
+    }
+}
