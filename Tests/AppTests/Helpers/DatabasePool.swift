@@ -52,25 +52,11 @@ actor DatabasePool {
             availableDatabases.insert(db)
         }
 
-        do { // Delete overprovisioned dbs
-            let overprovisioned = runningDbs.dropFirst(maxCount)
-            try await tearDown(databases: overprovisioned)
-        }
-
-        do { // Create missing dbs
-            let underprovisionedCount = max(maxCount - availableDatabases.count, 0)
-            try await withThrowingTaskGroup(of: Database.self) { group in
-                for _ in (0..<underprovisionedCount) {
-                    group.addTask {
-                        let db = try await self.launchDB()
-                        try await db.setup(for: .testing)
-                        return db
-                    }
-                }
-                for try await db in group {
-                    availableDatabases.insert(db)
-                }
-            }
+        print("ℹ️ availableDatabases", availableDatabases.count)
+        for db in availableDatabases {
+            print("ℹ️ setting up db \(db.port)")
+            try await db.setup(for: .testing)
+            print("ℹ️ DONE setting up db \(db.port)")
         }
     }
 
@@ -278,7 +264,7 @@ private func _withDatabase(_ databaseName: String,
 
 extension Environment {
     static var databasePoolSize: Int {
-        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
+        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 8
     }
 
     static var databasePoolTearDown: Bool {
