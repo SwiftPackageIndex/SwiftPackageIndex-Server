@@ -172,9 +172,9 @@ extension DatabasePool.Database {
                 self.host = "db-\(port)"
             } else {
                 self.host = Environment.get("DATABASE_HOST")!
+                precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
+                             "DATABASE_HOST must be a local db, was: \(host)")
             }
-            precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
-                         "DATABASE_HOST must be a local db, was: \(host)")
             self.port = port
             self.username = Environment.get("DATABASE_USERNAME")!
             self.password = Environment.get("DATABASE_PASSWORD")!
