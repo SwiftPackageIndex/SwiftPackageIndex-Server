@@ -43,12 +43,10 @@ jobs:
         run: cp .env.testing.template .env.testing && swift test --filter AnalyzerTests
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
-          DATABASE_HOST: postgres
-          DATABASE_PORT: '5432'
     services:
       # Make sure the ports expose here (6000-60007) align with the ports
       # hard-coded in DatabasePool.runningDatabases().
-      db-0:
+      db-6000:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -61,7 +59,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-1:
+      db-6001:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -74,7 +72,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-2:
+      db-6002:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -87,7 +85,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-3:
+      db-6003:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -100,7 +98,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-4:
+      db-6004:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -113,7 +111,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-5:
+      db-6005:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -126,7 +124,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6:
+      db-6006:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -139,7 +137,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-7:
+      db-6007:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test

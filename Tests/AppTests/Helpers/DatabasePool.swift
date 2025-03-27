@@ -168,7 +168,11 @@ extension DatabasePool.Database {
             // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
             // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
             // and to ensure the database resetting cannot impact any other network hosts.
-            self.host = Environment.get("DATABASE_HOST")!
+            if isRunningInCI() {
+                self.host = "db-\(port)"
+            } else {
+                self.host = Environment.get("DATABASE_HOST")!
+            }
             precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
                          "DATABASE_HOST must be a local db, was: \(host)")
             self.port = port
