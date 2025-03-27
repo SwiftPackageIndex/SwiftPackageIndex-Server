@@ -268,6 +268,7 @@ private func _withDatabase(_ databaseName: String,
                            _ query: @Sendable @escaping (PostgresClient) async throws -> Void) async throws {
     let client = connect(to: databaseName, details: details)
     try await run(timeout: timeout) {
+#warning("This looks weird, review it")
         try await withThrowingTaskGroup { taskGroup in
             taskGroup.addTask { await client.run() }
             taskGroup.addTask {
@@ -282,7 +283,7 @@ private func _withDatabase(_ databaseName: String,
 
 extension Environment {
     static var databasePoolSize: Int {
-        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 8
+        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
     }
 
     static var databasePoolTearDown: Bool {
