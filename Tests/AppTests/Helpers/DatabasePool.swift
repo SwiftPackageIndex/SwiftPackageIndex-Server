@@ -55,7 +55,7 @@ actor DatabasePool {
         print("ℹ️ availableDatabases", availableDatabases.count)
         for db in availableDatabases {
             print("ℹ️ setting up db \(db.port)")
-            try await db.setup(for: .testing)
+//            try await db.setup(for: .testing)
             print("ℹ️ DONE setting up db \(db.port)")
         }
     }
