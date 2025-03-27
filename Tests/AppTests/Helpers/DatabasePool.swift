@@ -234,7 +234,7 @@ extension DatabasePool.Database {
 }
 
 
-private func connect(to databaseName: String, details: DatabasePool.Database.ConnectionDetails) async throws -> PostgresClient {
+private func connect(to databaseName: String, details: DatabasePool.Database.ConnectionDetails) -> PostgresClient {
     let config = PostgresClient.Configuration(
         host: details.host,
         port: details.port,
@@ -251,8 +251,8 @@ private func connect(to databaseName: String, details: DatabasePool.Database.Con
 private func _withDatabase(_ databaseName: String,
                            details: DatabasePool.Database.ConnectionDetails,
                            _ query: @escaping (PostgresClient) async throws -> Void) async throws {
-    let client = try await connect(to: databaseName, details: details)
-    try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+    let client = connect(to: databaseName, details: details)
+    try await withThrowingTaskGroup { taskGroup in
         taskGroup.addTask { await client.run() }
 
         try await query(client)
