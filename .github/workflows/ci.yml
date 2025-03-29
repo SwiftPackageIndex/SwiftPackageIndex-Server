@@ -32,14 +32,14 @@ jobs:
       image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
       options: --privileged
     services:
-      postgres:
+      db-0:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
         ports:
-          - '5432:6000'
+          - '5432:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -52,7 +52,7 @@ jobs:
         run: |
           apt-get update && apt -y install postgresql
           which psql
-          PGPASSWORD=xxx psql -h postgres -U spi_test spi_test -p 6000 -c "select 'ok';"
+          PGPASSWORD=xxx psql -h db-0 -U spi_test spi_test -p 5432 -c "select 'ok';"
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
