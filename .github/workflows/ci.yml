@@ -34,15 +34,11 @@ jobs:
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with: { 'fetch-depth': 0 }
       - name: Install postgres
         run: |
           apt-get update && apt -y install postgresql
           which psql
-          PGPASSWORD=xxx psql -h db-6000 -U spi_test spi_test -p 6000 -c "select 'ok';" || 0
-          PGPASSWORD=xxx psql -h localhost -U spi_test spi_test -p 6000 -c "select 'ok';" || 0
+          PGPASSWORD=xxx psql -h localhost -U spi_test spi_test -p 6000 -c "select 'ok';"
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
