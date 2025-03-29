@@ -31,6 +31,20 @@ jobs:
     container:
       image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
       options: --privileged
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
@@ -38,114 +52,7 @@ jobs:
         run: |
           apt-get update && apt -y install postgresql
           which psql
-          PGPASSWORD=xxx psql -h localhost -U spi_test spi_test -p 6000 -c "select 'ok';"
+          PGPASSWORD=xxx psql -h postgres -U spi_test spi_test -p 5432 -c "select 'ok';"
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
-    services:
-      # Make sure the ports expose here (6000-6007) align with the ports
-      # hard-coded in DatabasePool.runningDatabases().
-      db-6000:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6000:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6001:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6001:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6002:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6002:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6003:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6003:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6004:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6004:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6005:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6005:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6006:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6006:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      db-6007:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '6007:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
