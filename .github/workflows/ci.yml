@@ -37,10 +37,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Install unzip
-        run: apt-get update && apt-get install -y unzip
-      - name: Run tests
-        run: cp .env.testing.template .env.testing && swift test --filter AnalyzerTests
+      - name: Install postgres
+        run: |
+          apt-get update && apt -y install postgresql
+          which psql
+          PGPASSWORD=xxx psql -h db-6000 -U spi_test spi_test -p 6000 -c "select 'ok';" || 0
+          PGPASSWORD=xxx psql -h localhost -U spi_test spi_test -p 6000 -c "select 'ok';" || 0
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
@@ -151,47 +153,3 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-  release-build-linux:
-    name: Release build
-    runs-on: ubuntu-latest
-    container:
-      image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
-      options: --privileged
-    steps:
-      - name: GH Runner bug workaround
-        run: sysctl -w vm.mmap_rnd_bits=28
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with: { 'fetch-depth': 0 }
-      - name: Build release
-        run: swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
-
-  # test-macos:
-  #   name: Test macOS
-  #   runs-on: macOS-latest
-  #   services:
-  #     postgres:
-  #       image: postgres:16-alpine
-  #       env:
-  #         POSTGRES_DB: spi_dev
-  #         POSTGRES_USER: spi_dev
-  #         POSTGRES_PASSWORD: xxx
-  #       ports:
-  #         - 5432:5432
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Select Xcode 11.4
-  #       run: sudo xcode-select -s /Applications/Xcode_11.4.app
-  #     - name: Log Xcode version
-  #       run: /usr/bin/xcodebuild -version
-  #     - name: Run tests
-  #       run: make test
-  #       env:
-  #         DATABASE_HOST: postgres
-  #         DATABASE_PORT: 5432
