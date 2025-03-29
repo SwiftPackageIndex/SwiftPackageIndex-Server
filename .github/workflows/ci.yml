@@ -45,7 +45,7 @@ jobs:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
     services:
-      # Make sure the ports expose here (6000-60007) align with the ports
+      # Make sure the ports expose here (6000-6007) align with the ports
       # hard-coded in DatabasePool.runningDatabases().
       db-6000:
         image: postgres:16-alpine
