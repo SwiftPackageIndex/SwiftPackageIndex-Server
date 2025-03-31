@@ -22,11 +22,15 @@ import Vapor
 
 actor DatabasePool {
     struct Database: Hashable {
-        var port: Int
+        let index: Int
+        let connectionDetails: ConnectionDetails
 
-        var connectionDetails: ConnectionDetails {
-            .init(port: port)
+        init(index: Int) {
+            self.index = index
+            self.connectionDetails = .init(index: index)
         }
+
+        var port: Int { connectionDetails.port }
     }
 
     static let shared = DatabasePool(maxCount: Environment.databasePoolSize)
@@ -40,24 +44,53 @@ actor DatabasePool {
     var availableDatabases: Set<Database> = .init()
 
     func setUp() async throws {
-        let start = Date()
-        print("ℹ️ \(#function) start")
-        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         // Call DotEnvFile.load once to ensure env variables are set
         await DotEnvFile.load(for: .testing, fileio: .init(threadPool: .singleton))
 
-        // Re-use up to maxCount running dbs
         let runningDbs = try await runningDatabases()
-        for db in runningDbs.prefix(maxCount) {
-            availableDatabases.insert(db)
+
+        if isRunningInCI() {
+            // In CI, running dbs are new and need to be set up
+            try await withThrowingTaskGroup(of: Database.self) { group in
+                for db in runningDbs {
+                    group.addTask {
+                        try await db.setup(for: .testing)
+                        return db
+                    }
+                }
+                for try await db in group {
+                    availableDatabases.insert(db)
+                }
+            }
+        } else {
+            // Re-use up to maxCount running dbs
+            for db in runningDbs.prefix(maxCount) {
+                availableDatabases.insert(db)
+            }
+
+            do { // Delete overprovisioned dbs
+                let overprovisioned = runningDbs.dropFirst(maxCount)
+                try await tearDown(databases: overprovisioned)
+            }
+
+            do { // Create missing dbs
+                let underprovisionedCount = max(maxCount - availableDatabases.count, 0)
+                try await withThrowingTaskGroup(of: Database.self) { group in
+                    for _ in (0..<underprovisionedCount) {
+                        group.addTask {
+                            let db = try await self.launchDB()
+                            try await db.setup(for: .testing)
+                            return db
+                        }
+                    }
+                    for try await db in group {
+                        availableDatabases.insert(db)
+                    }
+                }
+            }
         }
 
-        print("ℹ️ availableDatabases", availableDatabases.count)
-        for db in availableDatabases {
-            print("ℹ️ setting up db \(db.port)")
-            try await db.setup(for: .testing)
-            print("ℹ️ DONE setting up db \(db.port)")
-        }
+        print("ℹ️ availableDatabases:", availableDatabases.count)
     }
 
     func tearDown() async throws {
@@ -81,9 +114,6 @@ actor DatabasePool {
     }
 
     func withDatabase(_ operation: @Sendable (Database) async throws -> Void) async throws {
-        let start = Date()
-        print("ℹ️ \(#function) start")
-        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         let db = try await retainDatabase()
         do {
             try await operation(db)
@@ -99,7 +129,7 @@ actor DatabasePool {
             // We don't have docker available in CI to probe for running dbs.
             // Instead, we have a hard-coded list of dbs we launch in the GH workflow
             // file and correspondingly, we hard-code their ports here.
-            return (6000..<6008).map(Database.init)
+            return (0..<8).map(Database.init(index:))
         } else {
             let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
             return stdout
@@ -107,7 +137,7 @@ actor DatabasePool {
                 .filter { $0.starts(with: "spi_test_") }
                 .map { String($0.dropFirst("spi_test_".count)) }
                 .compactMap(Int.init)
-                .map(Database.init(port:))
+                .map(Database.init(index:))
         }
     }
 
@@ -144,13 +174,13 @@ actor DatabasePool {
             print("⚠️ Launching DB on port \(port) (attempt: \(attempt))")
             try await ShellOut.shellOut(to: .launchDB(port: port))
         }
-        return .init(port: port)
+        return .init(index: port)
     }
 
     private func removeDB(database: Database, maxAttempts: Int = 3) async throws {
         try await run(maxAttempts: 3) { attempt in
             // print("⚠️ Removing DB on port \(database.port) (attempt: \(attempt))")
-            try await ShellOut.shellOut(to: .removeDB(port: database.port))
+            try await ShellOut.shellOut(to: .removeDB(port: database.index))
         }
     }
 }
@@ -158,43 +188,42 @@ actor DatabasePool {
 
 extension DatabasePool.Database {
 
-    struct ConnectionDetails {
+    struct ConnectionDetails: Hashable {
         var host: String
         var port: Int
         var username: String
         var password: String
 
-        init(port: Int) {
+        init(index: Int) {
             // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
             // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
             // and to ensure the database resetting cannot impact any other network hosts.
             if isRunningInCI() {
-                self.host = "db-\(port)"
+                self.host = "db-\(index)"
+                self.port = 5432
             } else {
                 self.host = Environment.get("DATABASE_HOST")!
                 precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
                              "DATABASE_HOST must be a local db, was: \(host)")
+                self.port = index
             }
-            self.port = port
             self.username = Environment.get("DATABASE_USERNAME")!
             self.password = Environment.get("DATABASE_PASSWORD")!
         }
     }
 
     func setup(for environment: Environment) async throws {
-        let details = ConnectionDetails(port: port)
-
         // Create initial db snapshot
-        try await createSchema(environment, details: details)
-        try await createSnapshot(details: details)
+        try await createSchema(environment)
+        try await createSnapshot()
     }
 
-    func createSchema(_ environment: Environment, details: ConnectionDetails) async throws {
+    func createSchema(_ environment: Environment) async throws {
         let start = Date()
         print("ℹ️ \(#function) start")
         defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         do {
-            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) {  // Connect to `postgres` db in order to reset the test db
+            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(5)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
@@ -203,7 +232,7 @@ extension DatabasePool.Database {
             do {  // Use autoMigrate to spin up the schema
                 let app = try await Application.make(environment)
                 app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
-                try await configure(app, databasePort: port)
+                try await configure(app, databasePort: connectionDetails.port)
                 try await app.autoMigrate()
                 try await app.asyncShutdown()
             }
@@ -213,14 +242,14 @@ extension DatabasePool.Database {
         }
     }
 
-    func createSnapshot(details: ConnectionDetails) async throws {
+    func createSnapshot() async throws {
         let start = Date()
         print("ℹ️ \(#function) start")
         defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         let original = Environment.get("DATABASE_NAME")!
         let snapshot = original + "_snapshot"
         do {
-            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) { client in
+            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(5)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
             }
