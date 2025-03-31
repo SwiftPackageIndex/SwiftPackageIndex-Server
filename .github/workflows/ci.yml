@@ -45,107 +45,89 @@ jobs:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
     services:
-      # Make sure the ports expose here (6000-6007) align with the ports
-      # hard-coded in DatabasePool.runningDatabases().
-      db-6000:
+      db-0:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6000:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6001:
+      db-1:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6001:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6002:
+      db-2:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6002:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6003:
+      db-3:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6003:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6004:
+      db-4:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6004:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6005:
+      db-5:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6005:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6006:
+      db-6:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6006:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6007:
+      db-7:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
-        ports:
-          - '6007:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -185,8 +167,6 @@ jobs:
   #         POSTGRES_DB: spi_dev
   #         POSTGRES_USER: spi_dev
   #         POSTGRES_PASSWORD: xxx
-  #       ports:
-  #         - 5432:5432
   #       options: >-
   #         --health-cmd pg_isready
   #         --health-interval 10s
