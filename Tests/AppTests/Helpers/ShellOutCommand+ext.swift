@@ -26,7 +26,7 @@ extension ShellOutCommand {
             "--tmpfs", "/pgdata:rw,noexec,nosuid,size=1024m",
             "-p", "\(port):5432",
             "-d",
-            "postgres:16-alpine"
+            "postgres:13-alpine"
         ])
     }
 

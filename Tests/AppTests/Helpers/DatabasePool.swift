@@ -94,11 +94,7 @@ actor DatabasePool {
     }
 
     func tearDown() async throws {
-        if isRunningInCI() {
-            // Let the CI system deal with the databases, there's nothing we can or should do here.
-        } else {
-            try await tearDown(databases: runningDatabases())
-        }
+        try await tearDown(databases: runningDatabases())
     }
 
     func tearDown(databases: any Collection<Database>) async throws {
@@ -142,20 +138,20 @@ actor DatabasePool {
     }
 
     private func retainDatabase() async throws -> Database {
-        let start = Date()
-        print("ℹ️ \(#function) start")
-        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
+//        let start = Date()
+//        print("ℹ️ \(#function) start")
+//        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         var database = availableDatabases.randomElement()
-        var retry = 0
+//        var retry = 0
         while database == nil {
-            defer { retry += 1 }
-            if retry > 0 && retry % 50 == 0 {
-                print("ℹ️ \(#function) available databases: \(availableDatabases.count) retry \(retry)")
-            }
-            if retry >= 1000 {
-                throw "Retry count exceeded"
-            }
-            try await Task.sleep(for: .milliseconds(100))
+//            defer { retry += 1 }
+//            if retry > 0 && retry % 50 == 0 {
+//                print("ℹ️ \(#function) available databases: \(availableDatabases.count) retry \(retry)")
+//            }
+//            if retry >= 1000 {
+//                throw "Retry count exceeded"
+//            }
+            try await Task.sleep(for: .milliseconds(10))
             database = availableDatabases.randomElement()
         }
         guard let database else { fatalError("database cannot be nil here") }
@@ -199,7 +195,7 @@ extension DatabasePool.Database {
             // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
             // and to ensure the database resetting cannot impact any other network hosts.
             if isRunningInCI() {
-                self.host = "db-\(index)"
+                self.host = "spi_test_\(index)"
                 self.port = 5432
             } else {
                 self.host = Environment.get("DATABASE_HOST")!
@@ -223,7 +219,7 @@ extension DatabasePool.Database {
         print("ℹ️ \(#function) start")
         defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         do {
-            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(5)) {  // Connect to `postgres` db in order to reset the test db
+            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
@@ -249,7 +245,7 @@ extension DatabasePool.Database {
         let original = Environment.get("DATABASE_NAME")!
         let snapshot = original + "_snapshot"
         do {
-            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(5)) { client in
+            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
             }
@@ -264,7 +260,7 @@ extension DatabasePool.Database {
         let snapshot = original + "_snapshot"
         // delete db and re-create from snapshot
         do {
-            try await _withDatabase("postgres", details: details, timeout: .seconds(1)) { client in
+            try await _withDatabase("postgres", details: details, timeout: .seconds(10)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
             }
@@ -312,11 +308,19 @@ private func _withDatabase(_ databaseName: String,
 
 extension Environment {
     static var databasePoolSize: Int {
-        Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
+        if isRunningInCI() {
+            8
+        } else {
+            Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
+        }
     }
 
     static var databasePoolTearDown: Bool {
-        Environment.get("DATABASEPOOL_TEARDOWN").flatMap(\.asBool) ?? true
+        if isRunningInCI() {
+            false
+        } else {
+            Environment.get("DATABASEPOOL_TEARDOWN").flatMap(\.asBool) ?? true
+        }
     }
 }
 
