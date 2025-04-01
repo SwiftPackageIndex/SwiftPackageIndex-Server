@@ -1,11 +1,18 @@
 {
     "name": "spi-base",
     "build": { "dockerfile": "Dockerfile" },
-    "extensions": [
-      "sswg.swift-lang"
-    ],
-    "settings": {
-      "lldb.library": "/usr/lib/liblldb.so"
+    "forwardPorts": [8080],
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "sswg.swift-lang"
+        ],
+        "settings": {
+          "lldb.library": "/usr/lib/liblldb.so"
+        }
+      }
     },
-    "forwardPorts": [8080]
+    "runArgs": [
+      "--network=spi_test"
+    ]
 }
