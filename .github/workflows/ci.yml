@@ -45,7 +45,7 @@ jobs:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASEPOOL_SIZE: 8
     services:
-      db-0:
+      spi_test_0:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -56,7 +56,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-1:
+      spi_test_1:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -67,7 +67,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-2:
+      spi_test_2:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -78,7 +78,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-3:
+      spi_test_3:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -89,7 +89,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-4:
+      spi_test_4:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -100,7 +100,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-5:
+      spi_test_5:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -111,7 +111,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-6:
+      spi_test_6:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
@@ -122,7 +122,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      db-7:
+      spi_test_7:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
