@@ -92,6 +92,7 @@ extension AllTests {
     @Suite struct PackageTests { }
     @Suite struct PipelineTests { }
     @Suite struct PlausibleTests { }
+    @Suite struct PortalTests {}
     @Suite struct ProductTests { }
     @Suite struct QueryPlanTests { }
     @Suite struct RSSTests { }
