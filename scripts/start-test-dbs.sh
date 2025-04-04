@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-docker network create -d bridge spi_test
+docker network create -d bridge spi_test 2> /dev/null
 
 for port in {0..7}; do
     docker run --name "spi_test_$port" \
