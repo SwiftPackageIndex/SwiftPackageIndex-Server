@@ -40,10 +40,9 @@ jobs:
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests
-        run: cp .env.testing.template .env.testing && swift test --filter AnalyzerTests
+        run: cp .env.testing.template .env.testing && make test
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
-          DATABASEPOOL_SIZE: 8
     services:
       spi_test_0:
         image: postgres:16-alpine
