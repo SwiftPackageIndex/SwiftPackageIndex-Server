@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
+      image: registry.gitlab.com/finestructure/spi-base:906f67cb3a6b3a73df5585657ad77682a03010be
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -137,7 +137,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:46fc194706b255239d764c87f05f825ad9f98303
+      image: registry.gitlab.com/finestructure/spi-base:906f67cb3a6b3a73df5585657ad77682a03010be
       options: --privileged
     steps:
       - name: GH Runner bug workaround
