@@ -33,9 +33,10 @@ build:
 run:
 	swift run
 
-test:
+test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution
+	&& swift test --disable-automatic-resolution \
+	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance:
 	set -o pipefail \
@@ -51,8 +52,6 @@ test-fast:
 	@echo Running without --sanitize=thread
 	swift test --disable-automatic-resolution
 
-# Need to temporarily drop xcbeautify due to a compiler crash with Swift 6.1 nightlies:
-# https://github.com/swiftlang/swift/issues/80240
 xcbeautify:
 	rm -rf .build/checkouts/xcbeautify
 	git clone https://github.com/cpisciotta/xcbeautify.git .build/checkouts/xcbeautify
