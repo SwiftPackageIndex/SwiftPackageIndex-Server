@@ -32,7 +32,7 @@ func withSPIApp(
     try await DatabasePool.shared.withDatabase { database in
         try await database.restoreSnapshot(details: database.connectionDetails)
         let app = try await Application.make(environment)
-        try await configure(app, databasePort: database.port)
+        try await configure(app, databaseHost: database.host, databasePort: database.port)
 
         return try await run {
             try await setup(app)

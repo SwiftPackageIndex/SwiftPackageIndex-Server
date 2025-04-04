@@ -30,6 +30,7 @@ actor DatabasePool {
             self.connectionDetails = .init(index: index)
         }
 
+        var host: String { connectionDetails.host }
         var port: Int { connectionDetails.port }
     }
 
@@ -125,7 +126,7 @@ actor DatabasePool {
             // We don't have docker available in CI to probe for running dbs.
             // Instead, we have a hard-coded list of dbs we launch in the GH workflow
             // file and correspondingly, we hard-code their ports here.
-            return (0..<8).map(Database.init(index:))
+            return (0..<Environment.databasePoolSize).map(Database.init(index:))
         } else {
             let stdout = try await ShellOut.shellOut(to: .getContainerNames).stdout
             return stdout
@@ -228,7 +229,7 @@ extension DatabasePool.Database {
             do {  // Use autoMigrate to spin up the schema
                 let app = try await Application.make(environment)
                 app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
-                try await configure(app, databasePort: connectionDetails.port)
+                try await configure(app, databaseHost: connectionDetails.host, databasePort: connectionDetails.port)
                 try await app.autoMigrate()
                 try await app.asyncShutdown()
             }
@@ -282,7 +283,6 @@ private func connect(to databaseName: String, details: DatabasePool.Database.Con
         database: databaseName,
         tls: .disable
     )
-
     return .init(configuration: config)
 }
 
@@ -293,12 +293,11 @@ private func _withDatabase(_ databaseName: String,
                            _ query: @Sendable @escaping (PostgresClient) async throws -> Void) async throws {
     let client = connect(to: databaseName, details: details)
     try await run(timeout: timeout) {
-#warning("This looks weird, review it")
         try await withThrowingTaskGroup { taskGroup in
             taskGroup.addTask { await client.run() }
-            taskGroup.addTask {
-                try await query(client)
-            }
+
+            taskGroup.addTask { try await query(client) }
+
             try await taskGroup.next()
             taskGroup.cancelAll()
         }
