@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Sets up the databases the same way we do in ci.yml
+# - no ports exposed
+# - connected to a bridge network
+# Tests need to be run from a container attached to the same network.
+
 docker network create -d bridge spi_test 2> /dev/null
 
 for port in {0..7}; do

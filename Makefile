@@ -110,16 +110,16 @@ db-up-dev:
 # By setting the optional variable
 #   DATABASEPOOL_TEARDOWN
 # the database containers will be removed after the test run completes. Default is `false`.
-db-up-test:
-	./scripts/start-test-dbs.sh
+db-up-ci:
+	./scripts/start-ci-dbs.sh
 
 db-down: db-down-dev db-down-test redis-down-dev
 
 db-down-dev:
 	docker rm -f spi_dev
 
-db-down-test:
-	./scripts/stop-test-dbs.sh
+db-down-ci:
+	./scripts/stop-ci-dbs.sh
 
 db-reset: db-down db-up migrate
 
