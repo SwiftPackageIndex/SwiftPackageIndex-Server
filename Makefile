@@ -38,14 +38,14 @@ test: xcbeautify
 	&& swift test --disable-automatic-resolution \
 	2>&1 | ./xcbeautify --renderer github-actions
 
-test-query-performance:
+test-query-performance: xcbeautify
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
 	   swift test --disable-automatic-resolution \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
-	grep -v "\] Compiling" test.log
+	grep -v "\] Compiling" test.log | ./xcbeautify --renderer github-actions
 
 test-fast:
 	@echo Skipping image snapshot tests
