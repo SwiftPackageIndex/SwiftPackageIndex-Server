@@ -38,15 +38,17 @@ Close the scheme editor and run the application by selecting "Run" from the Xcod
 [ NOTICE ] Server starting on http://127.0.0.1:8080 [component: server]
 ```
 
-When Xcode opens the `Package.swift` file, it will auto-create a test plan based on all tests in the project. This works for most cases, but we need to tell Xcode to run our tests sequentially, not in parallel. The first thing to do is to persist the autocreated test plan. From the Product menu, select "Test Plan" then "Manage Test Plans...", then click the small arrow button:
+When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
-![A screenshot of Xcode's scheme editor showing a small arrow next to 'SPI-Server-Package (Autocreated)'.](.readme-images/manage-test-plans.png)
+### Running the tests
 
-Once you open the autocreated test plan, you will be asked if you would like to persist the test plan. Click "Save" and accept the default location in the `.swiftpm` directory. Then, for each item in the test plan, click the "Options" and select "Enabled" for the "Parallelization" setting.
+The suite is capabale of running the tests in parallel against a database pool of configurable size. The default is 8 databases and it can be changed via the environment variable `DATABASEPOOL_SIZE`.
+
+The docker test databases will be launched and configured automatically when the tests are run. They will remain active after the tests have completed. If you prefer to have the database containers removed when the tests finish running, set the environment variable `DATABASEPOOL_TEARDOWN` to `true` or `1`.
+
+If you have an existing server project, make sure parallel testing is enable for the test target via its `Options...`.
 
 ![A screenshot of Xcode's test plan editor showing the parallelization options.](.readme-images/test-plan-options.png)
-
-When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
 ### Setup the Front End
 

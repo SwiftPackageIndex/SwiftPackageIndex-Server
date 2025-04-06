@@ -299,7 +299,7 @@ extension Environment {
         if isRunningInCI() {
             8
         } else {
-            Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 4
+            Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 8
         }
     }
 
