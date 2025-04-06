@@ -98,7 +98,7 @@ redis-up-dev:
 redis-down-dev:
 	docker rm -f spi_redis
 
-db-up: db-up-dev db-up-test redis-up-dev
+db-up: db-up-dev redis-up-dev
 
 db-up-dev:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16-alpine
@@ -113,7 +113,7 @@ db-up-dev:
 db-up-ci:
 	./scripts/start-ci-dbs.sh
 
-db-down: db-down-dev db-down-test redis-down-dev
+db-down: db-down-dev redis-down-dev
 
 db-down-dev:
 	docker rm -f spi_dev
