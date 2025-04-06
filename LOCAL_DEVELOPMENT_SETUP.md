@@ -14,7 +14,7 @@ Once you have the project cloned locally, the `Makefile` defines a set of useful
 
 You'll need some environment variables configured before you can run the project. There are template files in the repository as `.env.testing.template` and `.env.development.template` and your first step should be to copy these files as `.env.testing` and `.env.development` and review their content in case your setup deviates from the default.
 
-Then, to create Postgres databases in Docker for your development and test environments, run:
+Then, to create Postgres databases in Docker for your development environment, run:
 
 ```
 make db-up
@@ -42,7 +42,7 @@ When Xcode opens the `Package.swift` file, it will auto-create a test plan based
 
 ![A screenshot of Xcode's scheme editor showing a small arrow next to 'SPI-Server-Package (Autocreated)'.](.readme-images/manage-test-plans.png)
 
-Once you open the autocreated test plan, you will be asked if you would like to persist the test plan. Click "Save" and accept the default location in the `.swiftpm` directory. Then, for each item in the test plan, click the "Options" and select "Disabled" for the "Paralellization" setting.
+Once you open the autocreated test plan, you will be asked if you would like to persist the test plan. Click "Save" and accept the default location in the `.swiftpm` directory. Then, for each item in the test plan, click the "Options" and select "Enabled" for the "Parallelization" setting.
 
 ![A screenshot of Xcode's test plan editor showing the parallelization options.](.readme-images/test-plan-options.png)
 
