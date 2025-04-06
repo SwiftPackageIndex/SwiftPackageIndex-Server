@@ -139,19 +139,8 @@ actor DatabasePool {
     }
 
     private func retainDatabase() async throws -> Database {
-//        let start = Date()
-//        print("ℹ️ \(#function) start")
-//        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         var database = availableDatabases.randomElement()
-//        var retry = 0
         while database == nil {
-//            defer { retry += 1 }
-//            if retry > 0 && retry % 50 == 0 {
-//                print("ℹ️ \(#function) available databases: \(availableDatabases.count) retry \(retry)")
-//            }
-//            if retry >= 1000 {
-//                throw "Retry count exceeded"
-//            }
             try await Task.sleep(for: .milliseconds(10))
             database = availableDatabases.randomElement()
         }
