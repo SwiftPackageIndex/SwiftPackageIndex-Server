@@ -1,5 +1,5 @@
 {
-  "originHash" : "0b2db4c57b28a53a06ca50890187dbcb7d0638c3f544b81849d4404b8ac6f698",
+  "originHash" : "7842eb8158770d2bd9ff4b5fd598106f03684dea930e4cac87a4fb62f4670c6d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -249,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",
       "state" : {
-        "revision" : "7726c6e0b7ac997b0869f37fe864209988707bb5",
-        "version" : "1.7.0"
+        "revision" : "b4fa843a4f21a80ef8d58eca7daae39892b30a48",
+        "version" : "1.8.0"
       }
     },
     {
@@ -393,8 +393,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
       "state" : {
-        "revision" : "ef18d829e8b92d731ad27bb81583edd2094d1ce3",
-        "version" : "1.3.1"
+        "revision" : "a0a57e949a8903563aba4615869310c0ebf14c03",
+        "version" : "1.4.0"
       }
     },
     {
