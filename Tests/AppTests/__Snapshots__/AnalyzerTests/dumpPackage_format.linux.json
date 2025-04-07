@@ -21,12 +21,7 @@
                 "upperBound" : "510.0.0"
               }
             ]
-          },
-          "traits" : [
-            {
-              "name" : "default"
-            }
-          ]
+          }
         }
       ]
     }
@@ -209,8 +204,5 @@
   ],
   "toolsVersion" : {
     "_version" : "5.9.0"
-  },
-  "traits" : [
-
-  ]
+  }
 }
