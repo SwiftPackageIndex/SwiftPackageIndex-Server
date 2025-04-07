@@ -15,14 +15,12 @@
 @testable import App
 
 import Dependencies
-import SnapshotTesting
 import Testing
 
 
 @Suite(
     .dependency(\.date.now, .t0),
-    .dependency(\.metricsSystem, .mock),
-    .snapshots(record: .failed)
+    .dependency(\.metricsSystem, .mock)
 ) struct AllTests { }
 
 
