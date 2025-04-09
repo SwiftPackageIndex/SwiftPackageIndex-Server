@@ -173,11 +173,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/1046635?u=b0ddade45ded79cb570f09e083c24fbdd63e7bee&v=4"
         ),
         .init(
-            login: "sinoru",
-            name: "Jaehong Kang",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1138433?u=b7aa6222751f10a24dce1c47d78f20ced83fd984&v=4"
-        ),
-        .init(
             login: "JoshuaKaden",
             name: "Joshua Kaden",
             avatarUrl: "https://avatars.githubusercontent.com/u/1244926?v=4"
@@ -191,11 +186,6 @@ extension Array<Supporters.Community> {
             login: "WFT",
             name: "Will Field-Thompson",
             avatarUrl: "https://avatars.githubusercontent.com/u/1696960?u=480042020f9901e9459be75fc2e891081b6f0492&v=4"
-        ),
-        .init(
-            login: "radmakr",
-            name: "Thomas Rademaker",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
         ),
         .init(
             login: "dokun1",
@@ -396,6 +386,11 @@ extension Array<Supporters.Community> {
             login: "mattesmohr",
             name: "Mattes Mohr",
             avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
+        ),
+        .init(
+            login: "SwiftyJoeyy",
+            name: "Joe Maghzal",
+            avatarUrl: "https://avatars.githubusercontent.com/u/69967145?u=476cafff997d6bc179934efed7a8aa339be51b08&v=4"
         ),
         .init(
             login: "Emerge-Tools",
