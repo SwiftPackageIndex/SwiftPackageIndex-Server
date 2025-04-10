@@ -6,23 +6,23 @@ enum Signup {
     struct Model {
         var errorMessage: String = ""
     }
-    
+
     class View: PublicPage {
-        
+
         let model: Model
-        
+
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-        
+
         override func pageTitle() -> String? {
             "Sign up"
         }
-        
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("portal-page"),
+                .class("portal-form-container"),
                 .h2("Signup"),
                 .signupForm(),
                 .text(model.errorMessage)

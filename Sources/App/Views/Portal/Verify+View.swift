@@ -2,28 +2,28 @@ import Plot
 import Foundation
 
 enum Verify {
-    
+
     struct Model {
         var email: String
         var errorMessage: String = ""
     }
-    
+
     class View: PublicPage {
-        
+
         let model: Model
-        
+
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-        
+
         override func pageTitle() -> String? {
             "Verify"
         }
-        
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("portal-page"),
+                .class("portal-form-container"),
                 .h2("Please enter the confirmation code sent to your email"),
                 .verifyForm(email: model.email),
                 .text(model.errorMessage)
