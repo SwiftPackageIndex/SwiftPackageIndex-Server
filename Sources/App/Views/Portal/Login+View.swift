@@ -22,13 +22,15 @@ enum Login {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Login"),
+                .h2("Login to Swift Package Index"),
                 .loginForm(),
-                .text(model.errorMessage),
-                .h2("Dont have an account?"),
-                .signupButton(),
-                .h2("Forgot password?"),
-                .forgotPassword()
+                .if(model.errorMessage.isEmpty == false,
+                    .p(
+                        .text(model.errorMessage)
+                    )
+                ),
+                .signupButton("Create an account"),
+                .forgotPassword("Reset your password")
             )
         }
     }
@@ -36,36 +38,36 @@ enum Login {
 
 extension Node where Context: HTML.BodyContext {
     static func loginForm(email: String = "", password: String = "") -> Self {
-        .div(
-            .form(
-                .action(SiteURL.login.relativeURL()),
-                .method(.post),
-                .data(named: "turbo", value: "false"),
-                .emailField(email: email)   ,
-                .passwordField(password: password),
-                .button(
-                    .text("Login"),
-                    .type(.submit)
-                )
+        .form(
+            .action(SiteURL.login.relativeURL()),
+            .method(.post),
+            .data(named: "turbo", value: "false"),
+            .emailField(email: email)   ,
+            .passwordField(password: password),
+            .button(
+                .text("Login"),
+                .type(.submit)
             )
         )
     }
-    
-    static func signupButton() -> Self {
+
+    static func signupButton(_ text: String) -> Self {
         .form(
+            .class("signup"),
             .action(SiteURL.signup.relativeURL()),
             .button(
-                .text("Create an account"),
+                .text(text),
                 .type(.submit)
             )
         )
     }
     
-    static func forgotPassword() -> Self {
+    static func forgotPassword(_ text: String) -> Self {
         .form(
+            .class("forgot"),
             .action(SiteURL.forgotPassword.relativeURL()),
             .button(
-                .text("Reset password"),
+                .text(text),
                 .type(.submit)
             )
         )
