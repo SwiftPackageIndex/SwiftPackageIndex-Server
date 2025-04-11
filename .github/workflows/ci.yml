@@ -72,17 +72,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      # - name: Build release
-      #   run: swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
-      - name: Test launch
+      - name: Test release
         run: |
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the testing template to ensure the db env variables are set.
           cp .env.testing.template .env.testing
           # FIXME: change to `-c release` after testing!!!
-          swift run -c debug Run serve --port 8080 &
-          sleep 2
-          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:8080/api/version)" == "200" ] || echo Connection failed'
+          #   swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          #   sleep 10
+          #   swift run -c release Run serve --port 8080 --host 0.0.0.0 &
+          swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
+          sleep 10
+          swift run -c debug Run serve --port 8080 --host 0.0.0.0 &
+          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
   # test-macos:
   #   name: Test macOS
