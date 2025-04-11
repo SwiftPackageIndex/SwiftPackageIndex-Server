@@ -83,8 +83,8 @@ jobs:
           #   swift run -c release Run serve --port 8080 --host 0.0.0.0 &
           swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
           sleep 10
-          swift run -c debug Run serve --port 18080 --host 0.0.0.0 &
-          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:18080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
+          $(swift build --show-bin-path -c debug)/Run serve --port 8080 --hostname 0.0.0.0 &
+          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
   # test-macos:
   #   name: Test macOS
