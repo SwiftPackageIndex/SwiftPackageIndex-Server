@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.2.0
       options: --privileged
     services:
       postgres:
@@ -64,7 +64,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.2.0
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -72,8 +72,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Build release
-        run: swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+      - name: Test release
+        run: |
+          # Since we're only pinging the version api endpoint, no database is needed and
+          # we can just copy the development template to ensure the db env variables are set.
+          cp .env.development.template .env.development
+          # FIXME: change to `-c release` after testing!!!
+          #   swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          #   sleep 10
+          #   swift run -c release Run serve --port 8080 --host 0.0.0.0 &
+          swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
+          sleep 10
+          $(swift build --show-bin-path -c debug)/Run serve --port 18080 --hostname 0.0.0.0 &
+          echo Probing api/version...
+          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:18080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
   # test-macos:
   #   name: Test macOS
