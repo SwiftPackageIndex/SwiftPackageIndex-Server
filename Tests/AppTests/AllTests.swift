@@ -19,9 +19,11 @@ import Testing
 
 
 @Suite(
+    .setupDatabasePool,
     .dependency(\.date.now, .t0),
     .dependency(\.metricsSystem, .mock)
 ) struct AllTests { }
+
 
 
 extension AllTests {
