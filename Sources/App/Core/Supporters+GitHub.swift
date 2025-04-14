@@ -412,5 +412,10 @@ extension Array<Supporters.Community> {
             name: "Sparrow Code",
             avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
         ),
+        .init(
+            login: "coderabbitai",
+            name: "CodeRabbit",
+            avatarUrl: "https://avatars.githubusercontent.com/u/132028505?v=4"
+        ),
     ]
 }
