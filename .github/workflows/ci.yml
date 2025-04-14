@@ -66,8 +66,6 @@ jobs:
     container:
       image: registry.gitlab.com/finestructure/spi-base:1.2.0
       options: --privileged
-      ports:
-        - '8080:8080'
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
@@ -80,9 +78,6 @@ jobs:
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
           # FIXME: change to `-c release` after testing!!!
-          #   swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
-          #   sleep 10
-          #   swift run -c release Run serve --port 8080 --host 0.0.0.0 &
           swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
           $(swift build --show-bin-path -c debug)/Run serve --port 8080 --hostname 0.0.0.0 &
           sleep 10
