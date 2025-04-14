@@ -74,7 +74,8 @@ let package = Package(
                     .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
                     .product(name: "Vapor", package: "vapor"),
-                    .product(name: "SotoCognitoAuthentication", package: "soto-cognito-authentication")
+                    .product(name: "SotoCognitoAuthentication", package: "soto-cognito-authentication"),
+                    .product(name: "JWTKit", package: "jwt-kit")
                 ],
                 swiftSettings: swiftSettings,
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
