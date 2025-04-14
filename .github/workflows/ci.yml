@@ -87,7 +87,7 @@ jobs:
           sleep 10
           $(swift build --show-bin-path -c debug)/Run serve --port 8080 --hostname 0.0.0.0 &
           echo Probing api/version...
-          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://localhost:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
+          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
   # test-macos:
   #   name: Test macOS
