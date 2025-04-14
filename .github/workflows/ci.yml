@@ -65,7 +65,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: registry.gitlab.com/finestructure/spi-base:1.2.0
-      options: --privileged
+      options: |
+        --privileged
+        --network="host"
       ports:
         - '8080:8080'
     steps:
@@ -84,8 +86,8 @@ jobs:
           #   sleep 10
           #   swift run -c release Run serve --port 8080 --host 0.0.0.0 &
           swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
-          sleep 10
           $(swift build --show-bin-path -c debug)/Run serve --port 8080 --hostname 0.0.0.0 &
+          sleep 10
           echo Probing api/version...
           bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
