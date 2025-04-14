@@ -77,9 +77,8 @@ jobs:
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
-          # FIXME: change to `-c release` after testing!!!
-          swift build -c debug --static-swift-stdlib -Xlinker -ljemalloc
-          $(swift build --show-bin-path -c debug)/Run serve --port 8080 --hostname 0.0.0.0 &
+          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
           sleep 10
           echo Probing api/version...
           bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
