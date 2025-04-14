@@ -24,9 +24,13 @@ enum Verify {
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .class("portal-form-container"),
-                .h2("Please enter the confirmation code sent to your email"),
+                .p(
+                    .text("Please enter the confirmation code sent to your email")
+                ),
                 .verifyForm(email: model.email),
-                .text(model.errorMessage)
+                .p(
+                    .text(model.errorMessage)
+                )
             )
         }
     }
