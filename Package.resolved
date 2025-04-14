@@ -1,5 +1,5 @@
 {
-  "originHash" : "51f312a98c6486bd096ba4dc1a945e74a408b7ff4042d4931bf03898f0919418",
+  "originHash" : "b0eea6b76ecf34a26f9a304f3f2715eedc4657c786d6fdb7206238336b2d2678",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git",
       "state" : {
-        "revision" : "0652109907f980a4020e158f67d154424e3caa30",
-        "version" : "0.0.8"
+        "revision" : "f7dc7d49061fef2d347dabc532fb587fad17cc32",
+        "version" : "1.0.0"
       }
     },
     {
