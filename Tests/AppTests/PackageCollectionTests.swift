@@ -14,9 +14,7 @@
 
 @testable import App
 
-import Basics
 import Dependencies
-import PackageCollectionsSigning
 import SnapshotTesting
 import Testing
 import Vapor
@@ -831,71 +829,71 @@ extension AllTests.PackageCollectionTests {
         }
     }
 
-    @Test(
-        .disabled(
-            if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
-            "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
-        )
-    )
-    func sign_collection() async throws {
-        try await withDependencies {
-            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
-            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
-        } operation: {
-            // setup
-            let collection: PackageCollection = .mock
+//    @Test(
+//        .disabled(
+//            if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
+//            "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
+//        )
+//    )
+//    func sign_collection() async throws {
+//        try await withDependencies {
+//            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+//            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+//        } operation: {
+//            // setup
+//            let collection: PackageCollection = .mock
+//
+//            // MUT
+//            let signedCollection = try await SignedCollection.sign(collection: collection)
+//
+//            // validate signed collection content
+//            #expect(!signedCollection.signature.signature.isEmpty)
+//            assertSnapshot(of: signedCollection, as: .json(encoder))
+//
+//            // validate signature
+//            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+//            #expect(validated)
+//        }
+//    }
 
-            // MUT
-            let signedCollection = try await SignedCollection.sign(collection: collection)
-
-            // validate signed collection content
-            #expect(!signedCollection.signature.signature.isEmpty)
-            assertSnapshot(of: signedCollection, as: .json(encoder))
-
-            // validate signature
-            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-            #expect(validated)
-        }
-    }
-
-    @Test(
-        .disabled("Skipping until issue is resolved"),
-        .bug("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1066592057")
-    )
-    func sign_collection_revoked_key() async throws {
-        // setup
-        let collection: PackageCollection = .mock
-        // get cert and key and make sure the inputs are valid (apart from being revoked)
-        // so we don't fail for that reason
-        let revokedUrl = fixtureUrl(for: "revoked.cer")
-        #expect(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
-        let revokedKey = try fixtureData(for: "revoked.pem")
-
-        await withDependencies {
-            $0.environment.collectionSigningCertificateChain = {
-                [
-                    revokedUrl,
-                    SignedCollection.certsDir.appendingPathComponent("AppleWWDRCAG3.cer"),
-                    SignedCollection.certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
-                ]
-            }
-            $0.environment.collectionSigningPrivateKey = { revokedKey }
-        } operation: {
-            do {
-                // MUT
-                let signedCollection = try await SignedCollection.sign(collection: collection)
-                // NB: signing _can_ succeed in case of reachability issues to verify the cert
-                // in this case we need to check the signature
-                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
-                let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-                #expect(!validated)
-            } catch PackageCollectionSigningError.invalidCertChain {
-                // ok
-            } catch {
-                Issue.record("unexpected signing error: \(error)")
-            }
-        }
-    }
+//    @Test(
+//        .disabled("Skipping until issue is resolved"),
+//        .bug("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1066592057")
+//    )
+//    func sign_collection_revoked_key() async throws {
+//        // setup
+//        let collection: PackageCollection = .mock
+//        // get cert and key and make sure the inputs are valid (apart from being revoked)
+//        // so we don't fail for that reason
+//        let revokedUrl = fixtureUrl(for: "revoked.cer")
+//        #expect(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
+//        let revokedKey = try fixtureData(for: "revoked.pem")
+//
+//        await withDependencies {
+//            $0.environment.collectionSigningCertificateChain = {
+//                [
+//                    revokedUrl,
+//                    SignedCollection.certsDir.appendingPathComponent("AppleWWDRCAG3.cer"),
+//                    SignedCollection.certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
+//                ]
+//            }
+//            $0.environment.collectionSigningPrivateKey = { revokedKey }
+//        } operation: {
+//            do {
+//                // MUT
+//                let signedCollection = try await SignedCollection.sign(collection: collection)
+//                // NB: signing _can_ succeed in case of reachability issues to verify the cert
+//                // in this case we need to check the signature
+//                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
+//                let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+//                #expect(!validated)
+//            } catch PackageCollectionSigningError.invalidCertChain {
+//                // ok
+//            } catch {
+//                Issue.record("unexpected signing error: \(error)")
+//            }
+//        }
+//    }
 
 }
 

@@ -100,13 +100,7 @@ extension EnvironmentClient: DependencyKey {
                     .flatMap(Double.init)
                     ?? 1.0
             },
-            collectionSigningCertificateChain: {
-                [
-                    "package_collections.cer",
-                    "AppleWWDRCAG3.cer",
-                    "AppleIncRootCertificate.cer",
-                ].map { SignedCollection.certsDir.appendingPathComponent($0) }
-            },
+            collectionSigningCertificateChain: { [] },
             collectionSigningPrivateKey: {
                 Environment.get("COLLECTION_SIGNING_PRIVATE_KEY").map { Data($0.utf8) }
             },
