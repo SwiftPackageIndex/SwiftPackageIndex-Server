@@ -35,7 +35,7 @@ extension AllTests.ViewUtilsTests {
     }
 
     @Test func test_makeLink() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1")
             try await pkg.save(on: app.db)

@@ -23,7 +23,7 @@ import Testing
 extension AllTests.VersionTests {
 
     @Test func save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
             let v = try Version(package: pkg)
@@ -68,7 +68,7 @@ extension AllTests.VersionTests {
     }
 
     @Test func save_not_null_constraints() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {  // commit unset
                 let v = Version()
                 v.commitDate = .distantPast
@@ -108,7 +108,7 @@ extension AllTests.VersionTests {
         // Test for
         // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
         // Fix is .sql(.default("{}"))
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(package: pkg)
@@ -123,7 +123,7 @@ extension AllTests.VersionTests {
 
     @Test func delete_cascade() async throws {
         // delete package must delete version
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: UUID(), url: "1")
             let ver = try Version(id: UUID(), package: pkg)
@@ -143,7 +143,7 @@ extension AllTests.VersionTests {
     }
 
     @Test func isBranch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
             let v1 = try Version(package: pkg, reference: .branch("main"))
@@ -156,7 +156,7 @@ extension AllTests.VersionTests {
     }
 
     @Test func latestBranchVersion() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
             let vid = UUID()
@@ -184,7 +184,7 @@ extension AllTests.VersionTests {
     }
 
     @Test func defaults() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
             let v = try Version(package: pkg)

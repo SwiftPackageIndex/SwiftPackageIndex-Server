@@ -26,7 +26,7 @@ extension AllTests.SearchShowModelAppTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let request = Vapor.Request(application: app,
                                             url: "search?query=alamo&page=2&utm_campaign=test&utm_source=email",
                                             on: app.eventLoopGroup.next())

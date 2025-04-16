@@ -62,7 +62,7 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_refreshCheckout_failed() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies) { app in
+        try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -96,7 +96,7 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies) { app in
+        try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -126,7 +126,7 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies) { app in
+        try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -157,7 +157,7 @@ extension AllTests.AnalyzeErrorTests {
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp(setup, defaultDependencies) { app in
+        try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable path in

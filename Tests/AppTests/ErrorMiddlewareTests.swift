@@ -29,9 +29,9 @@ extension AllTests.ErrorMiddlewareTests {
     }
 
     @Test func custom_routes() async throws {
-        try await withApp(setup) { app in
+        try await withSPIApp(setup) { app in
             // Test to ensure the test routes we've set up in setUpWithError are in effect
-            try await app.test(.GET, "ok", afterResponse: { response async in
+            try await app.testing().test(.GET, "ok", afterResponse: { response async in
                 #expect(response.status == .ok)
                 #expect(response.body.asString() == "ok")
             })
@@ -43,8 +43,8 @@ extension AllTests.ErrorMiddlewareTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp(setup) { app in
-                try await app.test(.GET, "404", afterResponse: { response async in
+            try await withSPIApp(setup) { app in
+                try await app.testing().test(.GET, "404", afterResponse: { response async in
                     #expect(response.content.contentType == .html)
                     #expect(response.body.asString().contains("404 - Not Found"))
                 })
@@ -59,12 +59,12 @@ extension AllTests.ErrorMiddlewareTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp(setup) { app in
-                try await app.test(.GET, "404", afterResponse: { response async in
+            try await withSPIApp(setup) { app in
+                try await app.testing().test(.GET, "404", afterResponse: { response async in
                     #expect(response.status == .notFound)
                     #expect(response.content.contentType == .html)
                 })
-                try await app.test(.GET, "500", afterResponse: { response async in
+                try await app.testing().test(.GET, "500", afterResponse: { response async in
                     #expect(response.status == .internalServerError)
                     #expect(response.content.contentType == .html)
                 })

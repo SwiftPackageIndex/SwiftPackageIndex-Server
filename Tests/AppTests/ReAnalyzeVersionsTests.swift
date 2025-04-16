@@ -43,7 +43,7 @@ extension AllTests.ReAnalyzeVersionsTests {
             }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // - package dump does not include toolsVersion, targets to simulate an "old version"
                 // - run analysis to create existing version
@@ -152,7 +152,7 @@ extension AllTests.ReAnalyzeVersionsTests {
         // 1) both versions updated before cutoff -> candidate
         // 2) one version update before cutoff, one after -> candidate
         // 3) both version updated after cutoff -> not a candidate
-        try await withApp { app in
+        try await withSPIApp { app in
             let cutoff = Date(timeIntervalSince1970: 2)
             do {
                 let p = Package(url: "1")
@@ -216,7 +216,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 return ""
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db,
                                                 "https://github.com/foo/1".url,
                                                 processingStage: .ingestion)

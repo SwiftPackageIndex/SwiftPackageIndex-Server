@@ -24,7 +24,7 @@ extension AllTests.BuildIndexModelTests {
 
     @Test func init_no_name() async throws {
         // Tests behaviour when we're lacking data
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup package without package name
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,

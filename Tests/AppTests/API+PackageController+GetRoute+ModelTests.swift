@@ -26,7 +26,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
 
     @Test func init_no_packageName() async throws {
         // Tests behaviour when we're lacking data
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup package without package name
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
@@ -56,7 +56,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_packageIdentity() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, URL(string: "https://github.com/foo/swift-bar.git")!)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -81,7 +81,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_generated_documentation() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -107,7 +107,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_external_documentation() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -137,7 +137,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func ForkedFromInfo_query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let originalPkg = try await savePackage(on: app.db, id: .id0, "https://github.com/original/original")
             try await Repository(package: originalPkg,
                                  name: "original",
@@ -159,7 +159,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
 
     @Test func ForkedFromInfo_query_fallback() async throws {
         // when the package can't be found resort to fallback URL
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0, fallbackURL: "https://github.com/original/original.git")
 
@@ -544,7 +544,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func groupBuildInfo() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let result1: BuildResults = .init(results: [.v5_8: .compatible,
                                                         .v5_9: .compatible,
                                                         .v5_10: .compatible,
@@ -595,7 +595,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func languagePlatformInfo() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg,

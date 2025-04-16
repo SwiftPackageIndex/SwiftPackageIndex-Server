@@ -216,7 +216,7 @@ extension AllTests.ScoreTests {
 
     @Test(.dependency(\.date.now, .now))
     func computeDetails() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
@@ -251,7 +251,7 @@ extension AllTests.ScoreTests {
 
     @Test(.dependency(\.date.now, .now))
     func computeDetails_unknown_resolvedDependencies() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)

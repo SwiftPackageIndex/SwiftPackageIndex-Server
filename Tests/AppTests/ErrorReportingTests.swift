@@ -23,7 +23,7 @@ import Testing
 extension AllTests.ErrorReportingTests {
 
     @Test func Analyze_recordError() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1")
             try await Analyze.recordError(database: app.db,
                                           error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
@@ -37,7 +37,7 @@ extension AllTests.ErrorReportingTests {
 
     @Test func Ingestion_error_reporting() async throws {
         let capturingLogger = CapturingLogger()
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
 
@@ -59,7 +59,7 @@ extension AllTests.ErrorReportingTests {
     }
 
     @Test func Analyzer_error_reporting() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let capturingLogger = CapturingLogger()
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -92,7 +92,7 @@ extension AllTests.ErrorReportingTests {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 

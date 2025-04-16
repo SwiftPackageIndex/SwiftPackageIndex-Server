@@ -19,7 +19,7 @@ import Vapor
 import PostgresNIO
 
 
-func withApp(
+func withSPIApp(
     environment: Environment = .testing,
     _ setup: @Sendable (Application) async throws -> Void = { _ in },
     _ updateValuesForOperation: @Sendable (inout DependencyValues) async throws -> Void = { _ in },

@@ -21,7 +21,7 @@ import Vapor
 extension AllTests.API_DependencyControllerTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
             try await Repository(package: pkg,

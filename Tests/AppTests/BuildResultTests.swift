@@ -21,7 +21,7 @@ import Vapor
 extension AllTests.BuildResultTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             let repo = try Repository(package: pkg)

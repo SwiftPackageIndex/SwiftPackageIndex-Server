@@ -22,7 +22,7 @@ import Testing
 extension AllTests.StatsTests {
 
     @Test func fetch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let pkg = Package(id: UUID(), url: "1")

@@ -23,7 +23,7 @@ extension AllTests.DocumentationTargetTests {
 
     @Test func external() async throws {
         // Test external doc url lookup
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -53,7 +53,7 @@ extension AllTests.DocumentationTargetTests {
 
     @Test func external_override() async throws {
         // Test external doc url lookup overriding internal doc archives
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -85,7 +85,7 @@ extension AllTests.DocumentationTargetTests {
     }
 
     @Test func internal_defaultBranch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -110,7 +110,7 @@ extension AllTests.DocumentationTargetTests {
     }
 
     @Test func internal_stableBranch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,

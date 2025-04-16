@@ -27,7 +27,7 @@ extension AllTests.API_PackageControllerTests {
         try await withDependencies {
             $0.date.now = .december15_2020
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg,
                                      commitCount: 1433,
@@ -66,7 +66,7 @@ extension AllTests.API_PackageControllerTests {
         try await withDependencies {
             $0.date.now = .december15_2020
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg,
                                      commitCount: 1433,
@@ -137,7 +137,7 @@ extension AllTests.API_PackageControllerTests {
 
     @Test func ProductCount_query() async throws {
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg,
                                  defaultBranch: "main",
@@ -285,7 +285,7 @@ extension AllTests.API_PackageControllerTests {
 
     @Test func BuildInfo_query() async throws {
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let pkg = try await savePackage(on: app.db, "1".url)
                 try await Repository(package: pkg,
@@ -353,7 +353,7 @@ extension AllTests.API_PackageControllerTests {
 
     @Test func GetRoute_query() async throws {
         // ensure GetRoute.query is wired up correctly (detailed tests are elsewhere)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "bar", owner: "foo")

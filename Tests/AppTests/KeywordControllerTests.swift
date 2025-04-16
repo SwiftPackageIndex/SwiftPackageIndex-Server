@@ -16,13 +16,13 @@
 
 import Dependencies
 import Testing
-import XCTVapor
+import VaporTesting
 
 
 extension AllTests.KeywordControllerTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let p = try await savePackage(on: app.db, "0")
@@ -63,7 +63,7 @@ extension AllTests.KeywordControllerTests {
     }
 
     @Test func query_pagination() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for idx in (0..<9).shuffled() {
                 let p = Package(url: "\(idx)".url, score: 10 - idx)
@@ -111,7 +111,7 @@ extension AllTests.KeywordControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 do {
                     let p = try await savePackage(on: app.db, "1")
                     try await Repository(package: p,
@@ -121,7 +121,7 @@ extension AllTests.KeywordControllerTests {
                     try await Version(package: p, latest: .defaultBranch).save(on: app.db)
                 }
                 // MUT
-                try await app.test(.GET, "/keywords/foo") { req async in
+                try await app.testing().test(.GET, "/keywords/foo") { req async in
                     // validate
                     #expect(req.status == .ok)
                 }
@@ -133,8 +133,8 @@ extension AllTests.KeywordControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
-                try await app.test(.GET, "/keywords/baz") { res async in
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "/keywords/baz") { res async in
                     #expect(res.status == .notFound)
                 }
             }

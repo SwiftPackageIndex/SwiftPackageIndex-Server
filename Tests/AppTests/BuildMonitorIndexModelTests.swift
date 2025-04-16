@@ -21,7 +21,7 @@ import Testing
 extension AllTests.BuildMonitorIndexModelTests {
 
     @Test func init_from_Build() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
                 let version = try Version(package: package,
@@ -56,7 +56,7 @@ extension AllTests.BuildMonitorIndexModelTests {
     }
 
     @Test func init_from_Build_without_repository_name() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
                 let version = try Version(package: package,
@@ -81,7 +81,7 @@ extension AllTests.BuildMonitorIndexModelTests {
     }
 
     @Test func init_from_Build_with_no_package_name() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
                 let version = try Version(package: package,
@@ -107,7 +107,7 @@ extension AllTests.BuildMonitorIndexModelTests {
     }
 
     @Test func init_from_Build_without_ownerName() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
                 let version = try Version(package: package)

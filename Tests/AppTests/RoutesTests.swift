@@ -27,15 +27,15 @@ extension AllTests.RoutesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
+                try await app.testing().test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
                     // validation
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/foo/bar/1.2.3/images/baz.png")
                 }
-                try await app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") { res async in
+                try await app.testing().test(.GET, "foo/bar/1.2.3/images/BAZ.png") { res async in
                     // validation
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
@@ -50,9 +50,9 @@ extension AllTests.RoutesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
+                try await app.testing().test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
                     // validation
                     #expect(res.status == .ok)
                 }
@@ -65,9 +65,9 @@ extension AllTests.RoutesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "foo/bar/1.2.3/videos/baz.mov") { res async in
+                try await app.testing().test(.GET, "foo/bar/1.2.3/videos/baz.mov") { res async in
                     // validation
                     #expect(res.status == .ok)
                 }
@@ -80,8 +80,8 @@ extension AllTests.RoutesTests {
             $0.environment.dbId = { nil }
             $0.environment.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
         } operation: {
-            try await withApp { app in
-                try await app.test(.GET, "/") { res async in
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "/") { res async in
                     #expect(res.body.string.contains("MAINTENANCE_MESSAGE"))
                 }
             }

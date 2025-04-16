@@ -22,7 +22,7 @@ import Testing
 extension AllTests.DocUploadTests {
 
     @Test func attach() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let versionId = UUID()
@@ -59,7 +59,7 @@ extension AllTests.DocUploadTests {
 
     @Test func detachAndDelete() async throws {
         // Ensure deleting doc_uploads doesn't cascade into builds
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(id: UUID(), package: pkg)
@@ -92,7 +92,7 @@ extension AllTests.DocUploadTests {
     }
 
     @Test func delete_cascade_build() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let buildId = UUID()
@@ -119,7 +119,7 @@ extension AllTests.DocUploadTests {
     }
 
     @Test func delete_cascade_version() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let versionId = UUID()
@@ -147,7 +147,7 @@ extension AllTests.DocUploadTests {
 
     @Test func unique_constraint_doc_uploads_build_id() async throws {
         // Ensure different doc_uploads cannot be attached to the same build
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(id: UUID(), package: pkg)
@@ -174,7 +174,7 @@ extension AllTests.DocUploadTests {
 
     @Test func unique_constraint_builds_doc_upload_id_1() async throws {
         // Ensure doc_upload cannot be attached to two different versions (via builds from two different versions)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v1 = try Version(id: UUID(), package: pkg)
@@ -204,7 +204,7 @@ extension AllTests.DocUploadTests {
 
     @Test func unique_constraint_builds_doc_upload_id_2() async throws {
         // Ensure doc_upload cannot be attached to same version more than once (via two builds from same version)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(id: UUID(), package: pkg)
@@ -232,7 +232,7 @@ extension AllTests.DocUploadTests {
 
     @Test func unique_constraint_builds_version_id_partial() async throws {
         // Ensure no single version can reference two doc_uploads
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(id: UUID(), package: pkg)

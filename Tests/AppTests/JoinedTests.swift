@@ -21,7 +21,7 @@ extension AllTests.JoinedTests {
     typealias JPR = Joined<Package, Repository>
 
     @Test func query_owner_repository() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1")
             try await pkg.save(on: app.db)
@@ -46,7 +46,7 @@ extension AllTests.JoinedTests {
 
     @Test func repository_access() async throws {
         // Test accessing repository through the join vs through the package relation
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p).save(on: app.db)
@@ -69,7 +69,7 @@ extension AllTests.JoinedTests {
 
     @Test func repository_update() async throws {
         // Test updating the repository through the join
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p).save(on: app.db)

@@ -22,7 +22,7 @@ import Testing
 extension AllTests.RecentViewsTests {
 
     @Test func recentPackages() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {  // 1st package is eligible
                 let pkg = Package(id: UUID(), url: "1")
@@ -64,7 +64,7 @@ extension AllTests.RecentViewsTests {
     }
 
     @Test func recentReleases() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {  // 1st package is eligible
                 let pkg = Package(id: UUID(), url: "1")
@@ -189,7 +189,7 @@ extension AllTests.RecentViewsTests {
 
     @Test func recentPackages_dedupe_issue() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // Package with two eligible versions that differ in package name
             let pkg = Package(id: UUID(), url: "1")
@@ -217,7 +217,7 @@ extension AllTests.RecentViewsTests {
 
     @Test func recentReleases_dedupe_issue() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: UUID(), url: "1")
             try await pkg.save(on: app.db)

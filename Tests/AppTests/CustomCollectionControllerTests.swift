@@ -23,7 +23,7 @@ import Vapor
 extension AllTests.CustomCollectionControllerTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             try await CustomCollection.save(
                 on: app.db,
@@ -46,7 +46,7 @@ extension AllTests.CustomCollectionControllerTests {
     }
 
     @Test func query_pagination() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgInfo = [UUID.id0, .id1, .id2, .id3, .id4].enumerated().shuffled().map { (idx, id) in
                 (id, URL(string: "https://github.com/foo/\(idx)")!, "foo", "\(idx)")
@@ -98,7 +98,7 @@ extension AllTests.CustomCollectionControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 try await CustomCollection.save(
                     on: app.db,
                     key: "list",
@@ -108,7 +108,7 @@ extension AllTests.CustomCollectionControllerTests {
                 )
 
                 // MUT
-                try await app.test(.GET, "/collections/list") { req async in
+                try await app.testing().test(.GET, "/collections/list") { req async in
                     // validate
                     #expect(req.status == .ok)
                 }
@@ -120,8 +120,8 @@ extension AllTests.CustomCollectionControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
-                try await app.test(.GET, "/collections/list") { res async in
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "/collections/list") { res async in
                     #expect(res.status == .notFound)
                 }
             }

@@ -24,7 +24,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func throttle_keep_old() async throws {
         // Test keeping old when within throttling window
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -45,7 +45,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func throttle_take_new() async throws {
         // Test picking new version when old one is outside the window
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -66,7 +66,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func throttle_ignore_tags() async throws {
         // Test to ensure tags are exempt from throttling
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -87,7 +87,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func throttle_new_package() async throws {
         // Test picking up a new package's branch
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -109,7 +109,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         // Test behaviour when changing default branch names
         // Changed to return [new] to avoid branch renames causing 404s
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -132,7 +132,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         // Ensure incoming branch renames are throttled
         // Changed to return [new] to avoid branch renames causing 404s
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -155,7 +155,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         // Test behaviour with multiple incoming branch revisions
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -181,7 +181,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         // Test behaviour with multiple incoming branch revisions
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {
@@ -205,7 +205,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
     @Test func diffVersions() async throws {
         // Test that diffVersions applies throttling
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
                 $0.git.getTags = { @Sendable _ in [.branch("main")] }
@@ -260,7 +260,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
     @Test func progression() async throws {
         // Simulate progression through a time span of branch and tag updates
         // and checking the diffs are as expected.
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 // Leaving tags out of it for simplicity - they are tested specifically
                 // in test_throttle_ignore_tags above.
@@ -352,7 +352,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         // the "existing" (ex) revision, replacing it with an older "incoming"
         // (inc) revision.
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .t0
             } operation: {

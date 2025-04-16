@@ -31,7 +31,7 @@ extension AllTests.GitlabBuilderTests {
     @Test func variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let req = Request(application: app, on: app.eventLoopGroup.next())
             let dto = Gitlab.Builder.PostDTO(token: "token",
                                              ref: "ref",

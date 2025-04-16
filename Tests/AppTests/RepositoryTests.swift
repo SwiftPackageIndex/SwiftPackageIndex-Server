@@ -23,7 +23,7 @@ import Testing
 extension AllTests.RepositoryTests {
 
     @Test func save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(id: UUID(), url: "1")
             try await pkg.save(on: app.db)
             let repo = try Repository(id: UUID(),
@@ -94,7 +94,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func generated_lastActivityAt_lastCommitDate() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "p1")
             try await pkg.save(on: app.db)
 
@@ -113,7 +113,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func generated_lastActivityAt_lastIssueClosedAt() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "p1")
             try await pkg.save(on: app.db)
 
@@ -132,7 +132,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func generated_lastActivityAt_lastPullRequestClosedAt() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "p1")
             try await pkg.save(on: app.db)
 
@@ -151,7 +151,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func generated_lastActivityAt_nullValues() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "p1")
             try await pkg.save(on: app.db)
 
@@ -169,7 +169,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func package_relationship() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "p1")
             try await pkg.save(on: app.db)
             let repo = try Repository(package: pkg)
@@ -193,7 +193,7 @@ extension AllTests.RepositoryTests {
 
     @Test func delete_cascade() async throws {
         // delete package must delete repository
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(id: UUID(), url: "1")
             let repo = try Repository(id: UUID(), package: pkg)
             try await pkg.save(on: app.db)
@@ -215,7 +215,7 @@ extension AllTests.RepositoryTests {
     @Test func uniqueOwnerRepository() async throws {
         // Ensure owner/repository is unique, testing various combinations with
         // matching/non-matching case
-        try await withApp { app in
+        try await withSPIApp { app in
             let p1 = try await savePackage(on: app.db, "1")
             try await Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db)
             let p2 = try await savePackage(on: app.db, "2")
@@ -260,7 +260,7 @@ extension AllTests.RepositoryTests {
     }
 
     @Test func name_index() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let db = try #require(app.db as? SQLDatabase)
             // Quick way to check index exists - this will throw
             //   "server: index "idx_repositories_name" does not exist (DropErrorMsgNonExistent)"

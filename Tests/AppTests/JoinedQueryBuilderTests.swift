@@ -25,7 +25,7 @@ import Testing
 extension AllTests.JoinedQueryBuilderTests {
 
     @Test func sort() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for idx in (0..<3).shuffled() {
                 try await Package(url: "\(idx)".url).save(on: app.db)

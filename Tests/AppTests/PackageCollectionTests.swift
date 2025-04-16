@@ -34,7 +34,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func query_filter_urls() async throws {
         // Tests PackageResult.query with the url filter option
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for index in (0..<3) {
                 let pkg = try await savePackage(on: app.db, "url-\(index)".url)
@@ -80,7 +80,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func query_filter_urls_no_results() async throws {
         // Tests PackageResult.query without results has safe relationship accessors
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for index in (0..<3) {
                 let pkg = try await savePackage(on: app.db, "url-\(index)".url)
@@ -127,7 +127,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func query_author() async throws {
         // Tests PackageResult.query with the author filter option
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // first package
             let owners = ["foo", "foo", "someone else"]
@@ -169,7 +169,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func query_custom() async throws {
         // Tests PackageResult.query with the custom collection filter option
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = try await (0..<3).mapAsync { index in
                 let pkg = try await savePackage(on: app.db, "url-\(index)".url)
@@ -212,7 +212,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func Version_init() async throws {
         // Tests PackageCollection.Version initialisation from App.Version
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(url: "1")
             try await p.save(on: app.db)
@@ -287,7 +287,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func Package_init() async throws {
         // Tests PackageCollection.Package initialisation from App.Package
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let p = Package(url: "1")
@@ -333,7 +333,7 @@ extension AllTests.PackageCollectionTests {
     }
 
     @Test func groupedByPackage() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // 2 packages by the same author (which we select) with two versions
             // each.
@@ -393,7 +393,7 @@ extension AllTests.PackageCollectionTests {
         try await withDependencies {
             $0.date.now = .init(timeIntervalSince1970: 1610112345)
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 do {
@@ -425,7 +425,7 @@ extension AllTests.PackageCollectionTests {
     }
 
     @Test func generate_from_urls_noResults() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             do {
                 _ = try await PackageCollection.generate(db: app.db,
@@ -447,7 +447,7 @@ extension AllTests.PackageCollectionTests {
         try await withDependencies {
             $0.date.now = .init(timeIntervalSince1970: 1610112345)
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // first package
                 let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
@@ -529,7 +529,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func generate_for_owner_noResults() async throws {
         // Ensure we return noResults when no packages are found
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             do {
                 _ = try await PackageCollection.generate(db: app.db,
@@ -548,7 +548,7 @@ extension AllTests.PackageCollectionTests {
     @Test func includes_significant_versions_only() async throws {
         // Ensure we only export significant versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1147
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "https://github.com/foo/1")
             try await Repository(package: p,
@@ -639,7 +639,7 @@ extension AllTests.PackageCollectionTests {
     @Test func require_products() async throws {
         // Ensure we don't include versions without products (by ensuring
         // init? returns nil, which will be compact mapped away)
-        try await withApp { app in
+        try await withSPIApp { app in
             let p = Package(url: "1".asGithubUrl.url)
             try await p.save(on: app.db)
             let v = try Version(package: p,
@@ -657,7 +657,7 @@ extension AllTests.PackageCollectionTests {
     @Test func require_versions() async throws {
         // Ensure we don't include packages without versions (by ensuring
         // init? returns nil, which will be compact mapped away)
-        try await withApp { app in
+        try await withSPIApp { app in
             do {  // no versions at all
                   // setup
                 let pkg = Package(url: "1")
@@ -694,7 +694,7 @@ extension AllTests.PackageCollectionTests {
     }
 
     @Test func case_insensitive_owner_matching() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
             do {
@@ -733,7 +733,7 @@ extension AllTests.PackageCollectionTests {
 
     @Test func generate_ownerName() async throws {
         // Ensure ownerName is used in collectionName and overview
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // first package
             let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
@@ -805,7 +805,7 @@ extension AllTests.PackageCollectionTests {
     }
 
     @Test func authorLabel() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(url: "1")
             try await p.save(on: app.db)
