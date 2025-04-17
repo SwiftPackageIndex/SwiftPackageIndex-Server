@@ -14,7 +14,6 @@
 
 import Fluent
 import PackageCollectionsModel
-import PackageCollectionsSigning
 import Vapor
 
 
@@ -23,14 +22,14 @@ extension API {
     enum PackageCollectionController {
 
         @Sendable
-        static func generate(req: Request) async throws -> SignedCollection {
+        static func generate(req: Request) async throws -> PackageCollection {
             AppMetrics.apiPackageCollectionGetTotal?.inc()
 
             let dto = try req.content.decode(PostPackageCollectionDTO.self)
 
             switch dto.selection {
                 case let .author(author):
-                    return try await SignedCollection.generate(
+                    return try await PackageCollection.generate(
                         db: req.db,
                         filterBy: .author(author),
                         authorName: dto.authorName ?? "Swift Package Index",
@@ -44,7 +43,7 @@ extension API {
                     guard packageURLs.count <= 20 else {
                         throw Abort(.badRequest)
                     }
-                    return try await SignedCollection.generate(
+                    return try await PackageCollection.generate(
                         db: req.db,
                         filterBy: .urls(packageURLs),
                         authorName: dto.authorName ?? "Swift Package Index",
@@ -61,7 +60,7 @@ extension API {
 }
 
 
-extension PackageCollectionSigning.Model.SignedCollection: Vapor.Content {}
+extension PackageCollectionModel.V1.Collection: Vapor.Content {}
 
 
 extension API {

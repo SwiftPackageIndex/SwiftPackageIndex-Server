@@ -319,7 +319,7 @@ extension API.PackageController.GetRoute.Model {
         var latest: Version?
     }
 
-    struct BuildInfo<T: Codable & Equatable>: Codable, Equatable {
+    struct BuildInfo<T: Codable & Equatable & Sendable>: Codable, Equatable, Sendable {
         var stable: NamedBuildResults<T>?
         var beta: NamedBuildResults<T>?
         var latest: NamedBuildResults<T>?
@@ -335,7 +335,7 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
+    struct NamedBuildResults<T: Codable & Equatable & Sendable>: Codable, Equatable, Sendable {
         var referenceName: String
         var results: T
     }
