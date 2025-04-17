@@ -22,7 +22,7 @@ import Vapor
 extension AllTests.ReconcilerTests {
 
     @Test func fetchCurrentPackageList() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for url in ["1", "2", "3"].asURLs {
                 try await Package(url: url).save(on: app.db)
@@ -37,7 +37,7 @@ extension AllTests.ReconcilerTests {
     }
 
     @Test func reconcileMainPackageList() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let urls = ["1", "2", "3"]
             try await withDependencies {
                 $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
@@ -61,7 +61,7 @@ extension AllTests.ReconcilerTests {
     }
 
     @Test func reconcileMainPackageList_adds_and_deletes() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // save intial set of packages 1, 2, 3
             for url in ["1", "2", "3"].asURLs {
                 try await Package(url: url).save(on: app.db)
@@ -85,7 +85,7 @@ extension AllTests.ReconcilerTests {
     }
 
     @Test func reconcileMainPackageList_packageDenyList() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Save the intial set of packages
             for url in ["1", "2", "3"].asURLs {
                 try await Package(url: url).save(on: app.db)
@@ -112,7 +112,7 @@ extension AllTests.ReconcilerTests {
     }
 
     @Test func reconcileMainPackageList_packageDenyList_caseSensitivity() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Save the intial set of packages
             for url in ["https://example.com/one/one", "https://example.com/two/two"].asURLs {
                 try await Package(url: url).save(on: app.db)
@@ -140,7 +140,7 @@ extension AllTests.ReconcilerTests {
 
     @Test func reconcileCustomCollections() async throws {
         // Test single custom collection reconciliation
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             var fullPackageList = [URL("https://github.com/a.git"), URL("https://github.com/b.git"), URL("https://github.com/c.git")]
             for url in fullPackageList { try await Package(url: url).save(on: app.db) }
@@ -205,7 +205,7 @@ extension AllTests.ReconcilerTests {
 
     @Test func reconcileCustomCollections_limit() async throws {
         // Test custom collection reconciliation size limit
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let fullPackageList = (1...60).map { URL(string: "https://github.com/\($0).git")! }
             for url in fullPackageList { try await Package(url: url).save(on: app.db) }
@@ -249,7 +249,7 @@ extension AllTests.ReconcilerTests {
                 [.init(key: "list", name: "List", url: "collectionURL")]
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 _ = try await App.reconcile(client: app.client, database: app.db)
 

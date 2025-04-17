@@ -23,7 +23,7 @@ import Testing
 extension AllTests.HomeIndexModelTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1".url)
             try await pkg.save(on: app.db)

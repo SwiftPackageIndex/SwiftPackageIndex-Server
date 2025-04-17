@@ -68,7 +68,7 @@ extension AllTests.RSSTests {
     }
 
     @Test func recentPackages() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for idx in 1...10 {
                 let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
@@ -106,7 +106,7 @@ extension AllTests.RSSTests {
     }
 
     @Test func recentReleases() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for idx in 1...10 {
                 let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
@@ -141,8 +141,8 @@ extension AllTests.RSSTests {
         try await withDependencies {
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
-                try await app.test(.GET, "packages.rss", afterResponse: { res async in
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "packages.rss", afterResponse: { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType == .some(.init(type: "application", subType: "rss+xml")))
                 })
@@ -155,7 +155,7 @@ extension AllTests.RSSTests {
         try await withDependencies {
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // see RecentViewsTests.test_recentReleases_filter for filter results
                 for idx in 1...10 {
@@ -180,7 +180,7 @@ extension AllTests.RSSTests {
                 try await RecentRelease.refresh(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "releases.rss", afterResponse:  { @MainActor res async in
+                try await app.testing().test(.GET, "releases.rss", afterResponse:  { @MainActor res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType == .some(.init(type: "application", subType: "rss+xml")))
                     // validation
@@ -196,7 +196,7 @@ extension AllTests.RSSTests {
         try await withDependencies {
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // see RecentViewsTests.test_recentReleases_filter for filter results
                 for idx in 1...10 {
@@ -221,7 +221,7 @@ extension AllTests.RSSTests {
                 try await RecentRelease.refresh(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "releases.rss?major=true", afterResponse: { @MainActor res async in
+                try await app.testing().test(.GET, "releases.rss?major=true", afterResponse: { @MainActor res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType == .some(.init(type: "application", subType: "rss+xml")))
                     // validation
@@ -237,7 +237,7 @@ extension AllTests.RSSTests {
         try await withDependencies {
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // see RecentViewsTests.test_recentReleases_filter for filter results
                 for idx in 1...10 {
@@ -262,7 +262,7 @@ extension AllTests.RSSTests {
                 try await RecentRelease.refresh(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { @MainActor res async in
+                try await app.testing().test(.GET, "releases.rss?major=true&minor=true", afterResponse: { @MainActor res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType == .some(.init(type: "application", subType: "rss+xml")))
                     // validation
@@ -278,7 +278,7 @@ extension AllTests.RSSTests {
         try await withDependencies {
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // see RecentViewsTests.test_recentReleases_filter for filter results
                 for idx in 1...12 {
@@ -304,7 +304,7 @@ extension AllTests.RSSTests {
                 try await RecentRelease.refresh(on: app.db)
                 
                 // MUT
-                try await app.test(.GET, "releases.rss?pre=true", afterResponse: { @MainActor res async in
+                try await app.testing().test(.GET, "releases.rss?pre=true", afterResponse: { @MainActor res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType == .some(.init(type: "application", subType: "rss+xml")))
                     // validation

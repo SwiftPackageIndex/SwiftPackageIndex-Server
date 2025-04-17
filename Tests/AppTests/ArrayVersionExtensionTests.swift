@@ -22,7 +22,7 @@ import Testing
 extension AllTests.ArrayVersionExtensionTests {
 
     @Test func Array_canonicalDocumentationTarget() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             let archive = DocArchive(name: "foo", title: "Foo")
 

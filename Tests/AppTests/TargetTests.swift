@@ -22,7 +22,7 @@ import Vapor
 extension AllTests.TargetTests {
 
     @Test func save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let v = Version()
             v.commit = "" // required field
@@ -45,7 +45,7 @@ extension AllTests.TargetTests {
     }
 
     @Test func delete_cascade() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let v = Version()
             v.commit = "" // required field

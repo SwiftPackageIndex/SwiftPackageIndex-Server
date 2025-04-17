@@ -17,12 +17,13 @@
 import Dependencies
 import Testing
 import Vapor
+import VaporTesting
 
 
 extension AllTests.AuthorControllerTests {
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p, owner: "owner").save(on: app.db)
@@ -37,7 +38,7 @@ extension AllTests.AuthorControllerTests {
     }
 
     @Test func query_no_version() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p, owner: "owner").save(on: app.db)
@@ -56,7 +57,7 @@ extension AllTests.AuthorControllerTests {
     }
 
     @Test func query_sort_alphabetically() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for packageName in ["gamma", "alpha", "beta"] {
                 let p = Package(url: "\(packageName)".url)
@@ -77,13 +78,13 @@ extension AllTests.AuthorControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let p = try await savePackage(on: app.db, "1")
                 try await Repository(package: p, owner: "owner").save(on: app.db)
                 try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner", afterResponse: { response async in
+                try await app.testing().test(.GET, "/owner", afterResponse: { response async in
                     #expect(response.status == .ok)
                 })
             }
@@ -94,13 +95,13 @@ extension AllTests.AuthorControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let p = try await savePackage(on: app.db, "1")
                 try await Repository(package: p, owner: "owner").save(on: app.db)
                 try await Version(package: p, latest: .defaultBranch).save(on: app.db)
-                
+
                 // MUT
-                try await app.test(.GET, "/fake-owner", afterResponse: { response async in
+                try await app.testing().test(.GET, "/fake-owner", afterResponse: { response async in
                     #expect(response.status == .notFound)
                 })
             }

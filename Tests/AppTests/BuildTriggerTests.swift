@@ -35,7 +35,7 @@ extension AllTests.BuildTriggerTests {
         try await withDependencies {
             $0.environment.buildTriggerAllowList = { [] }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkgIdComplete = UUID()
                 let pkgIdIncomplete1 = UUID()
@@ -95,7 +95,7 @@ extension AllTests.BuildTriggerTests {
         try await withDependencies {
             $0.environment.buildTriggerAllowList = { [] }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 // save package without any builds
                 let pkgId = UUID()
@@ -123,7 +123,7 @@ extension AllTests.BuildTriggerTests {
         try await withDependencies {
             $0.environment.buildTriggerAllowList = { [] }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 do {  // save package with just latest Swift version builds missing
                     let p = Package(id: .id1, url: "1")
@@ -175,7 +175,7 @@ extension AllTests.BuildTriggerTests {
         try await withDependencies {
             $0.environment.buildTriggerAllowList = { [.id1] }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // save two packages with partially completed builds
                 for id in [UUID.id0, .id1] {
                     let p = Package(id: id, url: id.uuidString.url)
@@ -223,7 +223,7 @@ extension AllTests.BuildTriggerTests {
      }
 
     @Test func TriggerBuilds_findMissingBuilds() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let versionId = UUID()
@@ -310,7 +310,7 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_findMissingBuilds_docPairs() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let versionId = UUID()
@@ -368,7 +368,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let versionId = UUID()
                 do {  // save package with partially completed builds
@@ -418,7 +418,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkgId = UUID()
                 let versionId = UUID()
@@ -491,7 +491,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let buildId = UUID()
                 let versionId = UUID()
@@ -553,7 +553,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 do {  // fist run: we are at capacity and should not be triggering more builds
                     try await withDependencies {
                         $0.buildSystem.getStatusCount = { @Sendable _ in 300 }
@@ -654,7 +654,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkgIds = [UUID(), UUID()]
                 for id in pkgIds {
@@ -687,7 +687,7 @@ extension AllTests.BuildTriggerTests {
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we trim builds as part of triggering
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = Package(id: .id0, url: "2")
                 try await p.save(on: app.db)
@@ -737,7 +737,7 @@ extension AllTests.BuildTriggerTests {
                 }
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = Package(id: .id0, url: "1")
                 try await p.save(on: app.db)
@@ -843,7 +843,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 try await withDependencies {
                     // confirm that the off switch prevents triggers
@@ -906,7 +906,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // confirm that bad luck prevents triggers
                 try await withDependencies {
                     $0.environment.random = { @Sendable _ in 0.05 } // rolling a 0.05 ... so close!
@@ -968,7 +968,7 @@ extension AllTests.BuildTriggerTests {
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // confirm that we trigger even when rolling above the threshold
                 try await withDependencies {
                     $0.environment.random = { @Sendable _ in 0.051 }
@@ -990,7 +990,7 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_trimBuilds_significant_version() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -1028,7 +1028,7 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_trimBuilds_non_significant_version() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -1072,7 +1072,7 @@ extension AllTests.BuildTriggerTests {
         // latest: not null / null
         // This test sets up 8 builds covering all combinations to confirm whether the build is
         // being trimmed or not.
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(url: "1")
             try await p.save(on: app.db)
@@ -1127,7 +1127,7 @@ extension AllTests.BuildTriggerTests {
     @Test func TriggerBuilds_trimBuilds_bindParam() async throws {
         // Bind parameter issue regression test, details:
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/909
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -1151,7 +1151,7 @@ extension AllTests.BuildTriggerTests {
 
     @Test func TriggerBuilds_trimBuilds_timeout() async throws {
         // Ensure timouts are not deleted
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -1189,7 +1189,7 @@ extension AllTests.BuildTriggerTests {
 
     @Test func TriggerBuilds_trimBuilds_infrastructureError() async throws {
         // Ensure infrastructerErrors are deleted
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -1278,7 +1278,7 @@ extension AllTests.BuildTriggerTests {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1065
         // addressing a problem with findMissingBuilds not ignoring
         // Swift patch versions.
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let versionId = UUID()

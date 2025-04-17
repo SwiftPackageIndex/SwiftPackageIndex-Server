@@ -62,7 +62,7 @@ extension AllTests.MastodonTests {
                 return ""
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let url = "https://github.com/foo/bar"
 

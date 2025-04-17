@@ -95,7 +95,7 @@ let package = Package(
                         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
                         .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
-                        .product(name: "XCTVapor", package: "vapor"),
+                        .product(name: "VaporTesting", package: "vapor"),
                         .target(name: "App"),
                     ],
                     exclude: ["__Snapshots__", "Fixtures"],

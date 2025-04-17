@@ -22,7 +22,7 @@ extension AllTests.API_PackageController_GetRouteTests {
     typealias PackageResult = PackageController.PackageResult
 
     @Test func releaseInfo() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg,
@@ -70,7 +70,7 @@ extension AllTests.API_PackageController_GetRouteTests {
 
     @Test func releaseInfo_exclude_non_latest() async throws {
         // Test to ensure that we don't include versions with `latest IS NULL`
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg,

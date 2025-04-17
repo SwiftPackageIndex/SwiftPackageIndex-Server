@@ -28,7 +28,7 @@ extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_ingestion_fifo() async throws {
         // oldest first
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .ok, processingStage: .reconciliation),
                 Package(url: "2", status: .ok, processingStage: .reconciliation),
@@ -45,7 +45,7 @@ extension AllTests.PipelineTests {
     }
 
     @Test func fetchCandidates_ingestion_limit() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .ok, processingStage: .reconciliation),
                 Package(url: "2", status: .ok, processingStage: .reconciliation),
@@ -63,7 +63,7 @@ extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_ingestion_correct_stage() async throws {
         // only pick up from reconciliation stage
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .ok, processingStage: nil),
                 Package(url: "2", status: .ok, processingStage: .reconciliation),
@@ -81,7 +81,7 @@ extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_ingestion_prefer_new() async throws {
         // make sure records with status = new come first, then least recent
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .notFound, processingStage: .reconciliation),
                 Package(url: "2", status: .new, processingStage: .reconciliation),
@@ -101,7 +101,7 @@ extension AllTests.PipelineTests {
     @Test func fetchCandidates_ingestion_eventual_refresh() async throws {
         // Make sure packages in .analysis stage get re-ingested after a while to
         // check for upstream package changes
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .ok, processingStage: .analysis),
                 Package(url: "2", status: .ok, processingStage: .analysis),
@@ -127,7 +127,7 @@ extension AllTests.PipelineTests {
         //
         // *) in addition to the .reconciliation ones, which we always pick up, regardless of
         // ingestion dead time.
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .new, processingStage: .reconciliation),
                 Package(url: "2", status: .new, processingStage: .ingestion),
@@ -146,7 +146,7 @@ extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_analysis_correct_stage() async throws {
         // only pick up from ingestion stage
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .ok, processingStage: nil),
                 Package(url: "2", status: .ok, processingStage: .reconciliation),
@@ -160,7 +160,7 @@ extension AllTests.PipelineTests {
 
     @Test func fetchCandidates_analysis_prefer_new() async throws {
         // Test pick up from ingestion stage with status = new first, then FIFO
-        try await withApp { app in
+        try await withSPIApp { app in
             try await [
                 Package(url: "1", status: .notFound, processingStage: .ingestion),
                 Package(url: "2", status: .ok, processingStage: .ingestion),
@@ -205,7 +205,7 @@ extension AllTests.PipelineTests {
                 return ""
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT - first stage
                 try await reconcile(client: app.client, database: app.db)
                 

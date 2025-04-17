@@ -21,7 +21,7 @@ import Testing
 extension AllTests.AppTests {
 
     @Test func migrations() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             await #expect(throws: Never.self) { try await app.autoRevert() }
             await #expect(throws: Never.self) { try await app.autoMigrate() }
         }

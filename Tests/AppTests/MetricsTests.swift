@@ -31,7 +31,7 @@ extension AllTests.MetricsTests {
             $0.environment.builderToken = { "builder token" }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup - trigger build to increment counter
                 let versionId = UUID()
                 do {  // save minimal package + version
@@ -46,7 +46,7 @@ extension AllTests.MetricsTests {
                                                  ])
 
                 // MUT
-                try await app.test(.GET, "metrics", afterResponse: { res async in
+                try await app.testing().test(.GET, "metrics", afterResponse: { res async in
                     // validation
                     #expect(res.status == .ok)
                     let content = res.body.asString()
@@ -59,7 +59,7 @@ extension AllTests.MetricsTests {
     }
 
     @Test func versions_added() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let new = [
@@ -99,7 +99,7 @@ extension AllTests.MetricsTests {
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 try await reconcile(client: app.client, database: app.db)
 
@@ -110,7 +110,7 @@ extension AllTests.MetricsTests {
     }
 
     @Test func ingestDurationSeconds() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
 
@@ -126,7 +126,7 @@ extension AllTests.MetricsTests {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
 
@@ -143,7 +143,7 @@ extension AllTests.MetricsTests {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
 

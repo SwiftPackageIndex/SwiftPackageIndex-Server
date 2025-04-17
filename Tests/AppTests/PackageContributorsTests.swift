@@ -84,7 +84,7 @@ extension AllTests.PackageContributorsTests  {
                 """
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
 

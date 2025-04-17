@@ -38,7 +38,7 @@ extension AllTests.PackageReleasesModelTests {
         try await withDependencies {
             $0.date.now = .spiBirthday
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
                 try await pkg.save(on: app.db)
                 

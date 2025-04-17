@@ -27,7 +27,7 @@ extension AllTests.SitemapTests {
 
     @Test(.dependency(\.date.now, .t0))
     func siteMapIndex() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let packages = (0..<3).map { Package(url: "\($0)".url) }
             try await packages.save(on: app.db)
@@ -56,9 +56,9 @@ extension AllTests.SitemapTests {
             $0.environment.current = { .production }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp(environment: .production) { app in
+            try await withSPIApp(environment: .production) { app in
                 // MUT
-                try await app.test(.GET, "/sitemap.xml") { res async in
+                try await app.testing().test(.GET, "/sitemap.xml") { res async in
                     // Validation
                     #expect(res.status == .ok)
                 }
@@ -71,9 +71,9 @@ extension AllTests.SitemapTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp(environment: .development) { app in
+            try await withSPIApp(environment: .development) { app in
                 // MUT
-                try await app.test(.GET, "/sitemap.xml") { res async in
+                try await app.testing().test(.GET, "/sitemap.xml") { res async in
                     // Validation
                     #expect(res.status == .notFound)
                 }
@@ -82,7 +82,7 @@ extension AllTests.SitemapTests {
     }
 
     @Test func siteMapStaticPages() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let req = Request(application: app, on: app.eventLoopGroup.next())
 
             // MUT
@@ -100,9 +100,9 @@ extension AllTests.SitemapTests {
             $0.environment.current = { .production }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp(environment: .production) { app in
+            try await withSPIApp(environment: .production) { app in
                 // MUT
-                try await app.test(.GET, "/sitemap-static-pages.xml") { res async in
+                try await app.testing().test(.GET, "/sitemap-static-pages.xml") { res async in
                     // Validation
                     #expect(res.status == .ok)
                 }
@@ -115,9 +115,9 @@ extension AllTests.SitemapTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp(environment: .development) { app in
+            try await withSPIApp(environment: .development) { app in
                 // MUT
-                try await app.test(.GET, "/sitemap-static-pages.xml") { res async in
+                try await app.testing().test(.GET, "/sitemap-static-pages.xml") { res async in
                     // Validation
                     #expect(res.status == .notFound)
                 }
@@ -139,7 +139,7 @@ extension AllTests.SitemapTests {
                             """)
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
                 try await package.save(on: app.db)
@@ -184,7 +184,7 @@ extension AllTests.SitemapTests {
                             """)
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
                 try await package.save(on: app.db)
@@ -214,7 +214,7 @@ extension AllTests.SitemapTests {
     }
 
     @Test func siteMapForPackage_noDocs() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
             try await package.save(on: app.db)
@@ -239,7 +239,7 @@ extension AllTests.SitemapTests {
     }
 
     @Test func siteMapForPackage_withDocs() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
             try await package.save(on: app.db)

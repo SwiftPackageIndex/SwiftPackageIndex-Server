@@ -32,7 +32,7 @@ extension AllTests.AnalyzerTests {
         // End-to-end test, where we mock at the shell command level (i.e. we
         // don't mock the git commands themselves to ensure we're running the
         // expected shell commands for the happy path.)
-        try await withApp { app in
+        try await withSPIApp { app in
             let checkoutDir = QueueIsolated<String?>(nil)
             let firstDirCloned = QueueIsolated(false)
             let commands = QueueIsolated<[Command]>([])
@@ -215,7 +215,7 @@ extension AllTests.AnalyzerTests {
         // Ensure that new incoming versions update the latest properties and
         // move versions in case commits change. Tests both default branch commits
         // changing as well as a tag being moved to a different commit.
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
@@ -311,7 +311,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func forward_progress_on_analysisError() async throws {
         // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -356,7 +356,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func package_status() async throws {
         // Ensure packages record success/error status
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
@@ -407,7 +407,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func continue_on_exception() async throws {
         // Test to ensure exceptions don't interrupt processing
-        try await withApp { app in
+        try await withSPIApp { app in
             let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
             let commands = QueueIsolated<[Command]>([])
             let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
@@ -496,7 +496,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func refreshCheckout() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -520,7 +520,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func updateRepository() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 12 }
@@ -563,7 +563,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func getIncomingVersions() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
                 $0.git.hasBranch = { @Sendable _, _ in true }
@@ -587,7 +587,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func getIncomingVersions_default_branch_mismatch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.git.hasBranch = { @Sendable _, _ in false}  // simulate branch mismatch
             } operation: {
@@ -613,7 +613,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func getIncomingVersions_no_default_branch() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // saving Package without Repository means it has no default branch
             try await Package(id: .id0, url: "1".asGithubUrl.url).save(on: app.db)
@@ -632,7 +632,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func diffVersions() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
                 $0.git.hasBranch = { @Sendable _, _ in true }
@@ -674,7 +674,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func mergeReleaseInfo() async throws {
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
             try await Repository(package: pkg, releases:[
@@ -721,7 +721,7 @@ extension AllTests.AnalyzerTests {
     @Test func applyVersionDelta() async throws {
         // Ensure the existing default doc archives are preserved when replacing the default branch version
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1")
             try await pkg.save(on: app.db)
@@ -746,7 +746,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func applyVersionDelta_newRelease() async throws {
         // Ensure the existing default doc archives aren't copied over to a new release
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1")
             try await pkg.save(on: app.db)
@@ -772,7 +772,7 @@ extension AllTests.AnalyzerTests {
 
     @Test func getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
-        try await withApp { app in
+        try await withSPIApp { app in
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
@@ -808,7 +808,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func updateVersion() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: UUID(), url: "1")
             try await pkg.save(on: app.db)
@@ -845,7 +845,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func createProducts() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(id: UUID(), url: "1")
             let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -873,7 +873,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func createTargets() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(id: UUID(), url: "1")
             let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -895,7 +895,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func updatePackages() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = try await savePackages(on: app.db, ["1", "2"].asURLs)
                 .map(Joined<Package, Repository>.init(model:))
@@ -920,7 +920,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_29() async throws {
         // Regression test for issue 29
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
@@ -989,7 +989,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
-        try await withApp { app in
+        try await withSPIApp { app in
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 // claim every file exists, including our ficticious 'index.lock' for which
@@ -1021,7 +1021,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
-        try await withApp { app in
+        try await withSPIApp { app in
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 // claim every file exists, including our ficticious 'index.lock' for which
@@ -1160,7 +1160,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_577() async throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1")
@@ -1189,7 +1189,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
-        try await withApp { app in
+        try await withSPIApp { app in
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -1215,7 +1215,7 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func updateLatestVersions() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
             let pkg = Package(id: UUID(), url: "1")
@@ -1247,7 +1247,7 @@ extension AllTests.AnalyzerTests {
         // and that faulty db content (outdated beta marked as latest pre-release)
         // is correctly reset.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: UUID(), url: "1")
             try await pkg.save(on: app.db)
@@ -1281,7 +1281,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let checkoutDir = "/checkouts"
             let url = "1".asGithubUrl.url
@@ -1341,7 +1341,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_2571_tags() async throws {
         // Ensure bad git commands do not delete existing tag revisions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 2 }
@@ -1448,7 +1448,7 @@ extension AllTests.AnalyzerTests {
         // Ensure `latest` remains set in case of AppError.noValidVersions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         let capturingLogger = CapturingLogger()
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -1557,7 +1557,7 @@ extension AllTests.AnalyzerTests {
     @Test func issue_2873() async throws {
         // Ensure we preserve dependency counts from previous default branch version
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
-        try await withApp { app in
+        try await withSPIApp { app in
             try await withDependencies {
                 $0.date.now = .now
                 $0.environment.loadSPIManifest = { _ in nil }

@@ -26,7 +26,7 @@ extension AllTests.BuildMonitorControllerTests {
             $0.date.now = .now
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
                 let version = try Version(package: package)
                 try await version.save(on: app.db)
@@ -37,7 +37,7 @@ extension AllTests.BuildMonitorControllerTests {
                 try await Repository(package: package).save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/build-monitor", afterResponse: { response async in
+                try await app.testing().test(.GET, "/build-monitor", afterResponse: { response async in
                     #expect(response.status == .ok)
                 })
             }

@@ -27,7 +27,7 @@ import Vapor
 extension AllTests.BuildTests {
 
     @Test func save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(package: pkg)
@@ -58,7 +58,7 @@ extension AllTests.BuildTests {
 
     @Test func delete_cascade() async throws {
         // Ensure deleting a version also deletes the builds
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v = try Version(package: pkg)
@@ -86,7 +86,7 @@ extension AllTests.BuildTests {
 
     @Test func unique_constraint() async throws {
         // Ensure builds are unique over (id, platform, swiftVersion)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v1 = try Version(package: pkg)
@@ -138,7 +138,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func trigger() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let buildId = UUID.id0
             let versionId = UUID.id1
             let called = QueueIsolated(false)
@@ -215,7 +215,7 @@ extension AllTests.BuildTests {
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(id: versionId, package: p, reference: .branch("main"))
@@ -238,7 +238,7 @@ extension AllTests.BuildTests {
 
     @Test func query() async throws {
         // Test querying by (platform/swiftVersion/versionId)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let v1 = try Version(package: pkg)
@@ -301,7 +301,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func delete_by_versionId() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             let vid1 = UUID()
@@ -326,7 +326,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func delete_by_packageId() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId1 = UUID()
             let pkg1 = Package(id: pkgId1, url: "1")
@@ -358,7 +358,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func delete_by_packageId_versionKind() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgId1 = UUID()
             let pkg1 = Package(id: pkgId1, url: "1")
@@ -393,7 +393,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func pending_to_triggered_migration() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(url: "1")
             try await p.save(on: app.db)
@@ -425,7 +425,7 @@ extension AllTests.BuildTests {
     }
 
     @Test func DeleteArmBuilds_migration() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package(url: "1")
             try await p.save(on: app.db)

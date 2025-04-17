@@ -121,7 +121,7 @@ extension AllTests.SocialTests {
     }
 
     @Test func firehoseMessage_new_version() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
             try await pkg.save(on: app.db)
@@ -148,7 +148,7 @@ extension AllTests.SocialTests {
     }
 
     @Test func firehoseMessage_new_package() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1".asGithubUrl.url, status: .new)
             try await pkg.save(on: app.db)
@@ -176,7 +176,7 @@ extension AllTests.SocialTests {
 
     @Test func postToFirehose_only_release_and_preRelease() async throws {
         // ensure we only post about releases and pre-releases
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -214,7 +214,7 @@ extension AllTests.SocialTests {
 
     @Test func postToFirehose_only_latest() async throws {
         // ensure we only post about latest versions
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
             try await pkg.save(on: app.db)

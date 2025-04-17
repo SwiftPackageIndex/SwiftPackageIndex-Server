@@ -56,7 +56,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func save_status() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {  // default status
                 let pkg = Package()  // avoid using init with default argument in order to test db default
                 pkg.url = "1"
@@ -76,7 +76,7 @@ extension AllTests.PackageTests {
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = Package(url: "1")
                 let scoreDetails = Score.Details.mock
                 pkg.scoreDetails = scoreDetails
@@ -118,7 +118,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func unique_url() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await Package(url: "p1").save(on: app.db)
             do {
                 try await Package(url: "p1").save(on: app.db)
@@ -128,7 +128,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func filter_by_url() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             for url in ["https://foo.com/1", "https://foo.com/2"] {
                 try await Package(url: url.url).save(on: app.db)
             }
@@ -138,7 +138,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func filter_by_urls() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             for url in ["https://foo.com/1.git", "https://foo.com/2.git", "https://foo.com/a.git", "https://foo.com/A.git"] {
                 try await Package(url: url.url).save(on: app.db)
             }
@@ -160,7 +160,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func repository() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1")
             do {
                 let pkg = try #require(try await Package.query(on: app.db).with(\.$repositories).first())
@@ -176,7 +176,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func versions() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1")
             let versions = [
                 try Version(package: pkg, reference: .branch("branch")),
@@ -192,7 +192,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func findBranchVersion() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, defaultBranch: "default").create(on: app.db)
@@ -218,7 +218,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func findRelease() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             let versions: [Version] = [
@@ -234,7 +234,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func findPreRelease() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
@@ -265,7 +265,7 @@ extension AllTests.PackageTests {
         // Test pre-release sorting of betas with double digit build numbers,
         // e.g. 2.0.0-b11 should come after 2.0.0-b9
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/706
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
@@ -284,7 +284,7 @@ extension AllTests.PackageTests {
 
     @Test func findSignificantReleases_old_beta() async throws {
         // Test to ensure outdated betas aren't picked up as latest versions
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: UUID(), url: "1")
             try await pkg.save(on: app.db)
@@ -345,7 +345,7 @@ extension AllTests.PackageTests {
                 return ""
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let db = app.db
                 // run reconcile to ingest package
@@ -413,7 +413,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func save_platformCompatibility_save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await Package(url: "1".url, platformCompatibility: [.iOS, .macOS, .iOS])
                 .save(on: app.db)
             let readBack = try #require(try await Package.query(on: app.db).first())
@@ -426,7 +426,7 @@ extension AllTests.PackageTests {
         // occuring but we can't enforce a set at the DDL level so it's
         // technically possible and we want to ensure it doesn't cause
         // errors)
-        try await withApp { app in
+        try await withSPIApp { app in
             try await Package(url: "1".url).save(on: app.db)
             try await (app.db as! SQLDatabase).raw(
                 "update packages set platform_compatibility = '{ios,ios}'"
@@ -437,7 +437,7 @@ extension AllTests.PackageTests {
     }
 
     @Test func updatePlatformCompatibility() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             let v = try Version(package: p, latest: .defaultBranch)

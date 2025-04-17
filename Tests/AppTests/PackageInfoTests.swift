@@ -21,7 +21,7 @@ extension AllTests.PackageInfoTests {
 
     @Test func title_package_name() async throws {
         // Ensure title is populated from package.name()
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p, name: "repo name", owner: "owner")
@@ -42,7 +42,7 @@ extension AllTests.PackageInfoTests {
 
     @Test func title_repo_name() async throws {
         // Ensure title is populated from repoName if package.name() is nil
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p, name: "repo name", owner: "owner")

@@ -23,7 +23,7 @@ extension AllTests.PackageController_BuildsRouteTests {
     typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status, docStatus: DocUpload.Status?)
 
     @Test func BuildInfo_query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let pkg = try await savePackage(on: app.db, "1".url)
@@ -87,7 +87,7 @@ extension AllTests.PackageController_BuildsRouteTests {
     }
 
     @Test func query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -123,7 +123,7 @@ extension AllTests.PackageController_BuildsRouteTests {
     }
 
     @Test func query_no_builds() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
