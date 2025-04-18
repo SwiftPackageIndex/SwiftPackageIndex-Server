@@ -205,9 +205,6 @@ extension DatabasePool.Database {
     }
 
     func createSchema(_ environment: Environment) async throws {
-        let start = Date()
-        print("ℹ️ \(#function) start")
-        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         do {
             try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
@@ -229,9 +226,6 @@ extension DatabasePool.Database {
     }
 
     func createSnapshot() async throws {
-        let start = Date()
-        print("ℹ️ \(#function) start")
-        defer { print("ℹ️ \(#function) end", Date().timeIntervalSince(start)) }
         let original = Environment.get("DATABASE_NAME")!
         let snapshot = original + "_snapshot"
         do {
@@ -311,10 +305,6 @@ extension Environment {
         }
     }
 }
-
-
-#warning("remove later")
-extension String: Swift.Error { }
 
 
 private enum TimeoutError: Error {
