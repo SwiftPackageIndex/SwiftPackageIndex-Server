@@ -35,6 +35,7 @@ struct QueryPerformanceTests {
         // or in `.env.staging` for local runs.
         let environment = Environment.staging
 
+        // Make sure we're connecting to the correct database
         let host = try await DotEnvFile.databaseHost(for: environment)
         try #require(host.hasPrefix("spi-dev-db"))
         try #require(host.hasSuffix("postgres.database.azure.com"))
