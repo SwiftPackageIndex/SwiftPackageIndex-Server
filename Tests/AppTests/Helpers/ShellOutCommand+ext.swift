@@ -17,7 +17,7 @@ import ShellOut
 
 extension ShellOutCommand {
     static func launchDB(port: Int) -> ShellOutCommand {
-        .init(command: "docker", arguments: [
+        .init(command: .docker, arguments: [
             "run", "--name", "spi_test_\(port)",
             "-e", "POSTGRES_DB=spi_test",
             "-e", "POSTGRES_USER=spi_test",
@@ -31,14 +31,28 @@ extension ShellOutCommand {
     }
 
     static func removeDB(port: Int) -> ShellOutCommand {
-        .init(command: "docker", arguments: [
+        .init(command: .docker, arguments: [
             "rm", "-f", "spi_test_\(port)"
         ])
     }
 
     static var getContainerNames: ShellOutCommand {
-        .init(command: "docker", arguments: [
+        .init(command: .docker, arguments: [
             "ps", "--format", "{{.Names}}"
         ])
+    }
+}
+
+
+private extension String {
+    static var docker: Self {
+#if os(macOS)
+        // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore.
+        // Therefore, we have to explicitly set it (or require project users to fiddle with Xcode
+        // to re-introduce it, which is not desirable).
+        "/usr/local/bin/docker"
+#else
+        "docker"
+#endif
     }
 }
