@@ -18,8 +18,7 @@ import FluentPostgresDriver
 import Vapor
 
 
-@discardableResult
-public func configure(_ app: Application, databasePort: Int? = nil) async throws -> String {
+public func configure(_ app: Application, databaseHost: String? = nil, databasePort: Int? = nil) async throws {
     #if DEBUG && os(macOS)
     // The bundle is only loaded if /Applications/InjectionIII.app exists on the local development machine.
     // Requires InjectionIII 4.7.3 or higher to be loaded for compatibility with Package.swift files.
@@ -52,7 +51,7 @@ public func configure(_ app: Application, databasePort: Int? = nil) async throws
 
     // Setup database connection
     guard
-        let host = Environment.get("DATABASE_HOST"),
+        let host = databaseHost ?? Environment.get("DATABASE_HOST"),
         let port = databasePort ?? Environment.get("DATABASE_PORT").flatMap(Int.init),
         let username = Environment.get("DATABASE_USERNAME"),
         let password = Environment.get("DATABASE_PASSWORD"),
@@ -367,6 +366,4 @@ public func configure(_ app: Application, databasePort: Int? = nil) async throws
     // bootstrap app metrics
     @Dependency(\.metricsSystem) var metricsSystem
     metricsSystem.bootstrap()
-
-    return host
 }
