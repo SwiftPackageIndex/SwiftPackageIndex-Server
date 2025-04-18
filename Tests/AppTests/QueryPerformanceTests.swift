@@ -20,17 +20,12 @@ import Testing
 import Vapor
 
 
-extension AllTests {
-    @Suite(
-        .serialized,
-        .tags(.performance),
-        .disabled(if: !runQueryPerformanceTests())
-    )
-    struct QueryPerformanceTests { }
-}
-
-
-extension AllTests.QueryPerformanceTests {
+@Suite(
+    .serialized,
+    .tags(.performance),
+    .disabled(if: !runQueryPerformanceTests())
+)
+struct QueryPerformanceTests {
     // Set this to true when running locally to convert warnings to test failures for easier updating of values.
     static let failOnWarning = false
 
@@ -38,13 +33,16 @@ extension AllTests.QueryPerformanceTests {
         // Update db settings for CI runs in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/settings/secrets/actions
         // or in `.env.staging` for local runs.
-        let app = try await Application.make(.staging)
+        let environment = Environment.staging
+
+        let host = try await DotEnvFile.databaseHost(for: environment)
+        try #require(host.hasPrefix("spi-dev-db"))
+        try #require(host.hasSuffix("postgres.database.azure.com"))
+
+        let app = try await Application.make(environment)
         app.logger.logLevel = Environment.get("LOG_LEVEL")
             .flatMap(Logger.Level.init(rawValue:)) ?? .warning
-        let host = try await configure(app)
-
-        try #require(host.hasPrefix("spi-dev-db"), "was: \(host)")
-        try #require(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")
+        try await configure(app)
 
         return try await run {
             try await test(app)
@@ -225,7 +223,7 @@ extension SQLQueryBuilder {
 }
 
 
-private extension AllTests.QueryPerformanceTests {
+private extension QueryPerformanceTests {
 
     func assertQueryPerformance(_ query: SQLQueryBuilder,
                                 expectedCost: Double,
@@ -290,4 +288,31 @@ private extension AllTests.QueryPerformanceTests {
         }
     }
 
+}
+
+
+private struct TestError: Error {
+    var description: String
+    init(_ description: String) {
+        self.description = description
+    }
+}
+
+
+private extension [DotEnvFile.Line] {
+    subscript(key: String) -> String? {
+        first(where: { $0.key == key })?.value
+    }
+}
+
+
+private extension DotEnvFile {
+    static func databaseHost(for environment: Environment) async throws -> String {
+        let envFile = try await DotEnvFile.read(path: ".env.\(environment.name)",
+                                                fileio: .init(threadPool: .singleton))
+        guard let host = envFile.lines["DATABASE_HOST"] else {
+            throw TestError("DATABASE_HOST not found in settings file .env.\(environment.name)")
+        }
+        return host
+    }
 }
