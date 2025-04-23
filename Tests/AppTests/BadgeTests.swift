@@ -20,7 +20,7 @@ import Testing
 extension AllTests.BadgeTests {
 
     @Test func badgeMessage_swiftVersions() throws {
-        #expect(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3, .v4]) == "6.0 | 5.10 | 5.9 | 5.8")
+        #expect(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3, .v4]) == "6.1 | 6.0 | 5.10 | 5.9")
         #expect(Badge.badgeMessage(swiftVersions: []) == nil)
     }
 

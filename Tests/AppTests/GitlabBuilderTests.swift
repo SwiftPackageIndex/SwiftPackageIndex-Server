@@ -22,10 +22,10 @@ import Vapor
 extension AllTests.GitlabBuilderTests {
 
     @Test func SwiftVersion_rendering() throws {
-        #expect("\(SwiftVersion.v4)" == "6.0.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .none) == "6.0.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .patch) == "6.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .all) == "6")
+        #expect("\(SwiftVersion(6, 0, 0))" == "6.0.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .none) == "6.0.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .patch) == "6.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .all) == "6")
     }
 
     @Test func variables_encoding() async throws {

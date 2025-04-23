@@ -263,8 +263,8 @@ extension AllTests.PackageCollectionTests {
             #expect(res.version == "1.2.3")
             #expect(res.summary == "Bar")
             #expect(res.verifiedCompatibility == [
-                .init(platform: .init(name: "ios"), swiftVersion: .init("5.8")),
-                .init(platform: .init(name: "macos"), swiftVersion: .init("5.9")),
+                .init(platform: .init(name: "ios"), swiftVersion: .init("5.9")),
+                .init(platform: .init(name: "macos"), swiftVersion: .init("5.10")),
             ])
             #expect(res.license == .init(name: "MIT", url: URL(string: "https://foo/mit")!))
             #expect(res.createdAt == Date(timeIntervalSince1970: 0))
