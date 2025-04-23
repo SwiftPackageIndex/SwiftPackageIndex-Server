@@ -21,6 +21,7 @@ struct Platform: Codable, Equatable {
         case android
         case custom
         case driverkit
+        case freebsd
         case ios
         case linux
         case maccatalyst
@@ -62,6 +63,8 @@ extension Platform: CustomStringConvertible {
                 return "Custom \(version)"
             case .driverkit:
                 return "DriverKit \(version)"
+            case .freebsd:
+                return "FreeBSD \(version)"
             case .ios:
                 return "iOS \(version)"
             case .linux:
