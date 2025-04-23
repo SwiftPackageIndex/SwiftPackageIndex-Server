@@ -343,9 +343,9 @@ extension AllTests.API_PackageControllerTests {
             #expect(platform.beta?.referenceName == "2.0.0-b1")
             let swiftVersion = try #require(res.swiftVersion)
             #expect(swiftVersion.latest?.referenceName == "main")
-            #expect(swiftVersion.latest?.results[.v5_10] == .compatible)
-            #expect(swiftVersion.latest?.results[.v5_9] == .incompatible)
-            #expect(swiftVersion.latest?.results[.v5_8] == .unknown)
+            #expect(swiftVersion.latest?.results[.v3] == .compatible)
+            #expect(swiftVersion.latest?.results[.v2] == .incompatible)
+            #expect(swiftVersion.latest?.results[.v1] == .unknown)
             #expect(swiftVersion.stable?.referenceName == "1.2.3")
             #expect(swiftVersion.beta?.referenceName == "2.0.0-b1")
         }

@@ -217,10 +217,10 @@ extension AllTests.WebpageSnapshotTests {
         // Test display when all three significant version collapse to a single row
         var model = API.PackageController.GetRoute.Model.mock
         do {
-            let compatible = CompatibilityMatrix.SwiftVersionCompatibility(results: [.v5_8: .compatible,
-                                                                                     .v5_9: .compatible,
-                                                                                     .v5_10: .compatible,
-                                                                                     .v6_0: .compatible])
+            let compatible = CompatibilityMatrix.SwiftVersionCompatibility(results: [.v1: .compatible,
+                                                                                     .v2: .compatible,
+                                                                                     .v3: .compatible,
+                                                                                     .v4: .compatible])
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),
                 beta: .init(referenceName: "6.0.0-b1", results: compatible),

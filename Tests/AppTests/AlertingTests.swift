@@ -34,8 +34,8 @@ extension AllTests.AlertingTests {
             Alerting.BuildInfo.mock(swiftVersion: $0)
         }
         #expect(all.validateSwiftVersionsPresent() == .ok)
-        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.8"]))
-        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.8", "Missing Swift version: 5.9"]))
+        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.9"]))
+        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.9", "Missing Swift version: 5.10"]))
     }
 
     @Test func validatePlatformsSuccessful() throws {
@@ -57,13 +57,13 @@ extension AllTests.AlertingTests {
             Alerting.BuildInfo.mock(swiftVersion: $0, status: .ok)
         }
         #expect(all.validateSwiftVersionsSuccessful() == .ok)
-        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8"]))
+        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.9"]))
         #expect(
             Array(all.filter { $0.swiftVersion != .v1 })
                 .appending(.mock(swiftVersion: .v1, status: .failed))
-            .validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8"])
+            .validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.9"])
         )
-        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8", "Swift version without successful builds: 5.9"]))
+        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.9", "Swift version without successful builds: 5.10"]))
     }
 
     @Test func validateRunnerIdsPresent() throws {

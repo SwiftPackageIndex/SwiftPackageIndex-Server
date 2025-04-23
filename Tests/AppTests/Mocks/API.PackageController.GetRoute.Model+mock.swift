@@ -42,22 +42,22 @@ extension API.PackageController.GetRoute.Model {
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
-                    results: .init(results: [.v5_8: .incompatible,
-                                             .v5_9: .incompatible,
-                                             .v5_10: .unknown,
-                                             .v6_0: .compatible])),
+                    results: .init(results: [.v1: .incompatible,
+                                             .v2: .incompatible,
+                                             .v3: .unknown,
+                                             .v4: .compatible])),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
-                    results: .init(results: [.v5_8: .incompatible,
-                                             .v5_9: .compatible,
-                                             .v5_10: .compatible,
-                                             .v6_0: .compatible])),
+                    results: .init(results: [.v1: .incompatible,
+                                             .v2: .compatible,
+                                             .v3: .compatible,
+                                             .v4: .compatible])),
                 latest: NamedBuildResults(
                     referenceName: "main",
-                    results: .init(results: [.v5_8: .incompatible,
-                                             .v5_9: .incompatible,
-                                             .v5_10: .unknown,
-                                             .v6_0: .compatible]))),
+                    results: .init(results: [.v1: .incompatible,
+                                             .v2: .incompatible,
+                                             .v3: .unknown,
+                                             .v4: .compatible]))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
