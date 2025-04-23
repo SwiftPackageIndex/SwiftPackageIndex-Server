@@ -39,6 +39,7 @@ struct Manifest: Decodable, Equatable {
             case android      // from 5.2
             case custom       // from 5.6
             case driverkit    // from 5.5
+            case freebsd      // from 6.1
             case ios
             case linux
             case maccatalyst  // from 5.5
