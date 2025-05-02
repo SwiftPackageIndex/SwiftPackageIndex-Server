@@ -1,5 +1,5 @@
 {
-  "originHash" : "164d58b993750ebc70c5988d01cb84a4e748196f26cab9a6869dcce591a1640e",
+  "originHash" : "3578d992e547a3d093812cf1621c88bd9b0016a88e71411d9a40922ba1167c14",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -125,15 +125,6 @@
       "state" : {
         "revision" : "3498e60218e6003894ff95192d756e238c01f44e",
         "version" : "4.7.1"
-      }
-    },
-    {
-      "identity" : "packagecollections",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/PackageCollections.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "158a19b90e3a8daa051c1e9378a74356b409a54b"
       }
     },
     {
