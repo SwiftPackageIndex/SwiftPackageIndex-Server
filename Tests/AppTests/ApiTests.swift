@@ -15,6 +15,7 @@
 @testable import App
 
 import Dependencies
+import PackageCollectionsSigning
 import SnapshotTesting
 import Testing
 import VaporTesting
@@ -844,76 +845,76 @@ extension AllTests.ApiTests {
         }
     }
 
-//    @Test(.disabled(if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
-//                    "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"))
-//    func package_collections_owner() async throws {
-//        let event = App.ActorIsolated<TestEvent?>(nil)
-//        try await withDependencies {
-//            $0.date.now = .t0
-//            $0.environment.apiSigningKey = { "secret" }
-//            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
-//            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
-//            $0.httpClient.postPlausibleEvent = { @Sendable kind, path, _ in
-//                await event.setValue(.init(kind: kind, path: path))
-//            }
-//        } operation: {
-//            try await withSPIApp { app in
-//                // setup
-//                let p1 = Package(id: .id1, url: "1")
-//                try await p1.save(on: app.db)
-//                try await Repository(package: p1,
-//                                     defaultBranch: "main",
-//                                     name: "name 1",
-//                                     owner: "foo",
-//                                     summary: "foo bar package").save(on: app.db)
-//                let v = try Version(package: p1,
-//                                    latest: .release,
-//                                    packageName: "Foo",
-//                                    reference: .tag(1, 2, 3),
-//                                    toolsVersion: "5.0")
-//                try await v.save(on: app.db)
-//                try await Product(version: v, type: .library(.automatic), name: "lib")
-//                    .save(on: app.db)
-//
-//                do {  // MUT
-//                    let body: ByteBuffer = .init(string: """
-//                {
-//                  "revision": 3,
-//                  "authorName": "author",
-//                  "keywords": [
-//                    "a",
-//                    "b"
-//                  ],
-//                  "selection": {
-//                    "author": {
-//                      "_0": "foo"
-//                    }
-//                  },
-//                  "collectionName": "my collection",
-//                  "overview": "my overview"
-//                }
-//                """)
-//
-//                    try await app.testing().test(.POST, "api/package-collections",
-//                                       headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
-//                                       body: body,
-//                                       afterResponse: { res async throws in
-//                        // validation
-//                        #expect(res.status == .ok)
-//                        let container = try res.content.decode(SignedCollection.self)
-//                        #expect(!container.signature.signature.isEmpty)
-//                        // more details are tested in PackageCollectionTests
-//                        #expect(container.collection.name == "my collection")
-//                    })
-//                }
-//
-//                // ensure API event has been reported
-//                await event.withValue {
-//                    #expect($0 == .some(.init(kind: .pageview, path: .packageCollections)))
-//                }
-//            }
-//        }
-//    }
+    @Test(.disabled(if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
+                    "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"))
+    func package_collections_owner() async throws {
+        let event = App.ActorIsolated<TestEvent?>(nil)
+        try await withDependencies {
+            $0.date.now = .t0
+            $0.environment.apiSigningKey = { "secret" }
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+            $0.httpClient.postPlausibleEvent = { @Sendable kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                let p1 = Package(id: .id1, url: "1")
+                try await p1.save(on: app.db)
+                try await Repository(package: p1,
+                                     defaultBranch: "main",
+                                     name: "name 1",
+                                     owner: "foo",
+                                     summary: "foo bar package").save(on: app.db)
+                let v = try Version(package: p1,
+                                    latest: .release,
+                                    packageName: "Foo",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.0")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "lib")
+                    .save(on: app.db)
+
+                do {  // MUT
+                    let body: ByteBuffer = .init(string: """
+                {
+                  "revision": 3,
+                  "authorName": "author",
+                  "keywords": [
+                    "a",
+                    "b"
+                  ],
+                  "selection": {
+                    "author": {
+                      "_0": "foo"
+                    }
+                  },
+                  "collectionName": "my collection",
+                  "overview": "my overview"
+                }
+                """)
+
+                    try await app.testing().test(.POST, "api/package-collections",
+                                       headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
+                                       body: body,
+                                       afterResponse: { res async throws in
+                        // validation
+                        #expect(res.status == .ok)
+                        let container = try res.content.decode(SignedCollection.self)
+                        #expect(!container.signature.signature.isEmpty)
+                        // more details are tested in PackageCollectionTests
+                        #expect(container.collection.name == "my collection")
+                    })
+                }
+
+                // ensure API event has been reported
+                await event.withValue {
+                    #expect($0 == .some(.init(kind: .pageview, path: .packageCollections)))
+                }
+            }
+        }
+    }
 
     @Test(.disabled(if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
                     "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"))
