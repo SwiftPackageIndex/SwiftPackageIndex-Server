@@ -17,7 +17,7 @@ import Vapor
 
 enum PackageCollectionController {
     @Sendable
-    static func generate(req: Request) async throws -> PackageCollection {
+    static func generate(req: Request) async throws -> SignedCollection {
         AppMetrics.packageCollectionGetTotal?.inc()
 
         guard let collectionType = getCollectionType(req: req) else {
@@ -27,13 +27,13 @@ enum PackageCollectionController {
         do {
             switch collectionType {
                 case let .author(owner):
-                    return try await PackageCollection.generate(
+                    return try await SignedCollection.generate(
                         db: req.db,
                         filterBy: .author(owner),
                         authorName: "\(owner) via the Swift Package Index"
                     )
                 case let .keyword(keyword):
-                    return try await PackageCollection.generate(
+                    return try await SignedCollection.generate(
                         db: req.db,
                         filterBy: .keyword(keyword),
                         authorName: "Swift Package Index",
@@ -45,7 +45,7 @@ enum PackageCollectionController {
                 case let .custom(key):
                     let collection = try await CustomCollection.find(on: req.db, key: key)
                         .unwrap(or: Abort(.notFound))
-                    return try await PackageCollection.generate(
+                    return try await SignedCollection.generate(
                         db: req.db,
                         filterBy: .customCollection(key),
                         authorName: "Swift Package Index",
