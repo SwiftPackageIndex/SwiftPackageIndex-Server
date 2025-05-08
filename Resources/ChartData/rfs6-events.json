@@ -1,39 +1,39 @@
 [
     {
         "date": "2024-06-10",
-        "value": "Xcode 16 beta 1 released at WWDC '24"
+        "value": "Xcode 16 beta 1 released at WWDC '24 (Swift 6.0)"
     },
     {
         "date": "2024-06-25",
-        "value": "Xcode 16 beta 2 released"
+        "value": "Xcode 16 beta 2 released (Swift 6.0)"
     },
     {
         "date": "2024-07-08",
-        "value": "Xcode 16 beta 3 released"
+        "value": "Xcode 16 beta 3 released (Swift 6.0)"
     },
     {
         "date": "2024-07-23",
-        "value": "Xcode 16 beta 4 released"
+        "value": "Xcode 16 beta 4 released (Swift 6.0)"
     },
     {
         "date": "2024-08-06",
-        "value": "Xcode 16 beta 5 released"
+        "value": "Xcode 16 beta 5 released (Swift 6.0)"
     },
     {
         "date": "2024-08-20",
-        "value": "Xcode 16 beta 6 released"
+        "value": "Xcode 16 beta 6 released (Swift 6.0)"
     },
     {
         "date": "2024-09-09",
-        "value": "Xcode 16 RC released"
+        "value": "Xcode 16 RC released (Swift 6.0)"
     },
     {
         "date": "2024-09-16",
-        "value": "Xcode 16 released"
+        "value": "Xcode 16 released (Swift 6.0)"
     },
     {
         "date": "2024-10-28",
-        "value": "Xcode 16.1 released"
+        "value": "Xcode 16.1 released (Swift 6.0)"
     },
     {
         "date": "2024-11-22",
@@ -41,6 +41,6 @@
     },
     {
         "date": "2025-03-31",
-        "value": "Xcode 16.3 released"
+        "value": "Xcode 16.3 released (Swift 6.1)"
     }
 ]
