@@ -235,18 +235,11 @@ class ReadyForSwift6Chart {
             )
         }
 
-        const dates = data.flatMap((dataSet) => dataSet.values.map((element) => new Date(element.date)))
-        const minDate = dates.reduce((min, date) => (date < min ? date : min), dates[0])
-        const maxDate = dates.reduce((max, date) => (date > max ? date : max), dates[0])
-
         return [
             {
                 name: 'xscale',
                 type: 'time',
-                domain: [
-                    { signal: `datetime(${minDate.getFullYear()}, ${minDate.getMonth()}, ${minDate.getDate()})` },
-                    { signal: `datetime(${maxDate.getFullYear()}, ${maxDate.getMonth()}, ${maxDate.getDate()})` },
-                ],
+                domain: { fields: data.map((d) => ({ data: d.id, field: 'date' })) },
                 range: 'width',
             },
             {
