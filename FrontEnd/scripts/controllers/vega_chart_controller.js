@@ -89,7 +89,6 @@ export class VegaChartController extends Controller {
 
             const labelTextElement = document.createTextNode(dataSet.name)
             labelElement.appendChild(labelTextElement)
-            labelElement.replaceChild
         })
         return formElement
     }
