@@ -257,7 +257,6 @@ class ReadyForSwift6Chart {
             {
                 orient: 'bottom',
                 scale: 'xscale',
-                grid: true,
                 labelAngle: { value: -45 },
                 labelAlign: { value: 'right' },
             },
