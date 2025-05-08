@@ -320,7 +320,7 @@ class ReadyForSwift6Chart {
                         y: { scale: 'yscale', signal: 'minYScale' },
                         y2: { scale: 'yscale', signal: 'maxYScale' },
                         fill: { value: '#000000' },
-                        opacity: { value: 0.3 },
+                        opacity: { value: 0.1 },
                         tooltip: {
                             signal: 'datum.value',
                         },
