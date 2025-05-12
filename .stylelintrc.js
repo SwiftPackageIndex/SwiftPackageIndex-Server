@@ -13,7 +13,7 @@ module.exports = {
                 ignoreAtRules: ['else'],
             },
         ],
-        'color-function-notation': 'legacy',
+        'color-function-notation': 'modern',
         'color-hex-length': 'long',
         'custom-property-empty-line-before': null,
         'declaration-block-no-redundant-longhand-properties': null,
