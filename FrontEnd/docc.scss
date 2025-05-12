@@ -22,7 +22,8 @@ header.spi,
 footer.spi {
     position: sticky;
     width: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji' !important;
     font-size: 16px;
     line-height: 1.4;
@@ -135,14 +136,14 @@ header.spi {
                                 min-width: 200px;
                                 padding: 15px 0;
                                 background-color: var(--header-background);
-                                border-top: 3px rgba(255, 255, 255, 20%) solid;
+                                border-top: 3px rgb(255 255 255 / 20%) solid;
                                 box-shadow: var(--panel-shadow);
 
                                 li {
                                     padding: 2px 15px 2px 20px;
 
                                     &.current {
-                                        background-color: rgba(255, 255, 255, 15%);
+                                        background-color: rgb(255 255 255 / 15%);
                                     }
                                 }
                             }
@@ -172,10 +173,10 @@ header.spi {
     }
 
     .latest-stable-wrap {
-        background-color: rgba(255, 255, 255, 7.5%);
+        background-color: rgb(255 255 255 / 7.5%);
 
         @media (prefers-color-scheme: dark) {
-            background-color: rgba(0, 0, 0, 12.5%);
+            background-color: rgb(0 0 0 / 12.5%);
         }
     }
 
@@ -212,7 +213,7 @@ header.spi {
             font-size: 10px;
             text-align: center;
             color: var(--header-text);
-            background-color: rgba(255, 255, 255, 20%);
+            background-color: rgb(255 255 255 / 20%);
             border-radius: 4px;
         }
     }

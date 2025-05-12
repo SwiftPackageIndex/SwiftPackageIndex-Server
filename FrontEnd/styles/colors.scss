@@ -70,7 +70,7 @@
     --panel-background: var(--very-light-grey);
     --panel-background-hover: var(--light-grey);
     --panel-border: var(--light-grey);
-    --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 10%);
+    --panel-shadow: 0 6px 10px 5px rgb(0 0 0 / 10%);
     --panel-underlay-background: var(--black);
     --panel-underlay-opacity: 0.5;
 
@@ -90,8 +90,8 @@
     --header-text: var(--white);
     --header-link-text: var(--white);
     --header-link-highlight: var(--yellow);
-    --header-gradient-start: rgba(255, 255, 255, 20%);
-    --header-gradient-end: rgba(255, 255, 255, 5%);
+    --header-gradient-start: rgb(255 255 255 / 20%);
+    --header-gradient-end: rgb(255 255 255 / 5%);
 
     --breadcrumb: var(--light-grey);
     --breadcrumb-header: var(--grey);
@@ -162,19 +162,19 @@
     --big-button-blue-background: var(--mid-blue);
     --big-button-blue-border: var(--light-blue);
 
-    --keyword-count-background: rgba(0, 0, 0, 10%);
+    --keyword-count-background: rgb(0 0 0 / 10%);
 
     --panel-button-background: var(--very-light-grey);
-    --panel-button-shadow: 0 3px 5px 5px rgba(0, 0, 0, 5%);
+    --panel-button-shadow: 0 3px 5px 5px rgb(0 0 0 / 5%);
     --panel-button-text: var(--white);
     --panel-accent: var(--dark-grey);
 
     --package-funding-background: var(--very-light-grey);
 
     --scta-avatar-gradient: linear-gradient(
-        rgba(241, 241, 241, 0%) 0,
-        rgba(241, 241, 241, 0%) 50%,
-        rgba(241, 241, 241, 100%) 100%
+        rgb(241 241 241 / 0%) 0,
+        rgb(241 241 241 / 0%) 50%,
+        rgb(241 241 241 / 100%) 100%
     );
     --scta-panel-accent: var(--pink);
     --ccta-panel-accent: var(--mid-blue);
@@ -182,7 +182,7 @@
     --podcast-panel-background: var(--very-light-blue);
     --podcast-panel-accent: var(--light-blue);
 
-    --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
+    --avatar-shadow: 0 2px 2px 3px rgb(0 0 0 / 5%);
 
     --rss-subscribe-color: var(--orange);
 
@@ -245,8 +245,8 @@
         --table-row-alt-background: var(--very-very-dark-grey);
 
         --header-background: var(--very-dark-blue);
-        --header-gradient-start: rgba(255, 255, 255, 8%);
-        --header-gradient-end: rgba(255, 255, 255, 3%);
+        --header-gradient-start: rgb(255 255 255 / 8%);
+        --header-gradient-end: rgb(255 255 255 / 3%);
 
         --breadcrumb: var(--dark-grey);
 
@@ -300,7 +300,7 @@
         --big-button-blue-background: var(--mid-blue);
         --big-button-blue-border: var(--light-blue);
 
-        --keyword-count-background: rgba(255, 255, 255, 12.5%);
+        --keyword-count-background: rgb(255 255 255 / 12.5%);
 
         --panel-button-background: var(--very-dark-grey);
         --panel-cta-background: var(--dark-grey);
@@ -308,9 +308,9 @@
         --package-funding-background: var(--very-dark-grey);
 
         --scta-avatar-gradient: linear-gradient(
-            rgba(25, 25, 35, 0%) 0,
-            rgba(25, 25, 35, 0%) 50%,
-            rgba(25, 25, 35, 100%) 100%
+            rgb(25 25 35 / 0%) 0,
+            rgb(25 25 35 / 0%) 50%,
+            rgb(25 25 35 / 100%) 100%
         );
 
         --debug-console-background: var(--dark-blue);
