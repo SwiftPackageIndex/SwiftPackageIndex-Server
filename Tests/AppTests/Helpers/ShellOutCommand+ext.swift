@@ -22,11 +22,13 @@ extension ShellOutCommand {
             "-e", "POSTGRES_DB=spi_test",
             "-e", "POSTGRES_USER=spi_test",
             "-e", "POSTGRES_PASSWORD=xxx",
+            "-e", "POSTGRES_HOST_AUTH_METHOD=md5",
+            "-e", "POSTGRES_INITDB_ARGS=--auth-host=md5",
             "-e", "PGDATA=/pgdata",
             "--tmpfs", "/pgdata:rw,noexec,nosuid,size=1024m",
             "-p", "\(port):5432",
             "-d",
-            "postgres:13-alpine"
+            "postgres:16-alpine"
         ])
     }
 
