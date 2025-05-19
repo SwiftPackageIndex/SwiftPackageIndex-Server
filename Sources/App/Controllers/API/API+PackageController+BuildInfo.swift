@@ -90,7 +90,7 @@ extension API.PackageController {
 
         static func swift6Readiness(builds: [PackageController.BuildsRoute.BuildInfo]) -> Swift6Readiness {
             var readiness = Swift6Readiness()
-            for build in builds where build.swiftVersion == .v6_0 {
+            for build in builds where build.swiftVersion == .latest {
                 readiness.errorCounts[build.platform] = build.buildErrors?.numSwift6Errors
             }
             return readiness

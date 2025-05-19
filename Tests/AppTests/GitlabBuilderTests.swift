@@ -22,16 +22,16 @@ import Vapor
 extension AllTests.GitlabBuilderTests {
 
     @Test func SwiftVersion_rendering() throws {
-        #expect("\(SwiftVersion.v4)" == "6.0.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .none) == "6.0.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .patch) == "6.0")
-        #expect(SwiftVersion.v4.description(droppingZeroes: .all) == "6")
+        #expect("\(SwiftVersion(6, 0, 0))" == "6.0.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .none) == "6.0.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .patch) == "6.0")
+        #expect(SwiftVersion(6, 0, 0).description(droppingZeroes: .all) == "6")
     }
 
     @Test func variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let req = Request(application: app, on: app.eventLoopGroup.next())
             let dto = Gitlab.Builder.PostDTO(token: "token",
                                              ref: "ref",

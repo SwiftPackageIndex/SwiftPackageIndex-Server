@@ -20,7 +20,7 @@ import Fluent
 import SQLKit
 
 
-// FIXME: Check if we can just create a PostgresDB object from scratch rather than using withApp and app.db for this at the call site (i.e. check if these need to be extensions on Database). That does a whole migration + reset just to render the SQL needlessly.
+// FIXME: Check if we can just create a PostgresDB object from scratch rather than using withSPIApp and app.db for this at the call site (i.e. check if these need to be extensions on Database). That does a whole migration + reset just to render the SQL needlessly.
 extension Database {
     func renderSQL(_ builder: SQLSelectBuilder) -> String {
         renderSQL(builder.query)

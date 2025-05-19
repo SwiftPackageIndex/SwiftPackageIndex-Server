@@ -22,7 +22,7 @@ extension AllTests.PackageResultTests {
     typealias PackageResult = PackageController.PackageResult
 
     @Test func joined5() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
@@ -56,7 +56,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func joined5_no_preRelease() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let pkg = try await savePackage(on: app.db, "1".url)
                 try await Repository(package: pkg,
@@ -106,7 +106,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func joined5_defaultBranch_only() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let pkg = try await savePackage(on: app.db, "1".url)
                 try await Repository(package: pkg,
@@ -152,7 +152,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func query_owner_repository() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -179,7 +179,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func query_owner_repository_case_insensitivity() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -205,7 +205,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func activity() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
             try await Repository(package: pkg,
@@ -232,7 +232,7 @@ extension AllTests.PackageResultTests {
     }
 
     @Test func canonicalDocumentationTarget() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 // first package has docs

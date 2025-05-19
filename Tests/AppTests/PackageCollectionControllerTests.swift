@@ -35,7 +35,7 @@ extension AllTests.PackageCollectionControllerTests {
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let p = try await savePackage(on: app.db, "https://github.com/foo/1")
                 do {
                     let v = try Version(id: UUID(),
@@ -72,7 +72,7 @@ extension AllTests.PackageCollectionControllerTests {
 
                 // MUT
                 let encoder = self.encoder
-                try await app.test(
+                try await app.testing().test(
                     .GET,
                     "foo/collection.json",
                     afterResponse: { @MainActor res async throws in
@@ -97,7 +97,7 @@ extension AllTests.PackageCollectionControllerTests {
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let p = try await savePackage(on: app.db, "https://github.com/foo/1")
                 do {
                     let v = try Version(id: UUID(),
@@ -139,7 +139,7 @@ extension AllTests.PackageCollectionControllerTests {
 
                 // MUT
                 let encoder = self.encoder
-                try await app.test(
+                try await app.testing().test(
                     .GET,
                     "collections/custom-collection/collection.json",
                     afterResponse: { @MainActor res async throws in
@@ -157,9 +157,9 @@ extension AllTests.PackageCollectionControllerTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(
+                try await app.testing().test(
                     .GET,
                     "foo/collection.json",
                     afterResponse: { res async in

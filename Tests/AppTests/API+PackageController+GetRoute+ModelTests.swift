@@ -26,7 +26,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
 
     @Test func init_no_packageName() async throws {
         // Tests behaviour when we're lacking data
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup package without package name
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
@@ -56,7 +56,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_packageIdentity() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, URL(string: "https://github.com/foo/swift-bar.git")!)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -81,7 +81,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_generated_documentation() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -107,7 +107,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func init_external_documentation() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
             let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
@@ -137,7 +137,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func ForkedFromInfo_query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let originalPkg = try await savePackage(on: app.db, id: .id0, "https://github.com/original/original")
             try await Repository(package: originalPkg,
                                  name: "original",
@@ -159,7 +159,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
 
     @Test func ForkedFromInfo_query_fallback() async throws {
         // when the package can't be found resort to fallback URL
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0, fallbackURL: "https://github.com/original/original.git")
 
@@ -484,25 +484,25 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(results: [.v5_8: .compatible,
-                                                                                .v5_9: .incompatible,
-                                                                                .v5_10: .unknown,
-                                                                                .v6_0: .compatible]))),
+                                                     results: Results(results: [.v1: .compatible,
+                                                                                .v2: .incompatible,
+                                                                                .v3: .unknown,
+                                                                                .v4: .compatible]))),
                                  beta: nil,
                                  latest: nil)
             #expect(info?.compatibility == [.v1, .v4])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(results: [.v5_8: .compatible,
-                                                                                .v5_9: .incompatible,
-                                                                                .v5_10: .unknown,
-                                                                                .v6_0: .compatible]))),
+                                                     results: Results(results: [.v1: .compatible,
+                                                                                .v2: .incompatible,
+                                                                                .v3: .unknown,
+                                                                                .v4: .compatible]))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
-                                                   results: Results(results: [.v5_8: .incompatible,
-                                                                              .v5_9: .incompatible,
-                                                                              .v5_10: .compatible,
-                                                                              .v6_0: .unknown]))),
+                                                   results: Results(results: [.v1: .incompatible,
+                                                                              .v2: .incompatible,
+                                                                              .v3: .compatible,
+                                                                              .v4: .unknown]))),
                                  latest: nil)
             #expect(info?.compatibility == [.v1, .v3, .v4])
         }
@@ -544,19 +544,19 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func groupBuildInfo() async throws {
-        try await withApp { app in
-            let result1: BuildResults = .init(results: [.v5_8: .compatible,
-                                                        .v5_9: .compatible,
-                                                        .v5_10: .compatible,
-                                                        .v6_0: .compatible])
-            let result2: BuildResults = .init(results: [.v5_8: .compatible,
-                                                        .v5_9: .incompatible,
-                                                        .v5_10: .incompatible,
-                                                        .v6_0: .incompatible])
-            let result3: BuildResults = .init(results: [.v5_8: .unknown,
-                                                        .v5_9: .unknown,
-                                                        .v5_10: .unknown,
-                                                        .v6_0: .unknown])
+        try await withSPIApp { app in
+            let result1: BuildResults = .init(results: [.v1: .compatible,
+                                                        .v2: .compatible,
+                                                        .v3: .compatible,
+                                                        .v4: .compatible])
+            let result2: BuildResults = .init(results: [.v1: .compatible,
+                                                        .v2: .incompatible,
+                                                        .v3: .incompatible,
+                                                        .v4: .incompatible])
+            let result3: BuildResults = .init(results: [.v1: .unknown,
+                                                        .v2: .unknown,
+                                                        .v3: .unknown,
+                                                        .v4: .unknown])
             do {  // three distinct groups
                 let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3", results: result1),
                                                  beta: .init(referenceName: "2.0.0-b1", results: result2),
@@ -595,7 +595,7 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
     }
 
     @Test func languagePlatformInfo() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg,

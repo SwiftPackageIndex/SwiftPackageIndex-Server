@@ -89,7 +89,6 @@ export class VegaChartController extends Controller {
 
             const labelTextElement = document.createTextNode(dataSet.name)
             labelElement.appendChild(labelTextElement)
-            labelElement.replaceChild
         })
         return formElement
     }
@@ -239,7 +238,7 @@ class ReadyForSwift6Chart {
             {
                 name: 'xscale',
                 type: 'time',
-                domain: [{ signal: 'datetime("2024-05-01")' }, { signal: 'datetime("2024-12-31")' }],
+                domain: { fields: data.map((d) => ({ data: d.id, field: 'date' })) },
                 range: 'width',
             },
             {
@@ -257,7 +256,6 @@ class ReadyForSwift6Chart {
             {
                 orient: 'bottom',
                 scale: 'xscale',
-                grid: true,
                 labelAngle: { value: -45 },
                 labelAlign: { value: 'right' },
             },
@@ -321,7 +319,7 @@ class ReadyForSwift6Chart {
                         y: { scale: 'yscale', signal: 'minYScale' },
                         y2: { scale: 'yscale', signal: 'maxYScale' },
                         fill: { value: '#000000' },
-                        opacity: { value: 0.3 },
+                        opacity: { value: 0.1 },
                         tooltip: {
                             signal: 'datum.value',
                         },

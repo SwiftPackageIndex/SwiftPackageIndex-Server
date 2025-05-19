@@ -29,7 +29,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.environment.processingBuildBacklog = { false }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -37,7 +37,7 @@ extension AllTests.PackageController_routesTests {
                 try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package") { res async in
+                try await app.testing().test(.GET, "/owner/package") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -49,9 +49,9 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "/unknown/package") { res async in
+                try await app.testing().test(.GET, "/unknown/package") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -63,9 +63,9 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
             // MUT
-                try await app.test(.GET, "/unknown/package") { res async in
+                try await app.testing().test(.GET, "/unknown/package") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -79,9 +79,9 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
             // MUT
-                try await app.test(.GET, "/unknown/package") { res async in
+                try await app.testing().test(.GET, "/unknown/package") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -89,7 +89,7 @@ extension AllTests.PackageController_routesTests {
     }
 
     @Test func ShowModel_packageAvailable() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
@@ -114,7 +114,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
@@ -133,7 +133,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
@@ -152,7 +152,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
@@ -169,7 +169,7 @@ extension AllTests.PackageController_routesTests {
 
     @Test func readme_route() async throws {
         // Test that readme route is set up
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
@@ -177,7 +177,7 @@ extension AllTests.PackageController_routesTests {
             try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
             // MUT
-            try await app.test(.GET, "/owner/package/readme") { res async in
+            try await app.testing().test(.GET, "/owner/package/readme") { res async in
                 #expect(res.status == .ok)
             }
         }
@@ -190,7 +190,7 @@ extension AllTests.PackageController_routesTests {
                 #"<div id="readme"><article>readme content</article></div>"#
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner", readmeHtmlUrl: "html url")
@@ -219,7 +219,7 @@ extension AllTests.PackageController_routesTests {
                 return ""
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
@@ -250,7 +250,7 @@ extension AllTests.PackageController_routesTests {
                 throw Error()
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg,
@@ -283,7 +283,7 @@ extension AllTests.PackageController_routesTests {
     }
 
     @Test func releases() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
@@ -291,7 +291,7 @@ extension AllTests.PackageController_routesTests {
             try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
             // MUT
-            try await app.test(.GET, "/owner/package/releases") { res async in
+            try await app.testing().test(.GET, "/owner/package/releases") { res async in
                 #expect(res.status == .ok)
             }
         }
@@ -301,7 +301,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -309,7 +309,7 @@ extension AllTests.PackageController_routesTests {
                 try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/builds") { res async in
+                try await app.testing().test(.GET, "/owner/package/builds") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -320,7 +320,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -329,7 +329,7 @@ extension AllTests.PackageController_routesTests {
                     .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+                try await app.testing().test(.GET, "/owner/package/information-for-package-maintainers") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -341,7 +341,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -350,7 +350,7 @@ extension AllTests.PackageController_routesTests {
                     .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+                try await app.testing().test(.GET, "/owner/package/information-for-package-maintainers") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -498,23 +498,23 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
-            try await withApp { app in
-                try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
                     #expect(res.headers.contentType == .init(type: "application", subType: "octet-stream"))
                 }
-                try await app.test(.GET, "/owner/package/main/images/foo/bar.svg") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/images/foo/bar.svg") { res async in
                     #expect(res.headers.contentType == .init(type: "image", subType: "svg+xml"))
                 }
-                try await app.test(.GET, "/owner/package/main/images/foo/bar.SVG") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/images/foo/bar.SVG") { res async in
                     #expect(res.headers.contentType == .init(type: "image", subType: "svg+xml"))
                 }
-                try await app.test(.GET, "/owner/package/main/img/foo/bar.jpeg") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/img/foo/bar.jpeg") { res async in
                     #expect(res.headers.contentType == .init(type: "application", subType: "octet-stream"))
                 }
-                try await app.test(.GET, "/owner/package/main/img/foo/bar.svg") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/img/foo/bar.svg") { res async in
                     #expect(res.headers.contentType == .init(type: "image", subType: "svg+xml"))
                 }
-                try await app.test(.GET, "/owner/package/main/img/foo/bar.SVG") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/img/foo/bar.SVG") { res async in
                     #expect(res.headers.contentType == .init(type: "image", subType: "svg+xml"))
                 }
             }
@@ -524,7 +524,7 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_routes_redirect() async throws {
         // Test the redirect documentation routes without any reference:
         //   /owner/package/documentation + various path elements
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
@@ -547,11 +547,11 @@ extension AllTests.PackageController_routesTests {
             .save(on: app.db)
 
             // MUT
-            try await app.test(.GET, "/owner/package/documentation") { res async in
+            try await app.testing().test(.GET, "/owner/package/documentation") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/documentation/target")
             }
-            try await app.test(.GET, "/owner/package/documentation/target/symbol") { res async in
+            try await app.testing().test(.GET, "/owner/package/documentation/target/symbol") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/documentation/target/symbol")
             }
@@ -560,19 +560,19 @@ extension AllTests.PackageController_routesTests {
             // generated docs (i.e. `target` in this test) as that would prevent them from
             // cross-target linking.
             // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
-            try await app.test(.GET, "/owner/package/documentation/foo") { res async in
+            try await app.testing().test(.GET, "/owner/package/documentation/foo") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/documentation/foo")
             }
-            try await app.test(.GET, "/owner/package/documentation/foo#anchor") { res async in
+            try await app.testing().test(.GET, "/owner/package/documentation/foo#anchor") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/documentation/foo#anchor")
             }
-            try await app.test(.GET, "/owner/package/documentation/FOO") { res async in
+            try await app.testing().test(.GET, "/owner/package/documentation/FOO") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/documentation/foo")
             }
-            try await app.test(.GET, "/owner/package/tutorials/foo") { res async in
+            try await app.testing().test(.GET, "/owner/package/tutorials/foo") { res async in
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/tutorials/foo")
             }
@@ -588,7 +588,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -613,13 +613,13 @@ extension AllTests.PackageController_routesTests {
                 // MUT
 
                 // test partially qualified route (no archive)
-                try await app.test(.GET, "/owner/package/~/documentation") { @Sendable res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation") { @Sendable res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/1.0.0/documentation/target")
                 }
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -632,7 +632,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -646,7 +646,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
+                try await app.testing().test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -671,7 +671,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -696,7 +696,7 @@ extension AllTests.PackageController_routesTests {
                 // MUT
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -709,7 +709,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -722,7 +722,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
+                try await app.testing().test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -745,7 +745,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -770,13 +770,13 @@ extension AllTests.PackageController_routesTests {
                 // MUT
 
                 // test partially qualified route (no archive)
-                try await app.test(.GET, "/owner/package/1.2.3/documentation") { @Sendable res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation") { @Sendable res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/1.2.3/documentation/target")
                 }
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -789,7 +789,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -802,7 +802,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { res async in
+                try await app.testing().test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -823,7 +823,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -846,15 +846,15 @@ extension AllTests.PackageController_routesTests {
                 .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/main/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/documentation") { res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/main/documentation/target")
                 }
-                try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.0.0/documentation") { res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/1.0.0/documentation/target")
                 }
-                try await app.test(.GET, "/owner/package/~/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation") { res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/1.0.0/documentation/target")
                 }
@@ -867,7 +867,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .notFound }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -890,10 +890,10 @@ extension AllTests.PackageController_routesTests {
                 .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/main/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/main/documentation") { res async in
                     #expect(res.status == .notFound)
                 }
-                try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.0.0/documentation") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -907,7 +907,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable uri in .badRequest }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -917,12 +917,12 @@ extension AllTests.PackageController_routesTests {
 
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation") { res async in
                     #expect(res.status == .notFound)
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -937,7 +937,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.dbId = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in throw SomeError() }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
                     .save(on: app.db)
@@ -951,11 +951,11 @@ extension AllTests.PackageController_routesTests {
                 .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation") { res async in
                     #expect(res.status == .seeOther)
                     #expect(res.headers.location == "/owner/package/1.2.3/documentation/foo")
                 }
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/foo") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/foo") { res async in
                     // hits Current.fetchDocumentation which throws, converted to notFound
                     // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
                     #expect(res.status == .notFound)
@@ -970,7 +970,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -983,14 +983,14 @@ extension AllTests.PackageController_routesTests {
 
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/~/css/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/css/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/main/css/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/~/css/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/css/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/main/css/a/b")
@@ -1004,17 +1004,17 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/1.2.3/css/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/css/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/1.2.3/css/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/1.2.3/css/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/css/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/1.2.3/css/a/b")
@@ -1029,7 +1029,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1042,14 +1042,14 @@ extension AllTests.PackageController_routesTests {
 
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/~/js/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/js/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/javascript")
                     #expect(res.body.asString() == "/owner/package/main/js/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/~/js/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/js/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/javascript")
                     #expect(res.body.asString() == "/owner/package/main/js/a/b")
@@ -1063,17 +1063,17 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/1.2.3/js/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/js/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/javascript")
                     #expect(res.body.asString() == "/owner/package/1.2.3/js/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/1.2.3/js/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/js/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/javascript")
                     #expect(res.body.asString() == "/owner/package/1.2.3/js/a/b")
@@ -1088,7 +1088,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1101,14 +1101,14 @@ extension AllTests.PackageController_routesTests {
 
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/~/data/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/data/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/main/data/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/~/data/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/data/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/main/data/a/b")
@@ -1116,7 +1116,7 @@ extension AllTests.PackageController_routesTests {
 
                 // test case-insensitivity
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-                try await app.test(.GET, "/owner/package/~/data/documentation/Foo.json") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/data/documentation/Foo.json") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/main/data/documentation/foo.json")
@@ -1130,17 +1130,17 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
                 // test base url
-                try await app.test(.GET, "/owner/package/1.2.3/data/a") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/data/a") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/1.2.3/data/a")
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/1.2.3/data/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/data/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/1.2.3/data/a/b")
@@ -1148,7 +1148,7 @@ extension AllTests.PackageController_routesTests {
 
                 // test case-insensitivity
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-                try await app.test(.GET, "/apple/swift-nio/main/data/documentation/NIOCore.json") { res async in
+                try await app.testing().test(.GET, "/apple/swift-nio/main/data/documentation/NIOCore.json") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/apple/swift-nio/main/data/documentation/niocore.json")
@@ -1165,7 +1165,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "Package", owner: "Owner")
                     .save(on: app.db)
@@ -1178,7 +1178,7 @@ extension AllTests.PackageController_routesTests {
                                   reference: .tag(1, 2, 3))
                 .save(on: app.db)
 
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async throws in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async throws in
                     let document = try SwiftSoup.parse(res.body.string)
                     let linkElements = try document.select("link[rel='canonical']")
                     #expect(linkElements.count == 1)
@@ -1199,7 +1199,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1216,7 +1216,7 @@ extension AllTests.PackageController_routesTests {
                 // MUT
 
                 // test default path
-                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "current-index")
@@ -1229,7 +1229,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // test reference root path
-                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { res async in
+                try await app.testing().test(.GET, "/owner/package/feature-1.2.3/documentation/target") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "ref-index")
@@ -1241,7 +1241,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -1264,7 +1264,7 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1287,16 +1287,16 @@ extension AllTests.PackageController_routesTests {
                 .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "/owner/package/~/tutorials") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/tutorials") { res async in
                     #expect(res.status == .notFound)
                 }
-                try await app.test(.GET, "/owner/package/~/tutorials/foo") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/tutorials/foo") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "index")
                     #expect(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 }
-                try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { res async in
+                try await app.testing().test(.GET, "/owner/package/~/tutorials/foo#anchor") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "index")
@@ -1313,15 +1313,15 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/octet-stream"])
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "/owner/package/1.2.3/favicon.ico") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/favicon.ico") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/1.2.3/favicon.ico")
                 }
 
-                try await app.test(.GET, "/owner/package/1.2.3/favicon.svg") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/favicon.svg") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/octet-stream")
                     #expect(res.body.asString() == "/owner/package/1.2.3/favicon.svg")
@@ -1336,9 +1336,9 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "/owner/package/1.2.3/theme-settings.json") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/theme-settings.json") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/json")
                     #expect(res.body.asString() == "/owner/package/1.2.3/theme-settings.json")
@@ -1353,9 +1353,9 @@ extension AllTests.PackageController_routesTests {
             $0.httpClient.fetchDocumentation = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
             // MUT
-                try await app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/linkable-paths.json") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "application/json")
                     #expect(res.body.asString() == "/owner/package/1.2.3/linkable-paths.json")
@@ -1373,7 +1373,7 @@ extension AllTests.PackageController_routesTests {
             }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "1")
                 try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1389,7 +1389,7 @@ extension AllTests.PackageController_routesTests {
 
                 // MUT
                 // test path a/b
-                try await app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") { res async in
+                try await app.testing().test(.GET, "/owner/package/1.2.3/tutorials/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     #expect(
@@ -1402,7 +1402,7 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") { res async in
+                try await app.testing().test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -1470,7 +1470,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.environment.current = { .production }
         } operation: {
-            try await withApp(environment: .production) { prodApp in
+            try await withSPIApp(environment: .production) { prodApp in
                 // setup
                 let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
                 try await package.save(on: prodApp.db)
@@ -1481,7 +1481,7 @@ extension AllTests.PackageController_routesTests {
                                   reference: .branch("default")).save(on: prodApp.db)
 
                 // MUT
-                try await prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
+                try await prodApp.testing().test(.GET, "/owner/repo0/sitemap.xml") { res async in
                     #expect(res.status == .ok)
                 }
             }
@@ -1493,7 +1493,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp(environment: .development) { devApp in
+            try await withSPIApp(environment: .development) { devApp in
                 // setup
                 let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
                 try await package.save(on: devApp.db)
@@ -1504,7 +1504,7 @@ extension AllTests.PackageController_routesTests {
                                   reference: .branch("default")).save(on: devApp.db)
 
                 // MUT
-                try await devApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
+                try await devApp.testing().test(.GET, "/owner/repo0/sitemap.xml") { res async in
                     #expect(res.status == .notFound)
                 }
             }
@@ -1539,7 +1539,7 @@ extension AllTests.PackageController_routesTests {
             }
             $0.timeZone = .utc
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
                 try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
@@ -1557,7 +1557,7 @@ extension AllTests.PackageController_routesTests {
                     $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
                 } operation: {
                     // Ensure documentation is resolved
-                    try await app.test(.GET, "/foo/bar/~/documentation/target") { res async in
+                    try await app.testing().test(.GET, "/foo/bar/~/documentation/target") { res async in
                         #expect(res.status == .ok)
                         assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
                     }
@@ -1570,7 +1570,7 @@ extension AllTests.PackageController_routesTests {
                     #expect(commit == ["new-commit"])
 
                     // Ensure documentation is still being resolved
-                    try await app.test(.GET, "/foo/bar/~/documentation/target") { res async in
+                    try await app.testing().test(.GET, "/foo/bar/~/documentation/target") { res async in
                         #expect(res.status == .ok)
                         assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
                     }
@@ -1581,7 +1581,7 @@ extension AllTests.PackageController_routesTests {
 
     @Test func getDocRoute_documentation() async throws {
         // owner/repo/1.2.3/documentation/archive
-        try await withApp { app in
+        try await withSPIApp { app in
             let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
             req.parameters.set("owner", to: "owner")
             req.parameters.set("repository", to: "repo")
@@ -1598,7 +1598,7 @@ extension AllTests.PackageController_routesTests {
         try await withDependencies {
             $0.currentReferenceCache = .inMemory
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
                 req.parameters.set("owner", to: "owner")
                 req.parameters.set("repository", to: "repo")
@@ -1626,7 +1626,7 @@ extension AllTests.PackageController_routesTests {
     }
 
     @Test func getDocRoute_missing_reference() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let req = Request(application: app, on: app.eventLoopGroup.next())
                 req.parameters.set("owner", to: "owner")
@@ -1643,7 +1643,7 @@ extension AllTests.PackageController_routesTests {
 
     @Test func getDocRoute_missing_archive() async throws {
         // reference but no archive
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 let req = Request(application: app, on: app.eventLoopGroup.next())
                 req.parameters.set("owner", to: "owner")

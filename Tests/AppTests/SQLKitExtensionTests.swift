@@ -21,7 +21,7 @@ import Testing
 extension AllTests.SQLKitExtensionTests {
 
     @Test func OrderByGroup() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = SQLOrderBy(SQLIdentifier("id"), .ascending)
                 .then(SQLIdentifier("foo"), .descending)
             #expect(app.db.renderSQL(b) == #""id" ASC, "foo" DESC"#)
@@ -29,7 +29,7 @@ extension AllTests.SQLKitExtensionTests {
     }
 
     @Test func OrderByGroup_complex() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let packageName = SQLIdentifier("package_name")
             let mergedTerms = SQLBind("a b")
             let score = SQLIdentifier("score")

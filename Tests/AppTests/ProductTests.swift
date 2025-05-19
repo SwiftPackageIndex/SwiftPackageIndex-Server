@@ -55,7 +55,7 @@ extension AllTests.ProductTests {
     }
 
     @Test func Product_save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(id: UUID(), url: "1")
             let ver = try Version(id: UUID(), package: pkg)
             let prod = try Product(id: UUID(),
@@ -78,7 +78,7 @@ extension AllTests.ProductTests {
 
     @Test func delete_cascade() async throws {
         // delete version must delete products
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(id: UUID(), url: "1")
             let ver = try Version(id: UUID(), package: pkg)
             let prod = try Product(id: UUID(), version: ver, type: .library(.automatic), name: "p1")

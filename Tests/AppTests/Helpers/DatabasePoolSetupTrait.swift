@@ -12,19 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Vapor
 import Testing
 
 
-extension AllTests.AppTests {
-
-    @Test func migrations() async throws {
-        try await withSPIApp { app in
-            await #expect(throws: Never.self) { try await app.autoRevert() }
-            await #expect(throws: Never.self) { try await app.autoMigrate() }
-        }
+struct DatabasePoolSetupTrait: SuiteTrait, TestScoping {
+    func provideScope(for test: Test, testCase: Test.Case?, performing function: @Sendable () async throws -> Void) async throws {
+        try await DatabasePool.shared.setUp()
+        try await function()
+        try await DatabasePool.shared.tearDown()
     }
+}
 
+
+extension SuiteTrait where Self == DatabasePoolSetupTrait {
+    static var setupDatabasePool: Self {
+        Self()
+    }
 }

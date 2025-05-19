@@ -37,7 +37,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_single_term() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
             #expect(app.db.renderSQL(b) == #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $3 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
             #expect(app.db.binds(b) == ["a", "a", "a"])
@@ -45,7 +45,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_multiple_terms() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
             #expect(app.db.renderSQL(b) == #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
             #expect(app.db.binds(b) == ["a b", "a", "b", "a b"])
@@ -53,7 +53,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_AuthorSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try AuthorSearchFilter(expression: .init(operator: .is, value: "foo"))]
@@ -67,7 +67,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_KeywordSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try KeywordSearchFilter(expression: .init(operator: .is,
@@ -82,7 +82,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_LastActivitySearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try LastActivitySearchFilter(expression: .init(operator: .greaterThan,
@@ -97,7 +97,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_LastCommitSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try LastCommitSearchFilter(expression: .init(operator: .greaterThan,
@@ -112,7 +112,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_LicenseSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))]
@@ -126,7 +126,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_PlatformSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try PlatformSearchFilter(expression: .init(operator: .is, value: "ios,macos"))]
@@ -140,7 +140,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_ProductTypeSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             for type in ProductTypeSearchFilter.ProductType.allCases {
                 let b = Search.packageMatchQueryBuilder(
                     on: app.db, terms: ["a"],
@@ -157,7 +157,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func packageMatchQuery_StarsSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [try StarsSearchFilter(expression: .init(operator: .greaterThan,
@@ -171,7 +171,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func keywordMatchQuery_single_term() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
             #expect(app.db.renderSQL(b) == #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 50"#)
             #expect(app.db.binds(b) == ["%a%"])
@@ -179,7 +179,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func keywordMatchQuery_multiple_terms() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
             #expect(app.db.renderSQL(b) == #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 50"#)
             #expect(app.db.binds(b) == ["%a b%"])
@@ -187,7 +187,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func authorMatchQuery_single_term() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
             #expect(app.db.renderSQL(b) == #"SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 50"#)
             #expect(app.db.binds(b) == ["a", "%a%"])
@@ -195,7 +195,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func authorMatchQuery_multiple_term() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
             #expect(app.db.renderSQL(b) == #"SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 50"#)
             #expect(app.db.binds(b) == ["a b", "%a b%"])
@@ -204,7 +204,7 @@ extension AllTests.SearchTests {
 
     @Test func query_sql() async throws {
         // Test to confirm shape of rendered search SQL
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             let query = try #require(Search.query(app.db, ["test"], page: 1, pageSize: 20))
             // validate
@@ -217,7 +217,7 @@ extension AllTests.SearchTests {
 
     @Test func fetch_single() async throws {
         // Test search with a single term
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p1 = try await savePackage(on: app.db, id: .id1, "1")
             let p2 = try await savePackage(on: app.db, id: .id2, "2")
@@ -262,7 +262,7 @@ extension AllTests.SearchTests {
 
     @Test func fetch_multiple() async throws {
         // Test search with multiple terms ("and")
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p1 = try await savePackage(on: app.db, id: .id1, "1")
             let p2 = try await savePackage(on: app.db, id: .id2, "2")
@@ -309,7 +309,7 @@ extension AllTests.SearchTests {
 
     @Test func fetch_distinct() async throws {
         // Ensure we de-duplicate results
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = Package.init(id: .id0, url: "bar".url)
             try await p.save(on: app.db)
@@ -334,7 +334,7 @@ extension AllTests.SearchTests {
 
     @Test func quoting() async throws {
         // Test searching for a `'`
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p1 = try await savePackage(on: app.db, id: .id1, "1")
             let p2 = try await savePackage(on: app.db, id: .id2, "2")
@@ -382,7 +382,7 @@ extension AllTests.SearchTests {
 
     @Test func search_pagination() async throws {
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let packages = (0..<9).map { idx in
                 Package(url: "\(idx)".url, score: 15 - idx)
             }
@@ -428,7 +428,7 @@ extension AllTests.SearchTests {
 
     @Test func search_pagination_with_author_keyword_results() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = (0..<9).map { idx in
                 Package(url: "\(idx)".url, score: 15 - idx)
@@ -468,7 +468,7 @@ extension AllTests.SearchTests {
 
     @Test func search_pagination_invalid_input() async throws {
         // Test invalid pagination inputs
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = (0..<9).map { idx in
                 Package(url: "\(idx)".url, score: 15 - idx)
@@ -504,7 +504,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func order_by_score() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             for idx in (0..<10).shuffled() {
                 let p = Package(id: UUID(), url: "\(idx)".url, score: idx)
@@ -529,7 +529,7 @@ extension AllTests.SearchTests {
 
     @Test func exact_name_match() async throws {
         // Ensure exact name matches are boosted
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // We have three packages that all match in some way:
             // 1: exact package name match - we want this one to be at the top
@@ -571,7 +571,7 @@ extension AllTests.SearchTests {
 
     @Test func exact_name_match_whitespace() async throws {
         // Ensure exact name matches are boosted, for package name with whitespace
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // We have three packages that all match in some way:
             // 1: exact package name match - we want this one to be at the top
@@ -614,7 +614,7 @@ extension AllTests.SearchTests {
     @Test func exact_name_null_packageName() async throws {
         // Ensure null packageName value aren't boosted
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2072
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // We have three packages that match the search term "bar" via their summary.
             // The third package has no package name. This test ensure it's not boosted
@@ -655,7 +655,7 @@ extension AllTests.SearchTests {
 
     @Test func exclude_null_fields() async throws {
         // Ensure excluding results with NULL fields
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup:
             // Packages that all match but each having one NULL for a required field
             let p1 = Package(id: UUID(), url: "1", score: 10)
@@ -687,7 +687,7 @@ extension AllTests.SearchTests {
 
     @Test func include_null_package_name() async throws {
         // Ensure that packages that somehow have a NULL package name do *not* get excluded from search results.
-        try await withApp { app in
+        try await withSPIApp { app in
             let p1 = Package(id: .id0, url: "1", score: 10)
             try await p1.save(on: app.db)
 
@@ -717,7 +717,7 @@ extension AllTests.SearchTests {
     @Test func exact_word_match() async throws {
         // Ensure exact word matches are boosted
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2072
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             // We have three packages that all match the search term "ping". This test
             // ensures the one with the whole word match is boosted to the front
@@ -763,7 +763,7 @@ extension AllTests.SearchTests {
         // We have two packages that both match the search term "syntax". This test
         // ensures the one where the match is only in the repository name gets still
         // ranked first due to its higher score.
-        try await withApp { app in
+        try await withSPIApp { app in
             let p1 = Package(id: UUID(), url: "foo/bar", score: 10)
             let p2 = Package(id: UUID(), url: "foo/swift-syntax", score: 20)
             try await [p1, p2].save(on: app.db)
@@ -806,7 +806,7 @@ extension AllTests.SearchTests {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1402
         // Ensure we don't raise a 500 for certain characters
         // "server: invalid regular expression: quantifier operand invalid"
-        try await withApp { app in
+        try await withSPIApp { app in
             do {
                 // MUT
                 let res = try await Search.fetch(app.db, ["*"], page: 1, pageSize: 20)
@@ -830,7 +830,7 @@ extension AllTests.SearchTests {
         // setup
         // p1: decoy
         // p2: match
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkgs = (0..<2).map { Package(id: UUID(), url: "\($0)".url) }
             try await pkgs.save(on: app.db)
             try await [
@@ -862,7 +862,7 @@ extension AllTests.SearchTests {
         // setup
         // p1: decoy
         // p2: match
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkgs = (0..<4).map { Package(id: UUID(), url: "\($0)".url, score: $0) }
             try await pkgs.save(on: app.db)
             let keywords = [
@@ -899,7 +899,7 @@ extension AllTests.SearchTests {
         // setup
         // p1: decoy
         // p2: match
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkgs = (0..<4).map {
                 Package(id: UUID(), url: "\($0)".url, score: $0)
             }
@@ -935,7 +935,7 @@ extension AllTests.SearchTests {
         // setup
         // p1: decoy
         // p2: match
-        try await withApp { app in
+        try await withSPIApp { app in
             let p1 = Package(id: .id1, url: "1", score: 10)
             let p2 = Package(id: .id2, url: "2", score: 20)
             try await [p1, p2].save(on: app.db)
@@ -982,7 +982,7 @@ extension AllTests.SearchTests {
         // setup
         // p1: decoy
         // p2: match
-        try await withApp { app in
+        try await withSPIApp { app in
             let p1 = Package(id: .id1, url: "1", score: 10)
             let p2 = Package(id: .id2, url: "2", score: 20)
             try await [p1, p2].save(on: app.db)
@@ -1015,7 +1015,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func search_withoutTerms() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(id: .id1, url: "1", score: 10)
             let p2 = Package(id: .id2, url: "2", score: 20)
@@ -1048,7 +1048,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func search_withFilter_stars() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(id: .id1, url: "1", score: 10)
             let p2 = Package(id: .id2, url: "2", score: 20)
@@ -1104,7 +1104,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func onlyPackageResults_whenFiltersApplied() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do { // with filter
                 let query = try #require(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
                 let sql = app.db.renderSQL(query)
@@ -1124,7 +1124,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func authorSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1166,7 +1166,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func keywordSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1210,7 +1210,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func lastActivitySearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1254,7 +1254,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func lastCommitSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1298,7 +1298,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func licenseSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1350,7 +1350,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func platformSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1392,7 +1392,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func starsSearchFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1435,7 +1435,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func productTypeFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let p1 = Package.init(id: .id0, url: "1".url)
@@ -1489,7 +1489,7 @@ extension AllTests.SearchTests {
     }
 
     @Test func productTypeFilter_macro() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             do {
                 let p1 = Package.init(id: .id0, url: "1".url)
@@ -1544,7 +1544,7 @@ extension AllTests.SearchTests {
 
     @Test func SearchFilter_error() async throws {
         // Test error handling in case of an invalid filter
-        try await withApp { app in
+        try await withSPIApp { app in
             // Setup
             let p1 = Package(url: "1", platformCompatibility: [.iOS])
             let p2 = Package(url: "2", platformCompatibility: [.macOS])
@@ -1578,7 +1578,7 @@ extension AllTests.SearchTests {
     @Test func hasDocs_external_docs() async throws {
         // Ensure external docs as listed as having docs
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2702
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "1")
             try await pkg.save(on: app.db)
             try await Repository(package: pkg,

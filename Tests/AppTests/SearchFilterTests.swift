@@ -79,7 +79,7 @@ extension AllTests.SearchFilterTests {
     // MARK: Filters
 
     @Test func authorFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try AuthorSearchFilter(expression: .init(operator: .is,
                                                                   value: "sherlouk"))
             #expect(filter.key == .author)
@@ -105,7 +105,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func keywordFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try KeywordSearchFilter(expression: .init(operator: .is,
                                                                    value: "cache"))
             #expect(filter.key == .keyword)
@@ -132,7 +132,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func lastActivityFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LastActivitySearchFilter(expression: .init(operator: .is,
                                                                         value: "1970-01-01"))
             #expect(filter.key == .lastActivity)
@@ -158,7 +158,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func lastCommitFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LastCommitSearchFilter(expression: .init(operator: .is,
                                                                       value: "1970-01-01"))
             #expect(filter.key == .lastCommit)
@@ -184,7 +184,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func licenseFilter_compatible() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is,
                                                                    value: "compatible"))
             #expect(filter.key == .license)
@@ -203,7 +203,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func licenseFilter_single() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is,
                                                                    value: "mit"))
             #expect(filter.key == .license)
@@ -240,7 +240,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func licenseFilter_incompatible() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is,
                                                                    value: "incompatible"))
             #expect(filter.key == .license)
@@ -259,7 +259,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func licenseFilter_none() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "none"))
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
@@ -277,7 +277,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func licenseFilter_other() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "other"))
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
@@ -304,7 +304,7 @@ extension AllTests.SearchFilterTests {
 
     @Test func platformFilter_single_value() async throws {
         // test single value happy path
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try PlatformSearchFilter(expression: .init(operator: .is,
                                                                     value: "ios"))
             #expect(filter.key == .platform)
@@ -390,7 +390,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func starsFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let filter = try StarsSearchFilter(expression: .init(operator: .is, value: "1234"))
             #expect(filter.key == .stars)
             #expect(filter.predicate == .init(operator: .equal,
@@ -415,7 +415,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func productTypeFilter() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // test single value happy path
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
                                                                        value: "executable"))
@@ -435,7 +435,7 @@ extension AllTests.SearchFilterTests {
     }
 
     @Test func productTypeFilter_macro() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // Test "virtual" macro product filter
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
             #expect(filter.key == .productType)

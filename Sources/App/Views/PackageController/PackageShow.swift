@@ -36,7 +36,7 @@ enum PackageShow {
         }
     }
 
-    struct BuildStatusRow<T: Codable & Equatable>: Codable, Equatable {
+    struct BuildStatusRow<T: Codable & Equatable & Sendable>: Codable, Equatable, Sendable {
         var references: [Reference]
         var results: T
 

@@ -132,7 +132,7 @@ extension AllTests.VersionDiffTests {
     @Test func Version_diff_1() async throws {
         // Test [Version] based diff (higher level interface)
         // Just run an integration scenario, the details are covered in the test above
-        try await withApp { app in
+        try await withSPIApp { app in
             // Branch changes commit hash
             // setup
             let pkg = try await savePackage(on: app.db, "1")

@@ -23,7 +23,7 @@ import Testing
 extension AllTests.CustomCollectionTests {
 
     @Test func CustomCollection_save() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // MUT
             try await CustomCollection(id: .id0, .init(key: "list",
                                                        name: "List",
@@ -75,7 +75,7 @@ extension AllTests.CustomCollectionTests {
     }
 
     @Test func CustomCollection_findOrCreate() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             do { // initial call creates collection
                  // MUT
                 let res = try await CustomCollection.findOrCreate(on: app.db, .init(key: "list",
@@ -132,7 +132,7 @@ extension AllTests.CustomCollectionTests {
     }
 
     @Test func CustomCollectionPackage_attach() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -167,7 +167,7 @@ extension AllTests.CustomCollectionTests {
     }
 
     @Test func CustomCollectionPackage_detach() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -194,7 +194,7 @@ extension AllTests.CustomCollectionTests {
 
     @Test func CustomCollection_packages() async throws {
         // Test CustomCollection.packages relation
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p1 = Package(id: .id0, url: "1".asGithubUrl.url)
             try await p1.save(on: app.db)
@@ -217,7 +217,7 @@ extension AllTests.CustomCollectionTests {
 
     @Test func Package_customCollections() async throws {
         // Test Package.customCollections relation
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p1 = Package(id: .id0, url: "1".asGithubUrl.url)
             try await p1.save(on: app.db)
@@ -245,7 +245,7 @@ extension AllTests.CustomCollectionTests {
     }
 
     @Test func CustomCollection_cascade() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -287,7 +287,7 @@ extension AllTests.CustomCollectionTests {
     }
 
     @Test func Package_cascade() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -330,7 +330,7 @@ extension AllTests.CustomCollectionTests {
 
     @Test func CustomCollection_reconcile() async throws {
         // Test reconciliation of a custom collection against a list of package URLs
-        try await withApp { app in
+        try await withSPIApp { app in
             let collection = CustomCollection(id: .id0, .init(key: "list",
                                                               name: "List",
                                                               url: "https://github.com/foo/bar/list.json"))
@@ -389,7 +389,7 @@ extension AllTests.CustomCollectionTests {
 
     @Test func CustomCollection_reconcile_caseInsensitive() async throws {
         // Test reconciliation with a case-insensitive matching URL
-        try await withApp { app in
+        try await withSPIApp { app in
             let collection = CustomCollection(id: .id0, .init(key: "list",
                                                               name: "List",
                                                               url: "https://github.com/foo/bar/list.json"))

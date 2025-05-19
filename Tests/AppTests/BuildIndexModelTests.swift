@@ -24,7 +24,7 @@ extension AllTests.BuildIndexModelTests {
 
     @Test func init_no_name() async throws {
         // Tests behaviour when we're lacking data
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup package without package name
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
@@ -96,7 +96,7 @@ extension AllTests.BuildIndexModelTests {
         let matrix = model.buildMatrix
 
         // validate
-        #expect(matrix.values.keys.count == 27)
+        #expect(matrix.values.keys.count == 28)
         #expect(
             matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label) == ["1.2.3", "2.0.0-b1", "main"]
         )
@@ -141,7 +141,7 @@ extension AllTests.BuildIndexModelTests {
         let matrix = model.buildMatrix
 
         // validate
-        #expect(matrix.values.keys.count == 27)
+        #expect(matrix.values.keys.count == 28)
         #expect(
             matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label) == ["1.2.3", "main"]
         )

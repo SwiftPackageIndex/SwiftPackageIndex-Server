@@ -31,7 +31,7 @@ extension AllTests.BuildShowModelTests {
     }
 
     @Test func Model_init() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,

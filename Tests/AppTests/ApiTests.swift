@@ -18,14 +18,14 @@ import Dependencies
 import PackageCollectionsSigning
 import SnapshotTesting
 import Testing
-import XCTVapor
+import VaporTesting
 
 
 extension AllTests.ApiTests {
 
     @Test func version() async throws {
-        try await withApp { app in
-            try await app.test(.GET, "api/version", afterResponse: { res async throws in
+        try await withSPIApp { app in
+            try await app.testing().test(.GET, "api/version", afterResponse: { res async throws in
                 #expect(res.status == .ok)
                 #expect(try res.content.decode(API.Version.self) == API.Version(version: "Unknown"))
             })
@@ -37,9 +37,9 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "api/search",
+                try await app.testing().test(.GET, "api/search",
                                    headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
                                    afterResponse: { res async throws in
                     #expect(res.status == .ok)
@@ -60,7 +60,7 @@ extension AllTests.ApiTests {
                 await event.setValue(.init(kind: kind, path: path))
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let p1 = Package(id: .id0, url: "1")
                 try await p1.save(on: app.db)
                 let p2 = Package(id: .id1, url: "2")
@@ -80,7 +80,7 @@ extension AllTests.ApiTests {
                 try await Search.refresh(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "api/search?query=foo%20bar",
+                try await app.testing().test(.GET, "api/search?query=foo%20bar",
                                    headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
                                    afterResponse: { res async throws in
                     // validation
@@ -119,9 +119,9 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT
-                try await app.test(.GET, "api/search?query=test") { res async in
+                try await app.testing().test(.GET, "api/search?query=test") { res async in
                     // validation
                     #expect(res.status == .unauthorized)
                 }
@@ -143,7 +143,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -171,7 +171,7 @@ extension AllTests.ApiTests {
                     let encoder = JSONEncoder()
                     encoder.dateEncodingStrategy = .secondsSince1970
                     let body: ByteBuffer = .init(data: try encoder.encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/versions/\(versionId)/build-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -218,7 +218,7 @@ extension AllTests.ApiTests {
                         swiftVersion: .init(5, 2, 0)
                     )
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/versions/\(versionId)/build-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -252,7 +252,7 @@ extension AllTests.ApiTests {
                         swiftVersion: .init(5, 2, 0)
                     )
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/versions/\(versionId)/build-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -279,7 +279,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -294,7 +294,7 @@ extension AllTests.ApiTests {
                     swiftVersion: .latest
                 )
                 let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("secr3t"),
@@ -318,7 +318,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p)
@@ -334,7 +334,7 @@ extension AllTests.ApiTests {
                     status: .infrastructureError,
                     swiftVersion: .init(5, 2, 0))
                 let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("secr3t"),
@@ -357,7 +357,7 @@ extension AllTests.ApiTests {
             $0.environment.builderToken = { "secr3t" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p)
@@ -371,7 +371,7 @@ extension AllTests.ApiTests {
                 let db = app.db
 
                 // MUT - no auth header
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .applicationJSON,
@@ -384,7 +384,7 @@ extension AllTests.ApiTests {
                 )
 
                 // MUT - wrong token
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("wrong"),
@@ -400,7 +400,7 @@ extension AllTests.ApiTests {
                 try await withDependencies {
                     $0.environment.builderToken = { nil }
                 } operation: {
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/versions/\(versionId)/build-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -422,7 +422,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -434,7 +434,7 @@ extension AllTests.ApiTests {
                 #expect(data.count > 16_000, "was: \(data.count) bytes")
                 let body: ByteBuffer = .init(data: data)
                 let outOfTheWayPort = 12_345
-                try await app.testable(method: .running(port: outOfTheWayPort)).test(
+                try await app.testing(method: .running(port: outOfTheWayPort)).test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("secr3t"),
@@ -453,7 +453,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let originalPackageUpdate = try #require(p.updatedAt)
@@ -484,7 +484,7 @@ extension AllTests.ApiTests {
                 let encoder = JSONEncoder()
                 encoder.dateEncodingStrategy = .secondsSince1970
                 let body: ByteBuffer = .init(data: try encoder.encode(dto))
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("secr3t"),
@@ -517,7 +517,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -534,7 +534,7 @@ extension AllTests.ApiTests {
                                                           mbSize: 900,
                                                           status: .skipped)
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(buildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -560,7 +560,7 @@ extension AllTests.ApiTests {
                         status: .ok
                     )
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(buildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -581,7 +581,7 @@ extension AllTests.ApiTests {
                 do {  // make sure a .pending report without docArchives does not reset them
                     let dto: API.PostDocReportDTO = .init(docArchives: nil, status: .pending)
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(buildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -608,7 +608,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -620,7 +620,7 @@ extension AllTests.ApiTests {
 
                 do {  // initial insert
                     let dto = API.PostDocReportDTO(status: .pending)
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(b1.id!)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -638,7 +638,7 @@ extension AllTests.ApiTests {
 
                 do {  // MUT - override
                     let dto = API.PostDocReportDTO(status: .ok)
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(b2.id!)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -662,14 +662,14 @@ extension AllTests.ApiTests {
             $0.environment.builderToken = { "secr3t" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let nonExistingBuildId = UUID()
 
                 do {  // send report to non-existing buildId
                     let dto: API.PostDocReportDTO = .init(status: .ok)
                     let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(nonExistingBuildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -690,7 +690,7 @@ extension AllTests.ApiTests {
             $0.environment.builderToken = { "secr3t" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p = try await savePackage(on: app.db, "1")
                 let v = try Version(package: p, latest: .defaultBranch)
@@ -702,7 +702,7 @@ extension AllTests.ApiTests {
                 let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
                 // MUT - no auth header
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/builds/\(buildId)/doc-report",
                     headers: .applicationJSON,
@@ -715,7 +715,7 @@ extension AllTests.ApiTests {
                 )
 
                 // MUT - wrong token
-                try await app.test(
+                try await app.testing().test(
                     .POST,
                     "api/builds/\(buildId)/doc-report",
                     headers: .bearerApplicationJSON("wrong"),
@@ -731,7 +731,7 @@ extension AllTests.ApiTests {
                 try await withDependencies {
                     $0.environment.builderToken = { nil }
                 } operation: {
-                    try await app.test(
+                    try await app.testing().test(
                         .POST,
                         "api/builds/\(buildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
@@ -748,7 +748,7 @@ extension AllTests.ApiTests {
     }
 
     @Test func BadgeRoute_query() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let p = try await savePackage(on: app.db, "1")
             let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
@@ -789,7 +789,7 @@ extension AllTests.ApiTests {
 
     @Test func get_badge() async throws {
         // sas 2024-12-20: Badges are not reporting plausbile events, because they triggered way too many events. (This is an old changes, just adding this comment today as I'm removing the old, commented out test remnants we still had in place.)
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let owner = "owner"
             let repo = "repo"
@@ -808,7 +808,7 @@ extension AllTests.ApiTests {
                 .save(on: app.db)
 
             // MUT - swift versions
-            try await app.test(
+            try await app.testing().test(
                 .GET,
                 "api/packages/\(owner)/\(repo)/badge?type=swift-versions",
                 afterResponse: { res async throws in
@@ -818,7 +818,7 @@ extension AllTests.ApiTests {
                     let badge = try res.content.decode(Badge.self)
                     #expect(badge.schemaVersion == 1)
                     #expect(badge.label == "Swift")
-                    #expect(badge.message == "5.9 | 5.8")
+                    #expect(badge.message == "5.10 | 5.9")
                     #expect(badge.isError == false)
                     #expect(badge.color == "blue")
                     #expect(badge.cacheSeconds == 6*3600)
@@ -826,7 +826,7 @@ extension AllTests.ApiTests {
                 })
 
             // MUT - platforms
-            try await app.test(
+            try await app.testing().test(
                 .GET,
                 "api/packages/\(owner)/\(repo)/badge?type=platforms",
                 afterResponse: { res async throws in
@@ -858,7 +858,7 @@ extension AllTests.ApiTests {
                 await event.setValue(.init(kind: kind, path: path))
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p1 = Package(id: .id1, url: "1")
                 try await p1.save(on: app.db)
@@ -895,7 +895,7 @@ extension AllTests.ApiTests {
                 }
                 """)
 
-                    try await app.test(.POST, "api/package-collections",
+                    try await app.testing().test(.POST, "api/package-collections",
                                        headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
                                        body: body,
                                        afterResponse: { res async throws in
@@ -927,7 +927,7 @@ extension AllTests.ApiTests {
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                                  url: "1")
@@ -985,7 +985,7 @@ extension AllTests.ApiTests {
                 }
                 """)
 
-                    try await app.test(.POST,
+                    try await app.testing().test(.POST,
                                        "api/package-collections",
                                        headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                                        body: body,
@@ -1005,14 +1005,14 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let dto = API.PostPackageCollectionDTO(
                     // request 21 urls - this should raise a 400
                     selection: .packageURLs((0...20).map(String.init))
                 )
                 let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
-                try await app.test(.POST,
+                try await app.testing().test(.POST,
                                    "api/package-collections",
                                    headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                                    body: body,
@@ -1029,7 +1029,7 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.dbId = { nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // MUT - happy path
                 let body: ByteBuffer = .init(string: """
                 {
@@ -1050,7 +1050,7 @@ extension AllTests.ApiTests {
                 """)
 
                 // Test with bad token
-                try await app.test(.POST, "api/package-collections",
+                try await app.testing().test(.POST, "api/package-collections",
                              headers: .bearerApplicationJSON("bad token"),
                              body: body,
                              afterResponse: { res async in
@@ -1059,7 +1059,7 @@ extension AllTests.ApiTests {
                 })
 
                 // Test with wrong tier
-                try await app.test(.POST, "api/package-collections",
+                try await app.testing().test(.POST, "api/package-collections",
                              headers: .bearerApplicationJSON(.apiToken(secretKey: "secret", tier: .tier1)),
                              body: body,
                              afterResponse: { res async in
@@ -1076,7 +1076,7 @@ extension AllTests.ApiTests {
             $0.environment.dbId = { nil }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let owner = "owner"
                 let repo = "repo"
                 let p = try await savePackage(on: app.db, "1")
@@ -1089,7 +1089,7 @@ extension AllTests.ApiTests {
                                      owner: owner).save(on: app.db)
 
                 do {  // MUT - happy path
-                    try await app.test(.GET, "api/packages/owner/repo",
+                    try await app.testing().test(.GET, "api/packages/owner/repo",
                                        headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
                                        afterResponse: { res async throws in
                         // validation
@@ -1100,7 +1100,7 @@ extension AllTests.ApiTests {
                 }
 
                 do {  // MUT - unauthorized (no token provided)
-                    try await app.test(.GET, "api/packages/owner/repo",
+                    try await app.testing().test(.GET, "api/packages/owner/repo",
                                        headers: .applicationJSON,
                                        afterResponse: { res async in
                         // validation
@@ -1109,7 +1109,7 @@ extension AllTests.ApiTests {
                 }
 
                 do {  // MUT - unauthorized (wrong token provided)
-                    try await app.test(.GET, "api/packages/owner/repo",
+                    try await app.testing().test(.GET, "api/packages/owner/repo",
                                        headers: .bearerApplicationJSON("bad token"),
                                        afterResponse: { res async in
                         // validation
@@ -1118,7 +1118,7 @@ extension AllTests.ApiTests {
                 }
 
                 do {  // MUT - unauthorized (signed with wrong key)
-                    try await app.test(.GET, "api/packages/unknown/package",
+                    try await app.testing().test(.GET, "api/packages/unknown/package",
                                        headers: .bearerApplicationJSON((try .apiToken(secretKey: "wrong", tier: .tier3))),
                                        afterResponse: { res async in
                         // validation
@@ -1126,7 +1126,7 @@ extension AllTests.ApiTests {
                     })
                 }
                 do {  // MUT - package not found
-                    try await app.test(.GET, "api/packages/unknown/package",
+                    try await app.testing().test(.GET, "api/packages/unknown/package",
                                        headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                                        afterResponse: { res async in
                         // validation
@@ -1142,7 +1142,7 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
                 try await Repository(package: pkg,
                                      defaultBranch: "default",
@@ -1156,7 +1156,7 @@ extension AllTests.ApiTests {
                 .save(on: app.db)
 
                 // MUT
-                try await app.test(.GET, "api/dependencies",
+                try await app.testing().test(.GET, "api/dependencies",
                                    headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                                    afterResponse: { res async in
                     // validation

@@ -24,7 +24,7 @@ import Vapor
 extension AllTests.IngestionTests {
 
     @Test func ingest_basic() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = ["https://github.com/finestructure/Gala",
                             "https://github.com/finestructure/Rester",
@@ -75,7 +75,7 @@ extension AllTests.IngestionTests {
             }
             $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
             // setup
             let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
                                                                "https://github.com/foo/2"], processingStage: .reconciliation)
@@ -100,7 +100,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func updateRepository_insert() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar")
             let repo = Repository(packageId: try pkg.requireID())
 
@@ -122,7 +122,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func updateRepository_update() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar")
             let repo = Repository(packageId: try pkg.requireID())
             let md: Github.Metadata = .init(defaultBranch: "main",
@@ -217,7 +217,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func homePageEmptyString() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = try await savePackage(on: app.db, "2")
             let repo = Repository(packageId: try pkg.requireID())
@@ -257,7 +257,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func updatePackage() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkgs = try await savePackages(on: app.db, ["https://github.com/foo/1",
                                                            "https://github.com/foo/2"])
@@ -288,7 +288,7 @@ extension AllTests.IngestionTests {
     @Test func updatePackage_new() async throws {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkgs = [
                 Package(id: UUID(), url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation),
                 Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
@@ -316,7 +316,7 @@ extension AllTests.IngestionTests {
 
     @Test func partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
             try await packages.save(on: app.db)
@@ -340,7 +340,7 @@ extension AllTests.IngestionTests {
 
     @Test func ingest_badMetadata() async throws {
         // setup
-        try await withApp { app in
+        try await withSPIApp { app in
             let urls = ["https://github.com/foo/1",
                         "https://github.com/foo/2",
                         "https://github.com/foo/3"]
@@ -383,7 +383,7 @@ extension AllTests.IngestionTests {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't create repository records
         let capturingLogger = CapturingLogger()
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             try await Package(id: .id0, url: "https://github.com/foo/0", status: .ok, processingStage: .reconciliation)
                 .save(on: app.db)
@@ -513,7 +513,7 @@ extension AllTests.IngestionTests {
                 return "objectUrl"
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
                 try await pkg.save(on: app.db)
@@ -567,7 +567,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func ingest_storeS3Readme_withPrivateImages() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let pkg = Package(url: "https://github.com/foo/bar".url,
                               processingStage: .reconciliation)
             try await pkg.save(on: app.db)
@@ -615,7 +615,7 @@ extension AllTests.IngestionTests {
 
     @Test func ingest_storeS3Readme_error() async throws {
         // Test caching behaviour in case the storeS3Readme call fails
-        try await withApp { app in
+        try await withSPIApp { app in
             // setup
             let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
             try await pkg.save(on: app.db)
@@ -670,7 +670,7 @@ extension AllTests.IngestionTests {
                 }
             }
         } operation: {
-            try await withApp { app in
+            try await withSPIApp { app in
                 // setup
                 let pkg = Package(url: "https://github.com/foo/1")
                 try await pkg.save(on: app.db)
@@ -685,7 +685,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func migration076_updateRepositoryResetReadmes() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             let package = Package(url: "https://example.com/owner/repo")
             try await package.save(on: app.db)
             let repository = try Repository(package: package, s3Readme: .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
@@ -705,7 +705,7 @@ extension AllTests.IngestionTests {
     }
 
     @Test func getFork() async throws {
-        try await withApp { app in
+        try await withSPIApp { app in
             try await Package(id: .id0, url: "https://github.com/foo/parent.git".url, processingStage: .analysis).save(on: app.db)
             try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
 

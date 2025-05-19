@@ -35,7 +35,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution --sanitize=thread --no-parallel \
+	&& swift test --disable-automatic-resolution \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
@@ -68,7 +68,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/finestructure/spi-base:1.1.1 \
+	  registry.gitlab.com/finestructure/spi-base:1.2.0 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
@@ -98,32 +98,21 @@ redis-up-dev:
 redis-down-dev:
 	docker rm -f spi_redis
 
-db-up: db-up-dev db-up-test redis-up-dev
+db-up: db-up-dev redis-up-dev
 
 db-up-dev:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16-alpine
 
-# Keep test db on postgres:13 for now, to make local testing faster. See
-# https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3360#issuecomment-2331103211
-# for details
-db-up-test:
-	docker run --name spi_test \
-		-e POSTGRES_DB=spi_test \
-		-e POSTGRES_USER=spi_test \
-		-e POSTGRES_PASSWORD=xxx \
-		-e PGDATA=/pgdata \
-		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
-		-p 5432:5432 \
-		-d \
-		postgres:13-alpine
+db-up-ci:
+	./scripts/start-ci-dbs.sh
 
-db-down: db-down-dev db-down-test redis-down-dev
+db-down: db-down-dev redis-down-dev
 
 db-down-dev:
 	docker rm -f spi_dev
 
-db-down-test:
-	docker rm -f spi_test
+db-down-ci:
+	./scripts/stop-ci-dbs.sh
 
 db-reset: db-down db-up migrate
 

@@ -29,22 +29,8 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.2.0
       options: --privileged
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: spi_test
-          POSTGRES_USER: spi_test
-          POSTGRES_PASSWORD: xxx
-        ports:
-          - '5432:5432'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
@@ -57,14 +43,101 @@ jobs:
         run: cp .env.testing.template .env.testing && make test
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
-          DATABASE_HOST: postgres
-          DATABASE_PORT: '5432'
+    services:
+      spi_test_0:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_1:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_2:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_3:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_4:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_5:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_6:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      spi_test_7:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
+          POSTGRES_PASSWORD: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
   release-build-linux:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.2.0
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -72,8 +145,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Build release
-        run: swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+      - name: Test release
+        run: |
+          # Since we're only pinging the version api endpoint, no database is needed and
+          # we can just copy the development template to ensure the db env variables are set.
+          cp .env.development.template .env.development
+          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
+          sleep 10
+          echo Probing api/version...
+          bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
 
   # test-macos:
   #   name: Test macOS
@@ -85,8 +166,6 @@ jobs:
   #         POSTGRES_DB: spi_dev
   #         POSTGRES_USER: spi_dev
   #         POSTGRES_PASSWORD: xxx
-  #       ports:
-  #         - 5432:5432
   #       options: >-
   #         --health-cmd pg_isready
   #         --health-interval 10s
