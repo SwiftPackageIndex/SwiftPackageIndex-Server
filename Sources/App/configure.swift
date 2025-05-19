@@ -16,6 +16,9 @@ import Dependencies
 import Fluent
 import FluentPostgresDriver
 import Vapor
+import SotoCognitoAuthentication
+import SotoCognitoIdentityProvider
+import SotoCognitoIdentity
 
 
 public func configure(_ app: Application, databaseHost: String? = nil, databasePort: Int? = nil) async throws {
@@ -75,7 +78,15 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
                                 // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
                       as: .psql)
-
+    
+    app.sessions.use(.memory)
+    
+    
+    // Configures cookie value creation.
+    app.sessions.configuration.cookieFactory = { sessionID in
+            .init(string: sessionID.string, isSecure: true, isHTTPOnly: true)
+    }
+    
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
         app.migrations.add(CreateRepository())
