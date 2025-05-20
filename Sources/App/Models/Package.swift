@@ -103,11 +103,13 @@ extension Package: Hashable {
 
 extension Package {
     enum PlatformCompatibility: String, Codable {
+        case android
         case iOS      = "ios"
         case macOS    = "macos"
         case linux
         case tvOS     = "tvos"
         case visionOS = "visionos"
+        case wasm
         case watchOS  = "watchos"
     }
 }

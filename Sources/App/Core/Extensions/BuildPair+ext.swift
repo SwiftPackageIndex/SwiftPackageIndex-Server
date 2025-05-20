@@ -32,6 +32,10 @@ extension BuildPair {
                 return .visionOS
             case .watchOS:
                 return .watchOS
+            case .wasm:
+                return .wasm
+            case .android:
+                return .android
         }
     }
 

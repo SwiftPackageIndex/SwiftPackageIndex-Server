@@ -57,6 +57,8 @@ struct PlatformSearchFilter: SearchFilterProtocol {
 private extension Package.PlatformCompatibility {
     var displayDescription: String {
         switch self {
+            case .android:
+                return "Android"
             case .iOS:
                 return "iOS"
             case .macOS:
@@ -67,6 +69,8 @@ private extension Package.PlatformCompatibility {
                 return "tvOS"
             case .visionOS:
                 return "visionOS"
+            case .wasm:
+                return "Wasm"
             case .watchOS:
                 return "watchOS"
         }

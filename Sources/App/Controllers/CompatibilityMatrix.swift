@@ -36,6 +36,8 @@ extension CompatibilityMatrix {
         case watchOS
         case tvOS
         case linux
+        case wasm
+        case android
 
         static func <(lhs: Self, rhs: Self) -> Bool { allCases.firstIndex(of: lhs)! < allCases.firstIndex(of: rhs)! }
     }

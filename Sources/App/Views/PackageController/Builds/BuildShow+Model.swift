@@ -107,7 +107,7 @@ extension BuildShow {
                      (.visionOS, let swift),
                      (.watchOS, let swift):
                     return swift.xcodeVersion
-                case (.macosSpm, _), (.linux, _):
+                case (.android, _), (.macosSpm, _), (.linux, _), (.wasm, _):
                     return nil
             }
         }
