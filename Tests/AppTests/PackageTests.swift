@@ -472,7 +472,7 @@ extension AllTests.PackageTests {
             let p1 = try #require(
                 try await Package.query(on: app.db).filter(by: "1".url).first()
             )
-            #expect(p1.platformCompatibility == [.iOS, .macOS, .linux, .tvOS, .visionOS, .watchOS])
+            #expect(p1.platformCompatibility == [.android, .iOS, .macOS, .linux, .tvOS, .visionOS, .wasm, .watchOS])
             let p2 = try #require(
                 try await Package.query(on: app.db).filter(by: "2".url).first()
             )
