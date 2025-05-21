@@ -87,7 +87,7 @@ enum BuildIndex {
                                 })
                             ),
                             .ul(
-                                .class("matrix builds"),
+                                .class("build-results"),
                                 .group(model.buildMatrix[swiftVersion].map(\.node))
                             )
                         )
