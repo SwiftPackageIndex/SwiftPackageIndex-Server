@@ -578,8 +578,8 @@ extension API.PackageController.GetRoute.Model {
         return .a(
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
-                .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
+                .class("matrix"),
+                .forEach(rows) { compatibilityListItem($0.labelNode, cells: $0.results.all) }
             )
         )
     }
@@ -590,29 +590,26 @@ extension API.PackageController.GetRoute.Model {
         return                         .a(
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
-                .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
+                .class("matrix"),
+                .forEach(rows) { compatibilityListItem($0.labelNode, cells: $0.results.all) }
             )
         )
     }
 
     func compatibilityListItem<T: BuildResultPresentable>(
-        _ labelParagraphNode: Node<HTML.BodyContext>,
+        _ labelNode: Node<HTML.BodyContext>,
         cells: [CompatibilityMatrix.BuildResult<T>]
     ) -> Node<HTML.ListContext> {
         return .li(
-            .class("row"),
+            .class("version"),
             .div(
-                .class("row-labels"),
-                labelParagraphNode
-            ),
-            // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
-            .div(
-                .class("column-labels"),
-                .forEach(cells) { $0.headerNode }
+                .class("label"),
+                labelNode
             ),
             .div(
                 .class("results"),
+                .style("--items-per-row: \(cells.count)"),
+                .forEach(cells) { $0.headerNode },
                 .forEach(cells) { $0.cellNode }
             )
         )
@@ -683,6 +680,7 @@ private extension License.Kind {
 private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentable {
     var headerNode: Node<HTML.BodyContext> {
         .div(
+            .class("result-label"),
             .text(parameter.displayName),
             .unwrap(parameter.note) { .small(.text("(\($0))")) }
         )
@@ -690,7 +688,7 @@ private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentabl
 
     var cellNode: Node<HTML.BodyContext> {
         .div(
-            .class("\(status.cssClass)"),
+            .class("result \(status.cssClass)"),
             .title(title)
         )
     }
