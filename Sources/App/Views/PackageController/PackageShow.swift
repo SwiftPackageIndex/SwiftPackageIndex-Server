@@ -50,13 +50,16 @@ enum PackageShow {
             self.results = namedResult.results
         }
 
-        var labelParagraphNode: Node<HTML.BodyContext> {
+        var labelNode: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
-            return .p(
-                .group(
-                    listPhrase(nodes: references.map(\.node))
-                )
-            )
+
+            var versionsAndSeparators = references.flatMap { reference -> [Node<HTML.BodyContext>] in
+                [reference.node, .span(.class("separator"), .text("/"))]
+            }
+            if versionsAndSeparators.isEmpty == false {
+                versionsAndSeparators.removeLast()
+            }
+            return .group(versionsAndSeparators)
         }
     }
 }
