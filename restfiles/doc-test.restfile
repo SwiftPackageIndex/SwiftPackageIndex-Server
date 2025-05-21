@@ -219,8 +219,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /apple/live-caller-id-lookup-example/documentation:
-    url: ${base_url}/apple/live-caller-id-lookup-example/documentation
+  /apple/pir-service-example/documentation:
+    url: ${base_url}/apple/pir-service-example/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
