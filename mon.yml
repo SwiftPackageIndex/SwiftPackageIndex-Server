@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v3.3.1
+    image: prom/prometheus:v3.4.0
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml --storage.tsdb.retention.time=30d
