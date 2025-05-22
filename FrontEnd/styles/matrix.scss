@@ -61,39 +61,38 @@
 
         .results {
             display: grid;
-            grid-template-columns: repeat(var(--items-per-row), 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
             gap: 5px;
 
-            .result-label {
+            .result {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 30px;
                 font-size: 14px;
                 font-weight: 600;
-                text-align: center;
-            }
-
-            .result {
-                min-height: 30px;
-                background-position: center center;
-                background-repeat: no-repeat;
-                background-size: 20px;
 
                 &.pending,
                 &.unknown {
+                    color: var(--grid-default-text);
                     background-color: var(--grid-default-background);
-                    background-image: var(--image-compatibility-unknown);
                 }
 
                 &.compatible {
+                    color: var(--grid-compatible-text);
                     background-color: var(--grid-compatible-background);
-                    background-image: var(--image-compatible);
                 }
 
                 &.incompatible {
+                    color: var(--grid-incompatible-text);
                     background-color: var(--grid-incompatible-background);
-                    background-image: var(--image-incompatible);
+                }
+
+                small {
+                    font-size: 9px;
                 }
             }
-
-            // TODO: The content of this grid's children need to be flexed for when we have a `small` beta label.
         }
     }
 }

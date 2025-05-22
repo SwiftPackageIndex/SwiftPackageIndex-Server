@@ -128,9 +128,12 @@
     --branch-text: var(--dark-green);
 
     --grid-default-background: var(--very-very-light-grey);
+    --grid-default-text: var(--light-grey);
     --grid-default-border: var(--very-light-grey);
     --grid-compatible-background: var(--light-green);
+    --grid-compatible-text: var(--white);
     --grid-incompatible-background: var(--light-grey);
+    --grid-incompatible-text: var(--grey);
     --grid-succeeded-background: var(--very-light-grey);
     --grid-failed-background: var(--very-light-grey);
     --grid-callout-background: var(--white);

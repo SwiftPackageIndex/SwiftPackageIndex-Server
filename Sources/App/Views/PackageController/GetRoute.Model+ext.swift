@@ -608,8 +608,6 @@ extension API.PackageController.GetRoute.Model {
             ),
             .div(
                 .class("results"),
-                .style("--items-per-row: \(cells.count)"),
-                .forEach(cells) { $0.headerNode },
                 .forEach(cells) { $0.cellNode }
             )
         )
@@ -678,18 +676,13 @@ private extension License.Kind {
 
 
 private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentable {
-    var headerNode: Node<HTML.BodyContext> {
-        .div(
-            .class("result-label"),
-            .text(parameter.displayName),
-            .unwrap(parameter.note) { .small(.text("(\($0))")) }
-        )
-    }
-
     var cellNode: Node<HTML.BodyContext> {
         .div(
             .class("result \(status.cssClass)"),
-            .title(title)
+            .title(title),
+            .text(parameter.displayName),
+            .unwrap(parameter.note) { .small(.text("(\($0))")) },
+            .if(status == .unknown, .small(.text("(Pending)")))
         )
     }
 
