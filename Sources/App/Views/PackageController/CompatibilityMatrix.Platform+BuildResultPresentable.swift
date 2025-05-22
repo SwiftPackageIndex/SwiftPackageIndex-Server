@@ -16,6 +16,8 @@
 extension CompatibilityMatrix.Platform: BuildResultPresentable {
     var displayName: String {
         switch self {
+            case .android:
+                return "Android"
             case .iOS:
                 return "iOS"
             case .linux:
@@ -26,6 +28,8 @@ extension CompatibilityMatrix.Platform: BuildResultPresentable {
                 return "tvOS"
             case .visionOS:
                 return "visionOS"
+            case .wasm:
+                return "Wasm"
             case .watchOS:
                 return "watchOS"
         }
@@ -33,8 +37,10 @@ extension CompatibilityMatrix.Platform: BuildResultPresentable {
 
     var longDisplayName: String {
         switch self {
-            case .macOS, .iOS, .linux, .tvOS, .visionOS, .watchOS:
+            case .android, .macOS, .iOS, .linux, .tvOS, .visionOS, .watchOS:
                 return displayName
+            case .wasm:
+                return "WebAssembly"
         }
     }
 

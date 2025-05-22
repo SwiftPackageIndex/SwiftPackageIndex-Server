@@ -17,49 +17,59 @@ import SPIManifest
 
 extension Build {
     enum Platform: String, Codable, Equatable, CaseIterable {
+        case android
         case iOS                = "ios"
         case linux
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvOS               = "tvos"
         case visionOS           = "visionos"
+        case wasm
         case watchOS            = "watchos"
 
         var name: String {
             switch self {
+                case .android:
+                    return "Android"
                 case .iOS:
                     return "iOS"
+                case .linux:
+                    return "Linux"
                 case .macosSpm:
                     return "macOS - SPM"
                 case .macosXcodebuild:
                     return "macOS - xcodebuild"
                 case .tvOS:
                     return "tvOS"
+                case .wasm:
+                    return "Wasm"
                 case .watchOS:
                     return "watchOS"
                 case .visionOS:
                     return "visionOS"
-                case .linux:
-                    return "Linux"
             }
         }
 
         var displayName: String {
             switch self {
+                case .android:
+                    return "Android"
                 case .iOS:
                     return "iOS"
+                case .linux:
+                    return "Linux"
                 case .macosSpm:
                     return "macOS (SPM)"
                 case .macosXcodebuild:
                     return "macOS (Xcode)"
                 case .tvOS:
                     return "tvOS"
+                case .wasm:
+                    return "Wasm"
                 case .watchOS:
                     return "watchOS"
                 case .visionOS:
                     return "visionOS"
-                case .linux:
-                    return "Linux"
             }
         }
 
@@ -67,7 +77,7 @@ extension Build {
         static var allActive: [Self] {
             // The order of this array defines the platform order on the BuildIndex page. Keep this aliged with the
             // order in GetRoute.Model.PlatformResults (which is the order in the build matrix on the PackageShow page).
-            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .visionOS, .tvOS, .watchOS, .linux]
+            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .visionOS, .tvOS, .watchOS, .linux, .wasm, .android]
             assert(active.count == allCases.count, "mismatch in Build.Platform and active platform count")
             return active
         }
@@ -78,6 +88,8 @@ extension Build {
         /// - Parameter spiManifestPlatform: SPIManifest platform
         private init(_ spiManifestPlatform: SPIManifest.Platform) {
             switch spiManifestPlatform {
+                case .android:
+                    self = .android
                 case .iOS:
                     self = .iOS
                 case .linux:
@@ -90,6 +102,8 @@ extension Build {
                     self = .tvOS
                 case .visionOS:
                     self = .visionOS
+                case .wasm:
+                    self = .wasm
                 case .watchOS:
                     self = .watchOS
             }

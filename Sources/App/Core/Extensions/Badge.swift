@@ -124,6 +124,10 @@ extension Badge {
                                 return .init(left: 4, right: "watchOS")
                             case .linux:
                                 return .init(left: 5, right: "Linux")
+                            case .wasm:
+                                return .init(left: 6, right: "Wasm")
+                            case .android:
+                                return .init(left: 7, right: "Android")
                         }
                     }
                 )
