@@ -1,0 +1,154 @@
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// -------------------------------------------------------------------------
+// Build results page, showing all builds for a package.
+// -------------------------------------------------------------------------
+
+.build-results {
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin: 5px 0;
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            margin: 20px 0;
+        }
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 3fr 7fr;
+
+        .row-labels {
+            display: flex;
+            grid-row: 2;
+            flex-direction: column;
+            justify-content: center;
+
+            p {
+                margin: 0;
+            }
+        }
+
+        .column-labels {
+            display: flex;
+            grid-column: 2;
+            flex-direction: row;
+        }
+
+        .results {
+            display: flex;
+            grid-column: 2;
+            flex-direction: row;
+        }
+
+        &:not(:first-child) {
+            .row-labels {
+                grid-row: unset;
+            }
+
+            .column-labels {
+                display: none;
+            }
+        }
+
+        @media (max-width: $mobile-breakpoint) {
+            grid-template-columns: 1fr;
+
+            .row-labels,
+            .column-labels,
+            .results {
+                grid-column: unset;
+                grid-row: unset;
+            }
+
+            .column-labels {
+                display: flex;
+            }
+        }
+    }
+
+    .column-labels > div {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 0;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 5px 0;
+        font-size: 14px;
+        font-weight: 600;
+
+        small {
+            font-weight: normal;
+        }
+    }
+
+    .results > div {
+        position: relative;
+        display: flex;
+        flex-basis: 0;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: center;
+        height: 35px;
+        margin: 0 3px;
+        background-color: var(--grid-default-background);
+
+        &.succeeded > a,
+        &.failed > a {
+            padding-left: 25px;
+            background-position: left center;
+            background-repeat: no-repeat;
+            background-size: 18px;
+        }
+
+        &.succeeded {
+            background-color: var(--grid-succeeded-background);
+
+            a {
+                background-image: var(--image-build-succeeded);
+            }
+        }
+
+        &.failed {
+            background-color: var(--grid-failed-background);
+
+            a {
+                background-image: var(--image-build-failed);
+            }
+        }
+
+        > .generated-docs {
+            position: absolute;
+            right: 5px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 15px;
+            background-color: var(--grid-callout-background);
+            background-image: var(--image-documentation);
+            border-radius: 50%;
+        }
+    }
+
+    .column-labels > div > span {
+        font-size: 16px;
+        background-position: top 4px right;
+    }
+}

@@ -96,6 +96,8 @@
     --breadcrumb: var(--light-grey);
     --breadcrumb-header: var(--grey);
 
+    --separator-text: var(--light-grey);
+
     --announcement-background: var(--very-light-grey);
 
     --bordered-button-background: var(--very-very-light-grey);
@@ -126,9 +128,12 @@
     --branch-text: var(--dark-green);
 
     --grid-default-background: var(--very-very-light-grey);
+    --grid-default-text: var(--light-grey);
     --grid-default-border: var(--very-light-grey);
     --grid-compatible-background: var(--light-green);
+    --grid-compatible-text: var(--white);
     --grid-incompatible-background: var(--light-grey);
+    --grid-incompatible-text: var(--grey);
     --grid-succeeded-background: var(--very-light-grey);
     --grid-failed-background: var(--very-light-grey);
     --grid-callout-background: var(--white);
@@ -250,6 +255,8 @@
 
         --breadcrumb: var(--dark-grey);
 
+        --separator-text: var(--dark-grey);
+
         --announcement-background: var(--very-dark-grey);
 
         --bordered-button-background: var(--very-very-dark-grey);
@@ -272,6 +279,7 @@
         --rule-thin-background: var(--dark-grey);
 
         --grid-default-background: var(--very-very-dark-grey);
+        --grid-default-text: var(--dark-grey);
         --grid-default-border: var(--very-dark-grey);
         --grid-compatible-background: var(--mid-green);
         --grid-incompatible-background: var(--very-dark-grey);

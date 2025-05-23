@@ -27,11 +27,14 @@ main > .inner {
 
 .two-column {
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
     gap: 60px;
+    min-width: 0;
 
     > :last-child {
         justify-self: end;
+        min-width: 0;
     }
 
     &.even {
