@@ -681,8 +681,7 @@ private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentabl
             .class("result \(status.cssClass)"),
             .title(title),
             .text(parameter.displayName),
-            .unwrap(parameter.note) { .small(.text("(\($0))")) },
-            .if(status == .unknown, .small(.text("(Pending)")))
+            .unwrap(parameter.note) { .small(.text("(\($0))")) }
         )
     }
 
