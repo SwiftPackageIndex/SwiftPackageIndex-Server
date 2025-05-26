@@ -213,6 +213,23 @@ extension AllTests.IngestionTests {
                 #expect(repo.stars == 2)
                 #expect(repo.summary == "package desc")
             }
+
+            // update again but without license and readme info
+            try await Ingestion.updateRepository(on: app.db,
+                                                 for: repo,
+                                                 metadata: md,
+                                                 licenseInfo: nil,
+                                                 readmeInfo: nil,
+                                                 s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
+                                                 fork: .parentURL("https://github.com/foo/bar.git"))
+
+            // validate that license and readme info stays unchanged
+            do {
+                #expect(repo.hasSPIBadge == true)
+                #expect(repo.license == .mit)
+                #expect(repo.licenseUrl == "license url")
+                #expect(repo.readmeHtmlUrl == "readme html url")
+            }
         }
     }
 

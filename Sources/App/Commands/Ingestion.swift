@@ -291,7 +291,7 @@ enum Ingestion {
             // https://github.com/swiftlang/swift/issues/76169
             assert(false, "Unexpected error type: \(type(of: error))")
             // We need to throw _something_ here (we should never hit this codepath though)
-            throw Github.Error.requestFailed(.internalServerError)
+            throw Github.Error.unexpectedError(error)
             // We could theoretically avoid this whole second catch and just do
             //   error as! GithubError
             // but let's play it safe and not risk a server crash, unlikely as it may be.
@@ -333,7 +333,6 @@ enum Ingestion {
         repository.defaultBranch = repoMetadata.defaultBranch
         repository.forks = repoMetadata.forkCount
         repository.fundingLinks = repoMetadata.fundingLinks?.compactMap(FundingLink.init(from:)) ?? []
-        repository.hasSPIBadge = readmeInfo?.containsSPIBadge()
         repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
         repository.isArchived = repoMetadata.isArchived
         repository.isInOrganization = repoMetadata.isInOrganization
@@ -341,7 +340,6 @@ enum Ingestion {
         repository.lastIssueClosedAt = repoMetadata.lastIssueClosedAt
         repository.lastPullRequestClosedAt = repoMetadata.lastPullRequestClosedAt
         repository.license = .init(from: repoMetadata.licenseInfo)
-        repository.licenseUrl = licenseInfo?.htmlUrl
         repository.name = repoMetadata.repositoryName
         repository.openIssues = repoMetadata.openIssues.totalCount
         repository.openPullRequests = repoMetadata.openPullRequests.totalCount
@@ -349,11 +347,17 @@ enum Ingestion {
         repository.ownerName = repoMetadata.owner.name
         repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
         repository.s3Readme = s3Readme
-        repository.readmeHtmlUrl = readmeInfo?.htmlUrl
         repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
         repository.stars = repoMetadata.stargazerCount
         repository.summary = repoMetadata.description
         repository.forkedFrom = fork
+        if let readmeInfo {
+            repository.hasSPIBadge = readmeInfo.containsSPIBadge()
+            repository.readmeHtmlUrl = readmeInfo.htmlUrl
+        }
+        if let licenseInfo {
+            repository.licenseUrl = licenseInfo.htmlUrl
+        }
 
         do {
             try await repository.save(on: database)
