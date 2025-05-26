@@ -291,7 +291,7 @@ enum Ingestion {
             // https://github.com/swiftlang/swift/issues/76169
             assert(false, "Unexpected error type: \(type(of: error))")
             // We need to throw _something_ here (we should never hit this codepath though)
-            throw Github.Error.requestFailed(.internalServerError)
+            throw Github.Error.unexpectedError(error)
             // We could theoretically avoid this whole second catch and just do
             //   error as! GithubError
             // but let's play it safe and not risk a server crash, unlikely as it may be.

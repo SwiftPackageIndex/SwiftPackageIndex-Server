@@ -28,6 +28,7 @@ enum Github {
         case invalidURL(String)
         case postRequestFailed(_ url: String, Swift.Error)
         case requestFailed(HTTPStatus)
+        case unexpectedError(Swift.Error)
     }
 
     static var decoder: JSONDecoder {
