@@ -95,6 +95,11 @@
                     font-size: 9px;
                 }
             }
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                grid-auto-rows: 1fr;
+            }
         }
     }
 }
