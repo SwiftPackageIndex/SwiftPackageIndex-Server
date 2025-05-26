@@ -63,6 +63,12 @@
             .column-labels {
                 display: none;
             }
+
+            @media (max-width: $mobile-breakpoint) {
+                .column-labels {
+                    display: flex;
+                }
+            }
         }
 
         @media (max-width: $mobile-breakpoint) {
@@ -73,10 +79,6 @@
             .results {
                 grid-column: unset;
                 grid-row: unset;
-            }
-
-            .column-labels {
-                display: flex;
             }
         }
     }
