@@ -18,8 +18,8 @@
 // -------------------------------------------------------------------------
 
 .matrices {
-    display: grid;
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
 
     a {
         color: var(--page-text);
@@ -27,168 +27,78 @@
 }
 
 .matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     margin: 0;
-    padding: 0;
+    padding: 20px 0;
+    list-style: none;
 
-    li {
-        margin: 5px 0;
-
-        @media screen and (max-width: $mobile-breakpoint) {
-            margin: 20px 0;
-        }
-    }
-
-    .row {
-        display: grid;
-        grid-template-columns: 3fr 7fr;
-
-        .row-labels {
-            display: flex;
-            grid-row: 2;
-            flex-direction: column;
-            justify-content: center;
-
-            p {
-                margin: 0;
-            }
-        }
-
-        .column-labels {
-            display: flex;
-            grid-column: 2;
-            flex-direction: row;
-        }
-
-        .results {
-            display: flex;
-            grid-column: 2;
-            flex-direction: row;
-        }
-
-        // Show the column labels only for the first row on desktop.
-        // Note: This is a *desktop only* media query.
-        @media not all and (max-width: $mobile-breakpoint) {
-            &:not(:first-child) {
-                .row-labels {
-                    grid-row: unset;
-                }
-
-                .column-labels {
-                    display: none;
-                }
-            }
-        }
-
-        @media (max-width: $mobile-breakpoint) {
-            grid-template-columns: 1fr;
-
-            .row-labels,
-            .column-labels,
-            .results {
-                grid-column: unset;
-                grid-row: unset;
-            }
-        }
-    }
-
-    .column-labels > div {
+    .version {
         display: flex;
         flex-direction: column;
-        flex-basis: 0;
-        flex-grow: 1;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 5px 0;
-        font-size: 14px;
-        font-weight: 600;
+        gap: 5px;
 
-        small {
-            font-weight: normal;
+        .label {
+            display: flex;
+            gap: 0.5ch;
+
+            span {
+                overflow: hidden;
+                flex-shrink: 0;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+
+                &.longest {
+                    flex-shrink: 1;
+                }
+            }
+
+            .separator {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--separator-text);
+            }
         }
-    }
 
-    .results > div {
-        display: flex;
-        flex-basis: 0;
-        flex-grow: 1;
-        align-items: center;
-        justify-content: center;
-        height: 35px;
-        margin: 0 3px;
-    }
-
-    &.compatibility {
         .results {
-            & > div {
-                background-position: center center;
-                background-repeat: no-repeat;
-                background-size: 20px;
-            }
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+            gap: 5px;
 
-            & > .pending,
-            & > .unknown {
-                background-color: var(--grid-default-background);
-                background-image: var(--image-compatibility-unknown);
-            }
+            .result {
+                display: flex;
+                gap: 0.5ch;
+                align-items: center;
+                justify-content: center;
+                min-height: 30px;
+                font-size: 14px;
+                font-weight: 600;
 
-            & > .compatible {
-                background-color: var(--grid-compatible-background);
-                background-image: var(--image-compatible);
-            }
+                &.pending,
+                &.unknown {
+                    color: var(--grid-default-text);
+                    background-color: var(--grid-default-background);
+                }
 
-            & > .incompatible {
-                background-color: var(--grid-incompatible-background);
-                background-image: var(--image-incompatible);
-            }
-        }
-    }
+                &.compatible {
+                    color: var(--grid-compatible-text);
+                    background-color: var(--grid-compatible-background);
+                }
 
-    &.builds {
-        .column-labels > div > span {
-            font-size: 16px;
-            background-position: top 4px right;
-        }
+                &.incompatible {
+                    color: var(--grid-incompatible-text);
+                    background-color: var(--grid-incompatible-background);
+                }
 
-        .results > div {
-            position: relative;
-            background-color: var(--grid-default-background);
-
-            &.succeeded > a,
-            &.failed > a {
-                padding-left: 25px;
-                background-position: left center;
-                background-repeat: no-repeat;
-                background-size: 18px;
-            }
-
-            &.succeeded {
-                background-color: var(--grid-succeeded-background);
-
-                a {
-                    background-image: var(--image-build-succeeded);
+                small {
+                    font-size: 9px;
                 }
             }
 
-            &.failed {
-                background-color: var(--grid-failed-background);
-
-                a {
-                    background-image: var(--image-build-failed);
-                }
-            }
-
-            > .generated-docs {
-                position: absolute;
-                right: 5px;
-                display: inline-block;
-                width: 25px;
-                height: 25px;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: 15px;
-                background-color: var(--grid-callout-background);
-                background-image: var(--image-documentation);
-                border-radius: 50%;
+            @media screen and (max-width: $mobile-breakpoint) {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                grid-auto-rows: 1fr;
             }
         }
     }

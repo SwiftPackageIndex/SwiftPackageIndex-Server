@@ -20,19 +20,19 @@ enum PackageShow {
         var name: String
         var kind: App.Version.Kind
 
-        var node: Node<HTML.BodyContext> {
-            .span(
-                .class(cssClass),
-                .text(name)
-            )
-        }
-
         var cssClass: String {
             switch kind {
                 case .defaultBranch: return "branch"
                 case .preRelease: return "beta"
                 case .release: return "stable"
             }
+        }
+
+        func node(longest: Bool = false) -> Node<HTML.BodyContext> {
+            .span(
+                .class(longest ? "longest \(cssClass)" : cssClass),
+                .text(name)
+            )
         }
     }
 
@@ -50,13 +50,19 @@ enum PackageShow {
             self.results = namedResult.results
         }
 
-        var labelParagraphNode: Node<HTML.BodyContext> {
+        var labelNode: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
-            return .p(
-                .group(
-                    listPhrase(nodes: references.map(\.node))
-                )
-            )
+
+            let longestReference = references.map(\.name).max(by: { $0.count < $1.count }) ?? ""
+
+            var versionsAndSeparators = references.flatMap { reference -> [Node<HTML.BodyContext>] in
+                let isLongest = reference.name == longestReference
+                return [reference.node(longest: isLongest), .span(.class("separator"), .text("/"))]
+            }
+            if versionsAndSeparators.isEmpty == false {
+                versionsAndSeparators.removeLast()
+            }
+            return .group(versionsAndSeparators)
         }
     }
 }
