@@ -209,7 +209,7 @@ extension DatabasePool.Database {
             try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
-                try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
+                try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName) STRATEGY = file_copy"))
             }
 
             do {  // Use autoMigrate to spin up the schema
@@ -231,7 +231,7 @@ extension DatabasePool.Database {
         do {
             try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
-                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
+                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original) STRATEGY = file_copy"))
             }
         } catch {
             print("Create snapshot failed with error: ", String(reflecting: error))
@@ -246,7 +246,7 @@ extension DatabasePool.Database {
         do {
             try await _withDatabase("postgres", details: details, timeout: .seconds(10)) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
-                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
+                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot) STRATEGY = file_copy"))
             }
         } catch {
             print("Restore snapshot failed with error: ", String(reflecting: error))
