@@ -1,5 +1,5 @@
 {
-  "originHash" : "90afa6033b3948dd2483c4119540067594218f6ae758fa47f1d16bbb615d8373",
+  "originHash" : "9fe1cd64ccbd0c24f221187eb7bcf499926ef1cad211348cb7701fbeb1772d3c",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -499,7 +499,7 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-package-manager.git",
+      "location" : "https://github.com/finestructure/swift-package-manager.git",
       "state" : {
         "branch" : "release/6.1",
         "revision" : "45c31f1b35ef8599898f61c26e7518bcf14b3eb5"
