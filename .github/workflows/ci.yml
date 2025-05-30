@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.2.0
+      image: registry.gitlab.com/finestructure/spi-base:224946a41aedd5106245666d7261a5218ceac0fc
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -137,7 +137,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.2.0
+      image: registry.gitlab.com/finestructure/spi-base:224946a41aedd5106245666d7261a5218ceac0fc
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -150,7 +150,7 @@ jobs:
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
-          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc --enable-experimental-prebuilts
           $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
           sleep 10
           echo Probing api/version...

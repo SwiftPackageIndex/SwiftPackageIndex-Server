@@ -28,7 +28,8 @@ else
 endif
 
 build:
-	swift build --disable-automatic-resolution
+	swift build --disable-automatic-resolution --enable-experimental-prebuilts
+
 
 run:
 	swift run
@@ -36,12 +37,14 @@ run:
 test: xcbeautify
 	set -o pipefail \
 	&& swift test --disable-automatic-resolution \
+	--enable-experimental-prebuilts \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
 	   swift test --disable-automatic-resolution \
+	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
@@ -68,7 +71,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/finestructure/spi-base:1.2.0 \
+	  registry.gitlab.com/finestructure/spi-base:224946a41aedd5106245666d7261a5218ceac0fc \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
