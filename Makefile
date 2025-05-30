@@ -68,7 +68,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/finestructure/spi-base:1.2.0 \
+	  registry.gitlab.com/finestructure/spi-base:224946a41aedd5106245666d7261a5218ceac0fc \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
