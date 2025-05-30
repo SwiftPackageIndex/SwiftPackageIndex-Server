@@ -28,7 +28,8 @@ else
 endif
 
 build:
-	swift build --disable-automatic-resolution
+	swift build --disable-automatic-resolution --enable-experimental-prebuilts
+
 
 run:
 	swift run
@@ -36,12 +37,14 @@ run:
 test: xcbeautify
 	set -o pipefail \
 	&& swift test --disable-automatic-resolution \
+	--enable-experimental-prebuilts \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
 	   swift test --disable-automatic-resolution \
+	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
