@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "333f51104b75d1a5b94cb3b99e4c58a3b442c9f7",
-        "version" : "1.25.2"
+        "revision" : "60235983163d040f343a489f7e2e77c1918a8bd9",
+        "version" : "1.26.1"
       }
     },
     {
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "5d817be55cae8b00003b7458944954558302d006",
-        "version" : "1.25.0"
+        "revision" : "9ef06112c41feb7170c8c9116361f170e2a2b1d1",
+        "version" : "1.26.1"
       }
     },
     {
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "41982a3656a71c768319979febd796c6fd111d5c",
-        "version" : "1.5.0"
+        "revision" : "011f0c765fb46d9cac61bca19be0527e99c98c8b",
+        "version" : "1.5.1"
       }
     },
     {
@@ -357,8 +357,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "629f0b679d0fd0a6ae823d7f750b9ab032c00b80",
-        "version" : "3.0.0"
+        "revision" : "e8d6eba1fef23ae5b359c46b03f7d94be2f41fed",
+        "version" : "3.12.3"
       }
     },
     {
@@ -402,8 +402,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-structured-headers.git",
       "state" : {
-        "revision" : "f280fc7676b9940ff2c6598642751ea333c6544f",
-        "version" : "1.2.2"
+        "revision" : "db6eea3692638a65e2124990155cd220c2915903",
+        "version" : "1.3.0"
       }
     },
     {
@@ -447,8 +447,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "0f54d58bb5db9e064f332e8524150de379d1e51c",
-        "version" : "2.82.1"
+        "revision" : "34d486b01cd891297ac615e40d5999536a1e138d",
+        "version" : "2.83.0"
       }
     },
     {
@@ -474,8 +474,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "6df102a39c8da5fdc2eae29a0f63546d660866fc",
-        "version" : "2.30.0"
+        "revision" : "4b38f35946d00d8f6176fe58f96d83aba64b36c7",
+        "version" : "2.31.0"
       }
     },
     {
@@ -502,7 +502,7 @@
       "location" : "https://github.com/finestructure/swift-package-manager.git",
       "state" : {
         "branch" : "release/6.1",
-        "revision" : "45c31f1b35ef8599898f61c26e7518bcf14b3eb5"
+        "revision" : "85e4b20acd9babda0b8428e16cd37de5b9412791"
       }
     },
     {
@@ -546,8 +546,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "1be8144023c367c5de701a6313ed29a3a10bf59b",
-        "version" : "1.18.3"
+        "revision" : "37230a37e83f1b7023be08e1b1a2603fcb1567fb",
+        "version" : "1.18.4"
       }
     },
     {
@@ -555,8 +555,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "branch" : "release/6.1",
-        "revision" : "cbd0366a54a9f8fdaa33834652fb2e80f2948573"
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     },
     {
@@ -564,8 +564,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
       "state" : {
-        "revision" : "a34201439c74b53f0fd71ef11741af7e7caf01e1",
-        "version" : "1.4.2"
+        "revision" : "61e4ca4b81b9e09e2ec863b00c340eb13497dac6",
+        "version" : "1.5.0"
       }
     },
     {
@@ -600,8 +600,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "87b0edd2633c35de543cb7573efe5fbf456181bc",
-        "version" : "4.114.1"
+        "revision" : "4014016aad591a120f244f9b9e8a57252b7e62b4",
+        "version" : "4.115.0"
       }
     },
     {
