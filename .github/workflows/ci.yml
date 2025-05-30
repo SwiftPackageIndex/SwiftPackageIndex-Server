@@ -150,7 +150,7 @@ jobs:
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
-          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc --enable-experimental-prebuilts
           $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
           sleep 10
           echo Probing api/version...
