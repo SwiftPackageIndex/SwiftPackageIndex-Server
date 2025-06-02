@@ -198,3 +198,8 @@
   summary: We've added support for custom package collections to allow well-known community efforts to present package collections.
   published_at: 2024-12-09
   published: true
+- slug: adding-wasm-and-android-compatibility-testing
+  title: Adding Wasm and Android compatibility testing
+  summary: You can now check the compatibility of every package in the Swift Package Index with Wasm and Android.
+  published_at: 2025-06-02
+  published: true
