@@ -15,6 +15,6 @@ Plenty of work went into making Swift work on these platforms, and it seemed lik
 
 ### Results
 
-Of ~9,000 indexed packages, **18.3% build for Wasm** and **27.2% build for Android**. We find that remarkable, given that reliance on Apple-specific frameworks automatically makes many packages incompatible.
+Of ~9,000 indexed packages, **18.9% build for Wasm** and **27.9% build for Android**. We find that remarkable, given that reliance on Apple-specific frameworks automatically makes many packages incompatible.
 
 It’s safe to say that Swift is expanding beyond its Apple-focused roots. Windows and Linux have been officially supported for years, and Wasm and Android are starting to make their way down that path. It’s great to see.
