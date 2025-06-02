@@ -1,24 +1,20 @@
-We’re delighted to announce that we have added support for two new Swift platforms, Android and [Wasm](https://webassembly.org/), to our compatibility testing matrix.
+We’re delighted to announce support for compatibility testing of packages on two new Swift platforms, Android and [Wasm](https://webassembly.org/). This brings the number of platforms we test every package with to 8!
 
 <picture class="shadow">
   <source srcset="/images/blog/wasm-and-android-compatibility-matrix~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/blog/wasm-and-android-compatibility-matrix~light.png" alt="The Swift Package Index compatibility matrix showing columns for the Android and Wasm platforms.">
 </picture>
 
-Swift support for Wasm has been in development for [a long time](https://desiatov.com/swift-webassembly-2020/). Remarkably, [as of Swift 6.1](https://blog.swiftwasm.org/posts/6-1-released/) it requires no custom patches:
+Swift support for Wasm has been in development for [a long time](https://desiatov.com/swift-webassembly-2020/), and [as of Swift 6.1](https://blog.swiftwasm.org/posts/6-1-released/), it now requires no custom patches:
 
-> This is the first stable release we've built directly from the official swiftlang/swift source without any custom patches. This means all components (compiler, stdlib, Foundation, XCTest, swift-testing, etc.) have been fully upstreamed.
+> This is the first stable release we’ve built directly from the official swiftlang/swift source without any custom patches. This means all components (compiler, stdlib, Foundation, XCTest, swift-testing, etc.) have been fully upstreamed.
 
-There has also been plenty of community effort put into supporting Swift for Android. This includes the recent announcement of a [community working group](https://forums.swift.org/t/swift-on-android-working-group/77780) focused on the problem and the fact that [swift-everywhere.org](http://swift-everywhere.org) has been [tracking Android compatibility](https://skip.tools/blog/android-native-swift-packages/) for several months.
+Swift on Android is also receiving plenty of community effort, including a recent announcement of a [community working group](https://forums.swift.org/t/swift-on-android-working-group/77780). The [swift-everywhere.org](http://swift-everywhere.org) site has also been [tracking Android compatibility](https://skip.tools/blog/android-native-swift-packages/) for several months.
 
-The community has put a remarkable amount of effort into getting these platforms to this stage, and it seemed like a great time to add them to our compatibility testing system. So we did!
-
-As of today, all builds for both new platforms have finished and you can see compatibility on every package page.
+Plenty of work went into making Swift work on these platforms, and it seemed like a great time to add them to our compatibility testing. So we did! For the past week, the Swift Package Index build system has processed 35,000 builds to test compatibility. As of today, all builds are complete, and you can see Wasm and Android compatibility on every package page.
 
 ### Results
 
-After churning through X,XXX compatibility builds across both platforms for the past X days, we have some numbers to share! Of the ~9,000 currently indexed packages, **XX% build for Android** and **XX% build for Wasm**.
+Of ~9,000 indexed packages, **18.3% build for Wasm** and **27.2% build for Android**. We find that remarkable, given that reliance on Apple-specific frameworks automatically makes many packages incompatible.
 
-TODO: Add commentary on the results.
-
-Is Windows compatibility testing next? We think so!
+It’s safe to say that Swift is expanding beyond its Apple-focused roots. Windows and Linux have been officially supported for years, and Wasm and Android are starting to make their way down that path. It’s great to see.
