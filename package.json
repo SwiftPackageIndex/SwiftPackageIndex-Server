@@ -17,11 +17,11 @@
         "vega-tooltip": "^1.0.0"
     },
     "devDependencies": {
-        "esbuild": "^0.25.4",
+        "esbuild": "^0.25.5",
         "esbuild-sass-plugin": "^3.3.1",
-        "postcss": "^8.5.3",
+        "postcss": "^8.5.4",
         "prettier": "^3.5.3",
-        "stylelint": "^16.19.1",
+        "stylelint": "^16.20.0",
         "stylelint-config-standard-scss": "^15.0.1",
         "stylelint-order": "^7.0.0",
         "stylelint-scss": "^6.11.1"
