@@ -1,5 +1,3 @@
-# Five years of the Swift Package Index
-
 The Swift Package Index is five years old! Let’s celebrate that milestone with a retrospective on the project and the Swift package ecosystem.
 
 The site now indexes over 9,000 packages, and package growth over the years has been remarkably consistent:
