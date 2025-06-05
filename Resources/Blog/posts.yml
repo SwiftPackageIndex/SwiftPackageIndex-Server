@@ -203,3 +203,8 @@
   summary: You can now check the compatibility of every package in the Swift Package Index with Wasm and Android.
   published_at: 2025-06-02
   published: true
+- slug: five-years-of-the-swift-package-index
+  title: Five years of the Swift Package Index
+  summary: This week sees a rather significant anniversary for the Swift Package Index. It's been five years since we launched, so it's time to reflect!
+  published_at: 2025-06-05
+  published: true
