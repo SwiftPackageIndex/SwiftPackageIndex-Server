@@ -329,12 +329,12 @@ class PublicPage {
     func announcementBanner() -> Node<HTML.BodyContext> {
         return .p(
             .class("announcement"),
-            .text("Track the adoption of Swift 6 strict concurrency checks for data race safety. How many packages are "),
+            .text("Has it really been five years since Swift Package Index launched? Read our "),
             .a(
-                .href(SiteURL.readyForSwift6.relativeURL()),
-                .text("Ready for Swift 6")
+                .href(SiteURL.blogPost(.value("five-years-of-the-swift-package-index")).relativeURL()),
+                .text("anniversary blog post")
             ),
-            .text("?")
+            .text("!")
         )
     }
 
