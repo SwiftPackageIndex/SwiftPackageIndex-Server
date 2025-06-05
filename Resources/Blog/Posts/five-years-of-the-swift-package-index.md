@@ -1,6 +1,6 @@
-When we launched the Swift Package Index five years ago, just before WWDC 2020, it covered 2,500 packages. Apple Silicon Macs didn't exists yet (publicly, for another week 😅), we did not run compatibility builds, and did not generate or host documentation. visionOS was still years away and Swift didn't cross-compile to Wasm and Android. Swift 5.2 was the latest language version and when Swift developers talked about actors over lunch it was understood the topic was the latest in film and TV.
+When we launched the Swift Package Index five years ago, just before WWDC 2020, it covered 2,500 packages. Apple Silicon Macs didn’t exists yet (publicly, for another week 😅), we did not run compatibility builds, and did not generate or host documentation. visionOS was still years away and Swift didn’t cross-compile to Wasm and Android. Swift 5.2 was the latest language version and when Swift developers talked about actors over lunch it was understood the topic was the latest in film and TV.
 
-With changes happening over such a long time – in terms of a software project – it is easy to overlook and take for granted all the incremental progress that has happened. And so today, on the eve of our five year anniversary, we would like to go on a little tour of our project and recap in numbers what an exciting journey it's been.
+With changes happening over such a long time – in terms of a software project – it is easy to overlook and take for granted all the incremental progress that has happened. And so today, on the eve of our five year anniversary, we would like to go on a little tour of our project and recap in numbers what an exciting journey it’s been.
 
 Today, the site indexes over 9,000 packages, and package growth over the years has been remarkably consistent:
 
@@ -18,9 +18,9 @@ In 2022, we [launched automatic DocC documentation hosting](https://swiftpackage
 
 We can’t take _all_ the credit since DocC makes adding documentation to a package source code so easy, but we think [making it trivial](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases) to generate and host open source package documentation has helped.
 
-Want some numbers? Let’s start with documentation. The storage for all that hosted documentation now totals 183GB across almost 30 million files! Those aren’t the only big numbers, though. Since we launched, we’ve processed almost 12 million builds, and are currently processing about 4 million builds per year for compatibility testing and documentation generation. We’ve also expanded the platforms we build for to a total of 8 now, including [adding two more last week](https://swiftpackageindex.com/blog/adding-wasm-and-android-compatibility-testing)! We even had a brief period where we were doing _both_ Intel and Apple silicon builds during the architecture transition. We’ve also tested compatibility with _every_ version of Swift since 4.2.
+Want some numbers? Let’s start with documentation. The storage for all that hosted documentation now totals 183GB across almost 30 million files! Those aren’t the only big numbers, though. Since we launched, we’ve processed almost 12 million builds, and are currently processing about 4 million builds per year for compatibility testing and documentation generation. We’ve also expanded the platforms we build for to a total of 8 now, including [adding two more last week](https://swiftpackageindex.com/blog/adding-wasm-and-android-compatibility-testing)! We even had a brief period where we were doing _both_ Intel and Apple silicon builds during the architecture transition we alluded to in the introduction. We’ve also tested compatibility with _every_ version of Swift since 4.2.
 
-But all this data and CPU cycles spent testing compatibility are useless if no one visits the site. 😬 Luckily, we’re doing fine, with over 600,000 Swift developers visiting the site every year.
+But all this data and these CPU cycles spent testing compatibility are useless if no one visits the site. 😬 Luckily, we’re doing fine, with over 600,000 Swift developers visiting the site every year.
 
 Since we launched the index in 2020, at the height of the pandemic, it has come a long way. We added so much more metadata, README files, compatibility checking based on real builds, documentation hosting, a [podcast focused entirely on Swift packages](https://swiftpackageindexing.transistor.fm/), and much more. However, what’s most important to us is that we’ve become a site that the community uses every day.
 
@@ -46,7 +46,7 @@ A few days ago, we reached out to the community and asked if anyone had somethin
 
 <hr class="minor"/>
 
-> I can't tell you how grateful I am for Swift Package Index. It's always been a great source to learn about all the cool stuff everyone is working on nowadays. It's also a fantastic way for me to share what open source things I'm working on in the hopes they help someone else 🙂
+> I can’t tell you how grateful I am for Swift Package Index. It’s always been a great source to learn about all the cool stuff everyone is working on nowadays. It’s also a fantastic way for me to share what open source things I’m working on in the hopes they help someone else 🙂
 >
 > Thank you so much for creating it for our community!
 
