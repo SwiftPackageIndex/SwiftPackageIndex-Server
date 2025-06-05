@@ -21,7 +21,8 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji';
     font-size: 16px;
     line-height: 1.4;
@@ -117,6 +118,12 @@ hr {
     }
 
     &.minor {
+        height: 1px;
+        background-color: var(--rule-thin-background);
+    }
+
+    &.short {
+        width: 20%;
         height: 1px;
         background-color: var(--rule-thin-background);
     }
