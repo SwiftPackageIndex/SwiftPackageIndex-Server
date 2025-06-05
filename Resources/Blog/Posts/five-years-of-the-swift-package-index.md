@@ -30,19 +30,19 @@ A few days ago, we reached out to the community and asked if anyone had somethin
 
 [Paul Hudson](https://www.hackingwithswift.com/) and [Mikaela Caron](https://mikaelacaron.com/) from [Swift over Coffee](https://podcasts.apple.com/us/podcast/swift-over-coffee/id1435076502)
 
-<hr class="minor" />
+<hr class="short" />
 
 > The SPI makes it really easy to find packages when working with Swift on the Server, especially with the build matrix which makes it easy to see which packages work on Linux and what Swift versions are supported. The search is awesome! And being able to quickly find packages part of the SSWG incubation process is just an extra cherry on top!
 
 [Tim Condon](https://www.timc.dev/)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > The SPI and its role in the Swift Mentorship had a profound impact on me and completely changed how I view open source projects. _It was incredibly rewarding to collaborate with the team and_ be able to contribute to something that unites the community around our shared passion for Swift and contribute to a healthy dependency ecosystem. It was especially exciting to work using Swift on the Server. I’m thrilled to see the index continue to grow, and just like Dave once said, it’s a _living website_ that evolves with the Swift ecosystem.
 
 [Javier Cuesta](https://github.com/jcubit)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > I can't tell you how grateful I am for Swift Package Index. It's always been a great source to learn about all the cool stuff everyone is working on nowadays. It's also a fantastic way for me to share what open source things I'm working on in the hopes they help someone else 🙂
 >
@@ -50,30 +50,30 @@ A few days ago, we reached out to the community and asked if anyone had somethin
 
 [Adam Bell](https://www.adambell.ca/)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > Swift Package Index has been a valuable asset to me and the community. As both a consumer and developer of packages, SPI provides robust features for an avid Swift developer like myself.
 
 [Leo G Dion](http://brightdigit.com)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > Swift Package Index has been incredibly helpful for discovering great Swift packages to use in my projects, especially when building Swift Playground apps on my iPad. Thanks for making it so easy to explore the Swift ecosystem!
 
 [Ale Mohamad](https://alemohamad.com/)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > SPI is an amazing tool for both library authors and users. It helps me make sure packages are in a good state.
 
 [Joannis Orlandos](https://github.com/joannis)
 
-<hr class="minor"/>
+<hr class="short" />
 
 > Swift Package Index has been an absolute godsend for the Swift community. It’s been extremely helpful to see at a glance which platforms are supported for each package so I can figure out which ones to use as dependencies in my packages and projects.
 
 [Christopher Jr Riley](https://bsky.app/profile/cjrriley.com)
 
-<hr class="minor"/>
+<hr class="short" />
 
 Thanks for everyone’s kind words, and here’s to another five years! 🚀
