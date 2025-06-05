@@ -1,6 +1,8 @@
-The Swift Package Index is five years old! Let’s celebrate that milestone with a retrospective on the project and the Swift package ecosystem.
+When we launched the Swift Package Index five years ago, just before WWDC 2020, it covered 2,500 packages. Apple Silicon Macs didn't exists yet (publicly, for another week 😅), we did not run compatibility builds, and did not generate or host documentation. visionOS was still years away and Swift didn't cross-compile to Wasm and Android. Swift 5.2 was the latest language version and when Swift developers talked about actors over lunch it was understood the topic was the latest in film and TV.
 
-The site now indexes over 9,000 packages, and package growth over the years has been remarkably consistent:
+With changes happening over such a long time – in terms of a software project – it is easy to overlook and take for granted all the incremental progress that has happened. And so today, on the eve of our five year anniversary, we would like to go on a little tour of our project and recap in numbers what an exciting journey it's been.
+
+Today, the site indexes over 9,000 packages, and package growth over the years has been remarkably consistent:
 
 <picture class="shadow">
   <source srcset="/images/blog/number-of-packages~dark.png" media="(prefers-color-scheme: dark)">
