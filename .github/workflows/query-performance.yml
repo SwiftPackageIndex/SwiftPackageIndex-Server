@@ -33,8 +33,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Install unzip
-        run: apt-get update && apt-get install -y unzip
+
+      - name: Install unzip (for tests) and zstd (for faster caching)
+        run: apt-get update && apt-get install -y unzip zstd
+
+      - name: Restore .build
+        if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
+        id: "restore-cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: .build
+          key: "spi-query-performance-build-${{ runner.os }}-${{ github.event.after }}"
+          restore-keys: "spi-query-performance-build-${{ runner.os }}-"
+
+      - name: Build tests
+        run: cp .env.testing.template .env.testing && make build-tests
+
+      - name: Cache .build
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .build
+          key: "spi-query-performance-build-${{ runner.os }}-${{ github.event.after }}"
+        
       - name: Run tests
         run: |
           echo "
@@ -45,4 +66,4 @@ jobs:
           DATABASE_USE_TLS=true
           DATABASE_USERNAME=spi_dev
           " >> .env.staging
-          make test-query-performance
+          make run-query-performance-tests

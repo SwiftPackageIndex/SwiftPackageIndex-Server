@@ -49,15 +49,18 @@ run-tests: xcbeautify
 
 test: build-tests run-tests
 
-test-query-performance: xcbeautify
+run-query-performance-tests:
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
-	   swift test --disable-automatic-resolution \
+	   swift test --skip-build \
+	   --disable-automatic-resolution \
 	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
 	grep -v "\] Compiling" test.log | ./xcbeautify --renderer github-actions
+
+test-query-performance: build-tests run-query-performance-tests
 
 test-fast:
 	@echo Skipping image snapshot tests
