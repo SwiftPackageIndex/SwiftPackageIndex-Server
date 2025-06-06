@@ -34,15 +34,35 @@ jobs:
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
+
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Install unzip
-        run: apt-get update && apt-get install -y unzip
+
+      - name: Install unzip (for tests) and zstd (for faster caching)
+        run: apt-get update && apt-get install -y unzip zstd
+
+      - name: Restore .build
+        if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
+        id: "restore-cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: .build
+          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
+          restore-keys: "spi-debug-build-${{ runner.os }}-"
+
       - name: Run tests
         run: cp .env.testing.template .env.testing && make test
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
+
+      - name: Cache .build
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .build
+          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
+          
     services:
       spi_test_0:
         image: postgres:16-alpine
@@ -172,7 +192,7 @@ jobs:
         with:
           path: .build
           key: "spi-release-build-${{ runner.os }}-${{ github.event.after }}"
-          
+
       - name: Test release
         run: |
           $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
