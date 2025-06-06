@@ -51,10 +51,8 @@ jobs:
           key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
           restore-keys: "spi-debug-build-${{ runner.os }}-"
 
-      - name: Run tests
-        run: cp .env.testing.template .env.testing && make test
-        env:
-          COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
+      - name: Build tests
+        run: cp .env.testing.template .env.testing && make build-tests
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
@@ -62,6 +60,11 @@ jobs:
         with:
           path: .build
           key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
+
+      - name: Run tests
+        run: cp .env.testing.template .env.testing && make run-tests
+        env:
+          COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           
     services:
       spi_test_0:

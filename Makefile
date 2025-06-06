@@ -30,15 +30,24 @@ endif
 build:
 	swift build --disable-automatic-resolution --enable-experimental-prebuilts
 
-
 run:
 	swift run
 
-test: xcbeautify
+build-tests: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution \
+	&& swift build --build-tests \
+	--disable-automatic-resolution \
 	--enable-experimental-prebuilts \
 	2>&1 | xcbeautify --renderer github-actions
+
+run-tests: xcbeautify
+	set -o pipefail \
+	&& swift test --skip-build \
+	--disable-automatic-resolution \
+	--enable-experimental-prebuilts \
+	2>&1 | xcbeautify --renderer github-actions
+
+test: build-tests run-tests
 
 test-query-performance: xcbeautify
 	set -o pipefail \
