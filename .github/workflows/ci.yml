@@ -29,20 +29,43 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.2.0
+      image: registry.gitlab.com/finestructure/spi-base:1.2.2
       options: --privileged
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
+
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Install unzip
-        run: apt-get update && apt-get install -y unzip
+
+      - name: Install unzip (for tests) and zstd (for faster caching)
+        run: apt-get update && apt-get install -y unzip zstd
+
+      - name: Restore .build
+        if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
+        id: "restore-cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: .build
+          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
+          restore-keys: "spi-debug-build-${{ runner.os }}-"
+
+      - name: Build tests
+        run: cp .env.testing.template .env.testing && make build-tests
+
+      - name: Cache .build
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .build
+          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
+
       - name: Run tests
-        run: cp .env.testing.template .env.testing && make test
+        run: cp .env.testing.template .env.testing && make run-tests
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
+          
     services:
       spi_test_0:
         image: postgres:16-alpine
@@ -137,20 +160,44 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.2.0
+      image: registry.gitlab.com/finestructure/spi-base:1.2.2
       options: --privileged
     steps:
       - name: GH Runner bug workaround
         run: sysctl -w vm.mmap_rnd_bits=28
+
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
-      - name: Test release
+
+      - name: Install zstd (for faster caching)
+        run: apt-get update && apt-get install -y zstd
+
+      - name: Restore .build
+        if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
+        id: "restore-cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: .build
+          key: "spi-release-build-${{ runner.os }}-${{ github.event.after }}"
+          restore-keys: "spi-release-build-${{ runner.os }}-"
+
+      - name: Build release
         run: |
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
-          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
+          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc --enable-experimental-prebuilts
+
+      - name: Cache .build
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .build
+          key: "spi-release-build-${{ runner.os }}-${{ github.event.after }}"
+
+      - name: Test release
+        run: |
           $(swift build --show-bin-path -c release)/Run serve --port 8080 --hostname 0.0.0.0 &
           sleep 10
           echo Probing api/version...

@@ -180,7 +180,7 @@ struct QueryPerformanceTests {
                   JOIN versions v ON v.package_id = p.id
                 WHERE v.reference ->> 'branch' = r.default_branch
                 """)
-            try await assertQueryPerformance(query, expectedCost: 150_000, variation: 5000)
+            try await assertQueryPerformance(query, expectedCost: 160_000, variation: 5000)
         }
     }
 

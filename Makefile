@@ -28,24 +28,48 @@ else
 endif
 
 build:
-	swift build --disable-automatic-resolution
+	swift build --disable-automatic-resolution --enable-experimental-prebuilts
 
 run:
 	swift run
 
-test: xcbeautify
+build-tests: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution \
-	2>&1 | ./xcbeautify --renderer github-actions
+	&& swift build --build-tests \
+	--disable-automatic-resolution \
+	--enable-experimental-prebuilts \
+	2>&1 | xcbeautify --renderer github-actions
 
-test-query-performance: xcbeautify
+run-tests: xcbeautify
+	set -o pipefail \
+	&& swift test --skip-build \
+	--disable-automatic-resolution \
+	--enable-experimental-prebuilts \
+	2>&1 | xcbeautify --renderer github-actions
+
+test: build-tests run-tests
+
+build-query-performance-tests:
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
-	   swift test --disable-automatic-resolution \
+	   swift build --build-tests \
+	   --disable-automatic-resolution \
+	   --enable-experimental-prebuilts \
+	   --filter QueryPerformanceTests \
+	2>&1 | xcbeautify --renderer github-actions
+
+run-query-performance-tests:
+	set -o pipefail \
+	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
+	   swift test --skip-build \
+	   --disable-automatic-resolution \
+	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
-	grep -v "\] Compiling" test.log | ./xcbeautify --renderer github-actions
+	grep -v "\] Compiling" test.log | xcbeautify --renderer github-actions
+
+test-query-performance: build-query-performance-tests run-query-performance-tests
 
 test-fast:
 	@echo Skipping image snapshot tests
@@ -53,10 +77,7 @@ test-fast:
 	swift test --disable-automatic-resolution
 
 xcbeautify:
-	rm -rf .build/checkouts/xcbeautify
-	git clone https://github.com/cpisciotta/xcbeautify.git .build/checkouts/xcbeautify
-	cd .build/checkouts/xcbeautify && git checkout 2.25.1 && make build
-	binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
+	command -v xcbeautify
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
@@ -68,7 +89,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/finestructure/spi-base:1.2.0 \
+	  registry.gitlab.com/finestructure/spi-base:1.2.2 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
