@@ -38,7 +38,7 @@ test: xcbeautify
 	set -o pipefail \
 	&& swift test --disable-automatic-resolution \
 	--enable-experimental-prebuilts \
-	2>&1 | ./xcbeautify --renderer github-actions
+	2>&1 | xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
 	set -o pipefail \
@@ -56,10 +56,7 @@ test-fast:
 	swift test --disable-automatic-resolution
 
 xcbeautify:
-	rm -rf .build/checkouts/xcbeautify
-	git clone https://github.com/cpisciotta/xcbeautify.git .build/checkouts/xcbeautify
-	cd .build/checkouts/xcbeautify && git checkout 2.25.1 && make build
-	binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
+	command -v xcbeautify
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
