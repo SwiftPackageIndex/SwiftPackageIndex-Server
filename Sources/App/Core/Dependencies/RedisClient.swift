@@ -17,6 +17,10 @@ import NIOCore
 import Dependencies
 import DependenciesMacros
 
+@globalActor
+actor RedisSingletonActor {
+    static let shared = RedisSingletonActor()
+}
 
 @DependencyClient
 struct RedisClient {
@@ -42,11 +46,11 @@ extension RedisClient: DependencyKey {
     static var liveValue: RedisClient {
         .init(
             set: { key, value, expiresIn in
-                try await Redis.shared.set(key: key, value: value, expiresIn: expiresIn)
+                try await Redis.shared().set(key: key, value: value, expiresIn: expiresIn)
             },
-            get: { key in try await Redis.shared.get(key: key) },
-            expire: { key, ttl in try await Redis.shared.expire(key: key, after: ttl) },
-            increment: { key, value in try await Redis.shared.increment(key: key, by: value) }
+            get: { key in try await Redis.shared().get(key: key) },
+            expire: { key, ttl in try await Redis.shared().expire(key: key, after: ttl) },
+            increment: { key, value in try await Redis.shared().increment(key: key, by: value) }
         )
     }
 }
@@ -79,30 +83,27 @@ extension RedisClient {
 
 private actor Redis {
     var client: RediStack.RedisClient
-    static private var task: Task<Redis, Swift.Error>?
+    @RedisSingletonActor private static var _shared: Redis?
 
-    static var shared: Redis {
-        get async throws {
-            if let task {
-                return try await task.value
-            }
-            let task = Task<Redis, Swift.Error> {
-                var attemptsLeft = maxConnectionAttempts
-                while attemptsLeft > 0 {
-                    do {
-                        return try await Redis()
-                    } catch {
-                        attemptsLeft -= 1
-                        @Dependency(\.logger) var logger
-                        logger.warning("Redis connection failed, \(attemptsLeft) attempts left. Error: \(error)")
-                        try? await Task.sleep(for: .milliseconds(500))
-                    }
-                }
-                throw Error.unavailable
-            }
-            self.task = task
-            return try await task.value
+    @RedisSingletonActor
+    static func shared() async throws -> Redis {
+        if let existing = _shared {
+            return existing
         }
+        var attemptsLeft = maxConnectionAttempts
+        while attemptsLeft > 0 {
+            do {
+                let instance = try await Redis()
+                _shared = instance
+                return instance
+            } catch {
+                attemptsLeft -= 1
+                @Dependency(\.logger) var logger
+                logger.warning("Redis connection failed, \(attemptsLeft) attempts left. Error: \(error)")
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+        }
+        throw Error.unavailable
     }
 
     enum Error: Swift.Error {

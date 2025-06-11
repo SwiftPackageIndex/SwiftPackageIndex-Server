@@ -1,5 +1,5 @@
 {
-  "originHash" : "9fe1cd64ccbd0c24f221187eb7bcf499926ef1cad211348cb7701fbeb1772d3c",
+  "originHash" : "2bcecf7e0a5d6f26686ba99934b5b5024efba0c1e11aff15ee2ca4f1b628fb90",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/ShellOut.git",
       "state" : {
-        "revision" : "e862e8866c9d5d3fbc394aefdc8428f31c99355c",
-        "version" : "3.1.4"
+        "revision" : "808c97cc684bceb58288db70e701fa66636cf31d",
+        "version" : "3.3.0"
       }
     },
     {

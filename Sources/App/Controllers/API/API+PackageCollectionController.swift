@@ -61,7 +61,7 @@ extension API {
 }
 
 
-extension PackageCollectionSigning.Model.SignedCollection: @retroactive @unchecked Sendable, Vapor.Content {}
+extension PackageCollectionSigning.Model.SignedCollection: @retroactive Vapor.Content {}
 
 
 extension API {
