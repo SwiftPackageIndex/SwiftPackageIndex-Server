@@ -78,6 +78,9 @@
   "products" : [
     {
       "name" : "StaticMemberIterable",
+      "settings" : [
+
+      ],
       "targets" : [
         "StaticMemberIterable"
       ],
@@ -89,6 +92,9 @@
     },
     {
       "name" : "StaticMemberIterableClient",
+      "settings" : [
+
+      ],
       "targets" : [
         "StaticMemberIterableClient"
       ],
