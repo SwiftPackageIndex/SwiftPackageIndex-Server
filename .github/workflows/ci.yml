@@ -52,7 +52,11 @@ jobs:
           restore-keys: "spi-debug-build-${{ runner.os }}-"
 
       - name: Build tests
-        run: cp .env.testing.template .env.testing && make build-tests
+        run: |
+          # Fix for
+          # fatal: detected dubious ownership in repository at '/__w/SwiftPackageIndex-Server/SwiftPackageIndex-Server'
+          git config --global --add safe.directory /__w/SwiftPackageIndex-Server/SwiftPackageIndex-Server
+          cp .env.testing.template .env.testing && make build-tests
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
@@ -184,6 +188,9 @@ jobs:
 
       - name: Build release
         run: |
+          # Fix for
+          # fatal: detected dubious ownership in repository at '/__w/SwiftPackageIndex-Server/SwiftPackageIndex-Server'
+          git config --global --add safe.directory /__w/SwiftPackageIndex-Server/SwiftPackageIndex-Server
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
