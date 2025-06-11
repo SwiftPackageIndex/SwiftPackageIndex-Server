@@ -36,6 +36,7 @@ footer {
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+            align-items: center;
             justify-content: center;
             margin: 0;
             padding: 0;
@@ -90,6 +91,13 @@ header {
             &:hover {
                 border-color: var(--header-link-highlight);
             }
+        }
+
+        li.portal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
     }
 
