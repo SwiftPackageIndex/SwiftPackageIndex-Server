@@ -91,5 +91,5 @@ extension ShellOutCommand {
 
 
 extension Reference {
-    var quoted: Argument { description.quoted }
+    var quoted: ShellArgument { description.quoted }
 }
