@@ -32,7 +32,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/Plot.git", branch: "main"),
         .package(url: "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution.git", from: "1.1.2"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.9.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.10.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.3.0"),
         .package(url: "https://github.com/finestructure/swift-package-manager.git", branch: "release/6.1"),
