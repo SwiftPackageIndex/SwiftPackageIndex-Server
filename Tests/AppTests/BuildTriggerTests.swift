@@ -266,10 +266,10 @@ extension AllTests.BuildTriggerTests {
                           "\(v) could not be converted to a SPIManifest Swift version")
         }
         // Check the values specifically (which we can't easily do in the loop above)
-        #expect(BuildPair(.iOS, .v5_9).manifestSwiftVersion == .v5_9)
         #expect(BuildPair(.iOS, .v5_10).manifestSwiftVersion == .v5_10)
         #expect(BuildPair(.iOS, .v6_0).manifestSwiftVersion == .v6_0)
         #expect(BuildPair(.iOS, .v6_1).manifestSwiftVersion == .v6_1)
+        #expect(BuildPair(.iOS, .v6_2).manifestSwiftVersion == .v6_2)
     }
 
     @Test func SPIManifest_docPairs() throws {
@@ -289,9 +289,9 @@ extension AllTests.BuildTriggerTests {
                                   configs:
                                   - documentation_targets: [t0]
                                     platform: ios
-                                    swift_version: 5.9
+                                    swift_version: 5.10
                                 """)
-            #expect(manifest.docPairs == [.init(.iOS, .v5_9)])
+            #expect(manifest.docPairs == [.init(.iOS, .v5_10)])
         }
         do {
             let manifest = try SPIManifest.Manifest(yml: """
@@ -301,12 +301,12 @@ extension AllTests.BuildTriggerTests {
                                   configs:
                                   - documentation_targets: [t0]
                                     platform: ios
-                                    swift_version: 5.9
+                                    swift_version: 5.10
                                   - documentation_targets: [t0]
                                     platform: macos-spm
-                                    swift_version: 5.10
+                                    swift_version: 6.0
                                 """)
-            #expect(manifest.docPairs == [.init(.iOS, .v5_9), .init(.macosSpm, .v5_10)])
+            #expect(manifest.docPairs == [.init(.iOS, .v5_10), .init(.macosSpm, .v6_0)])
         }
     }
 
@@ -389,7 +389,7 @@ extension AllTests.BuildTriggerTests {
                 #expect(queries.count == 1)
                 #expect(queries.value.map { $0.variables["VERSION_ID"] } == [versionId.uuidString])
                 #expect(queries.value.map { $0.variables["BUILD_PLATFORM"] } == ["ios"])
-                #expect(queries.value.map { $0.variables["SWIFT_VERSION"] } == ["5.9"])
+                #expect(queries.value.map { $0.variables["SWIFT_VERSION"] } == ["5.10"])
 
                 // ensure the Build stubs is created to prevent re-selection
                 let v = try await Version.find(versionId, on: app.db)
@@ -436,16 +436,16 @@ extension AllTests.BuildTriggerTests {
 
                 // validate
                 // ensure Gitlab requests go out
-                #expect(queries.count == 30)
-                #expect(queries.value.map { $0.variables["VERSION_ID"] } == Array(repeating: versionId.uuidString, count: 30))
+                #expect(queries.count == 32)
+                #expect(queries.value.map { $0.variables["VERSION_ID"] } == Array(repeating: versionId.uuidString, count: 32))
                 let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
                 #expect(Dictionary(grouping: buildPlatforms, by: { $0 })
-                    .mapValues(\.count) == ["android": 1,
+                    .mapValues(\.count) == ["android": 2,
                                             "ios": 4,
                                             "macos-spm": 4,
                                             "macos-xcodebuild": 4,
                                             "linux": 4,
-                                            "wasm": 1,
+                                            "wasm": 2,
                                             "watchos": 4,
                                             "visionos": 4,
                                             "tvos": 4])
@@ -453,13 +453,13 @@ extension AllTests.BuildTriggerTests {
                 #expect(Dictionary(grouping: swiftVersions, by: { $0 })
                     .mapValues(\.count) == [SwiftVersion.v1.description(droppingZeroes: .patch): 7,
                                             SwiftVersion.v2.description(droppingZeroes: .patch): 7,
-                                            SwiftVersion.v3.description(droppingZeroes: .patch): 7,
+                                            SwiftVersion.v3.description(droppingZeroes: .patch): 9,
                                             SwiftVersion.v4.description(droppingZeroes: .patch): 9])
 
                 // ensure the Build stubs are created to prevent re-selection
                 let v = try await Version.find(versionId, on: app.db)
                 try await v?.$builds.load(on: app.db)
-                #expect(v?.builds.count == 30)
+                #expect(v?.builds.count == 32)
 
                 // ensure re-selection is empty
                 let candidates = try await fetchBuildCandidates(app.db)
@@ -597,11 +597,11 @@ extension AllTests.BuildTriggerTests {
                         try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                         // validate
-                        #expect(triggerCount.value == 30)
+                        #expect(triggerCount.value == 32)
                         // ensure builds are now in progress
                         let v = try await Version.find(versionId, on: app.db)
                         try await v?.$builds.load(on: app.db)
-                        #expect(v?.builds.count == 30)
+                        #expect(v?.builds.count == 32)
                     }
                 }
 
@@ -622,11 +622,11 @@ extension AllTests.BuildTriggerTests {
                         try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: true))
 
                         // validate
-                        #expect(triggerCount.value == 30)
+                        #expect(triggerCount.value == 32)
                         // ensure builds are now in progress
                         let v = try await Version.find(versionId, on: app.db)
                         try await v?.$builds.load(on: app.db)
-                        #expect(v?.builds.count == 30)
+                        #expect(v?.builds.count == 32)
                     }
                 }
             }
@@ -671,7 +671,7 @@ extension AllTests.BuildTriggerTests {
                 try await triggerBuilds(on: app.db, mode: .limit(4))
 
                 // validate - only the first batch must be allowed to trigger
-                #expect(triggerCount.value == 30)
+                #expect(triggerCount.value == 32)
             }
         }
     }
@@ -883,7 +883,7 @@ extension AllTests.BuildTriggerTests {
                     try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                     // validate
-                    #expect(triggerCount.value == 30)
+                    #expect(triggerCount.value == 32)
                 }
             }
         }
@@ -945,7 +945,7 @@ extension AllTests.BuildTriggerTests {
                     try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                     // validate
-                    #expect(triggerCount.value == 30)
+                    #expect(triggerCount.value == 32)
                 }
             }
         }
@@ -986,7 +986,7 @@ extension AllTests.BuildTriggerTests {
                     try await triggerBuilds(on: app.db, mode: .packageId(.id0, force: false))
 
                     // validate
-                    #expect(triggerCount.value == 30)
+                    #expect(triggerCount.value == 32)
                 }
             }
         }
@@ -1230,7 +1230,7 @@ extension AllTests.BuildTriggerTests {
 
     @Test func BuildPair_all() throws {
         // Sanity checks for critical counts used in canadidate selection
-        #expect(BuildPair.all.count == 30)
+        #expect(BuildPair.all.count == 32)
         #expect(BuildPair.all == [
             .init(.iOS, .v1),
             .init(.iOS, .v2),
@@ -1260,10 +1260,12 @@ extension AllTests.BuildTriggerTests {
             .init(.linux, .v2),
             .init(.linux, .v3),
             .init(.linux, .v4),
+            .init(.wasm, .v3),
             .init(.wasm, .v4),
+            .init(.android, .v3),
             .init(.android, .v4),
         ])
-        #expect(BuildPair.allExceptLatestSwiftVersion.count == 21)
+        #expect(BuildPair.allExceptLatestSwiftVersion.count == 23)
     }
 
     @Test func BuildPair_Equatable() throws {
@@ -1308,7 +1310,7 @@ extension AllTests.BuildTriggerTests {
             let res = try await findMissingBuilds(app.db, packageId: pkgId)
             #expect(res.count == 1)
             let triggerInfo = try #require(res.first)
-            #expect(triggerInfo.buildPairs.count == 29)
+            #expect(triggerInfo.buildPairs.count == 31)
             #expect(!triggerInfo.buildPairs.contains(.init(.iOS, .v1)))
         }
     }

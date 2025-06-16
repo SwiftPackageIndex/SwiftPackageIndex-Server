@@ -818,7 +818,7 @@ extension AllTests.ApiTests {
                     let badge = try res.content.decode(Badge.self)
                     #expect(badge.schemaVersion == 1)
                     #expect(badge.label == "Swift")
-                    #expect(badge.message == "5.10 | 5.9")
+                    #expect(badge.message == "6.0 | 5.10")
                     #expect(badge.isError == false)
                     #expect(badge.color == "blue")
                     #expect(badge.cacheSeconds == 6*3600)
