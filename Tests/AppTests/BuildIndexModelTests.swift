@@ -96,7 +96,7 @@ extension AllTests.BuildIndexModelTests {
         let matrix = model.buildMatrix
 
         // validate
-        #expect(matrix.values.keys.count == 30)
+        #expect(matrix.values.keys.count == 32)
         #expect(
             matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label) == ["1.2.3", "2.0.0-b1", "main"]
         )
@@ -141,7 +141,7 @@ extension AllTests.BuildIndexModelTests {
         let matrix = model.buildMatrix
 
         // validate
-        #expect(matrix.values.keys.count == 30)
+        #expect(matrix.values.keys.count == 32)
         #expect(
             matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label) == ["1.2.3", "main"]
         )

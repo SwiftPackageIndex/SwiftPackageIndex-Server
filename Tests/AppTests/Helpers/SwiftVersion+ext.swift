@@ -71,10 +71,10 @@ extension SwiftVersion {
     /// ```
     ///
     /// And then all that remains is to adjust the mapping below whenever we change the range of Swift versions.
-    static var v1: Self { .v5_9 }
-    static var v2: Self { .v5_10 }
-    static var v3: Self { .v6_0 }
-    static var v4: Self { .v6_1 }
+    static var v1: Self { .v5_10 }
+    static var v2: Self { .v6_0 }
+    static var v3: Self { .v6_1 }
+    static var v4: Self { .v6_2 }
 
     func incrementingPatchVersion(by value: Int = 1) -> Self {
         .init(major, minor, patch + value)
