@@ -109,20 +109,20 @@ extension AllTests.AlertingTests {
             #expect(all.validateSuccessRateInRange() == .ok)
         }
         do {
-            let okCount = 199
+            let okCount = 149
             let failedCount = 1000 - okCount
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 19.9% out of bounds"]))
+            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 14.9% out of bounds"]))
         }
         do {
-            let okCount = 401
+            let okCount = 451
             let failedCount = 1000 - okCount
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 40.1% out of bounds"]))
+            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 45.1% out of bounds"]))
         }
     }
 
