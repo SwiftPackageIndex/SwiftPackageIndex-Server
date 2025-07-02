@@ -21,6 +21,7 @@ enum NavMenuItem {
     case faq
     case search
     case searchLink
+    case portal
 
     func listNode() -> Node<HTML.ListContext> {
         switch self {
@@ -36,7 +37,7 @@ enum NavMenuItem {
                 return .li(
                     .a(
                         .href(SiteURL.addAPackage.relativeURL()),
-                        "Add a Package"
+                        "Add Package"
                     )
                 )
             case .blog:
@@ -63,6 +64,18 @@ enum NavMenuItem {
                     .a(
                         .href(SiteURL.home.relativeURL()),
                         "Search Packages"
+                    )
+                )
+            case .portal:
+                return .li(
+                    .class("portal"),
+                    .a(
+                        .href(SiteURL.portal.relativeURL()),
+                        .img(
+                            .alt("Portal"),
+                            .src(SiteURL.images("portal.svg").relativeURL()),
+                            .width(20)
+                        )
                     )
                 )
         }
