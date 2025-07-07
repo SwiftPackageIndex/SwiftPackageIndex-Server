@@ -11,7 +11,7 @@
         "@hotwired/stimulus": "^3.2.1",
         "@hotwired/turbo": "^7.3.0",
         "highlight.js": "^11.11.1",
-        "mermaid": "^11.7.0",
+        "mermaid": "^11.8.0",
         "normalize.css": "^8.0.1",
         "vega": "^6.1.2",
         "vega-tooltip": "^1.0.0"
@@ -21,7 +21,7 @@
         "esbuild-sass-plugin": "^3.3.1",
         "postcss": "^8.5.6",
         "prettier": "^3.6.2",
-        "stylelint": "^16.21.0",
+        "stylelint": "^16.21.1",
         "stylelint-config-standard-scss": "^15.0.1",
         "stylelint-order": "^7.0.0",
         "stylelint-scss": "^6.12.1"
