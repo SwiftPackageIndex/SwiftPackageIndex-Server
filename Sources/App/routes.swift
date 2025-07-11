@@ -137,6 +137,48 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.show)
         app.post(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.validate)
     }
+    
+    let auth = app.routes.grouped([app.sessions.middleware, UserSessionAuthenticator()])
+    let redirect = auth.grouped(AuthenticatedUser.redirectMiddleware(path: SiteURL.login.relativeURL()))
+    
+    if environment.current() != .production {
+        do {
+            redirect.get(SiteURL.portal.pathComponents, use: Portal.PortalController.show)
+        }
+        
+        do {
+            auth.get(SiteURL.login.pathComponents, use: Portal.LoginController.show)
+            auth.post(SiteURL.login.pathComponents, use: Portal.LoginController.login)
+        }
+        
+        do {
+            auth.get(SiteURL.signup.pathComponents, use: Portal.SignupController.show)
+            auth.post(SiteURL.signup.pathComponents, use: Portal.SignupController.signup)
+        }
+        
+        do {
+            auth.get(SiteURL.verify.pathComponents, use: Portal.VerifyController.show)
+            auth.post(SiteURL.verify.pathComponents, use: Portal.VerifyController.verify)
+        }
+        
+        do {
+            auth.post(SiteURL.logout.pathComponents, use: Portal.LogoutController.logout)
+        }
+        
+        do {
+            auth.post(SiteURL.deleteAccount.pathComponents, use: Portal.DeleteAccountController.deleteAccount)
+        }
+        
+        do {
+            app.get(SiteURL.forgotPassword.pathComponents, use: Portal.ForgotPasswordController.show)
+            app.post(SiteURL.forgotPassword.pathComponents, use: Portal.ForgotPasswordController.forgotPasswordEmail)
+        }
+        
+        do {
+            app.get(SiteURL.resetPassword.pathComponents, use: Portal.ResetController.show)
+            app.post(SiteURL.resetPassword.pathComponents, use: Portal.ResetController.resetPassword)
+        }
+    }
 
     // Ready for Swift 6
     app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)
