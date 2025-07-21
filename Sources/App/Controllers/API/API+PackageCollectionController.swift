@@ -61,7 +61,11 @@ extension API {
 }
 
 
-extension PackageCollectionSigning.Model.SignedCollection: @retroactive Vapor.Content {}
+extension SignedCollection: @retroactive RequestDecodable {}
+extension SignedCollection: @retroactive ResponseEncodable {}
+extension SignedCollection: @retroactive AsyncRequestDecodable {}
+extension SignedCollection: @retroactive AsyncResponseEncodable {}
+extension SignedCollection: @retroactive Content {}
 
 
 extension API {

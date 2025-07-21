@@ -21,7 +21,9 @@ import Fluent
 // MARK: - Useful extensions
 
 
-extension Foundation.URL: Swift.ExpressibleByStringLiteral {
+extension URL: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {}
+extension URL: @retroactive ExpressibleByUnicodeScalarLiteral {}
+extension URL: @retroactive ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         precondition(!value.isEmpty, "cannot convert empty string to URL")
         self = URL(string: value)!
