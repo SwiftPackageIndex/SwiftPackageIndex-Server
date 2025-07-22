@@ -16,6 +16,7 @@ import Testing
 
 @testable import App
 
+import AsyncHTTPClient
 import Dependencies
 import Fluent
 import NIOConcurrencyHelpers
@@ -677,6 +678,7 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_triggerBuilds_trimming() async throws {
+        // Ensure we trim builds as part of triggering
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
@@ -689,7 +691,6 @@ extension AllTests.BuildTriggerTests {
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
-            // Ensure we trim builds as part of triggering
             try await withSPIApp { app in
                 // setup
                 let p = Package(id: .id0, url: "2")
@@ -714,7 +715,6 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_triggerBuilds_error() async throws {
-        // Ensure we trim builds as part of triggering
         let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
@@ -730,13 +730,15 @@ extension AllTests.BuildTriggerTests {
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
-                defer { triggerCount.increment() }
-                // let the 5th trigger succeed to ensure we don't early out on errors
-                if triggerCount.value == 5 {
-                    return .created(webUrl: "http://web_url")
-                } else {
-                    struct Response: Content { var message: String }
-                    return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                return try triggerCount.withValue { triggerCount -> HTTPClient.Response in
+                    defer { triggerCount += 1 }
+                    // Let one trigger not fail
+                    if triggerCount == 5 {
+                        return .created(webUrl: "http://web_url")
+                    } else {
+                        struct Response: Content { var message: String }
+                        return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                    }
                 }
             }
         } operation: {
@@ -749,6 +751,9 @@ extension AllTests.BuildTriggerTests {
 
                 // MUT
                 try await triggerBuilds(on: app.db, mode: .packageId(.id0, force: false))
+
+                // Ensure all triggers were attempted
+                #expect(triggerCount.value == 32)
 
                 // validate that one build record is saved, for the successful trigger
                 let count = try await Build.query(on: app.db).count()
