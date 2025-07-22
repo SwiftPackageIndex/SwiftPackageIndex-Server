@@ -16,6 +16,7 @@ import Testing
 
 @testable import App
 
+import AsyncHTTPClient
 import Dependencies
 import Fluent
 import NIOConcurrencyHelpers
@@ -729,13 +730,15 @@ extension AllTests.BuildTriggerTests {
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
-                defer { triggerCount.increment() }
-                // let the 5th trigger succeed to ensure we don't early out on errors
-                if triggerCount.value == 5 {
-                    return .created(webUrl: "http://web_url")
-                } else {
-                    struct Response: Content { var message: String }
-                    return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                return try triggerCount.withValue { triggerCount -> HTTPClient.Response in
+                    defer { triggerCount += 1 }
+                    // Let one trigger not fail
+                    if triggerCount == 5 {
+                        return .created(webUrl: "http://web_url")
+                    } else {
+                        struct Response: Content { var message: String }
+                        return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                    }
                 }
             }
         } operation: {
@@ -748,6 +751,9 @@ extension AllTests.BuildTriggerTests {
 
                 // MUT
                 try await triggerBuilds(on: app.db, mode: .packageId(.id0, force: false))
+
+                // Ensure all triggers were attempted
+                #expect(triggerCount.value == 32)
 
                 // validate that one build record is saved, for the successful trigger
                 let count = try await Build.query(on: app.db).count()
