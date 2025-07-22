@@ -677,6 +677,7 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_triggerBuilds_trimming() async throws {
+        // Ensure we trim builds as part of triggering
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
@@ -689,7 +690,6 @@ extension AllTests.BuildTriggerTests {
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
-            // Ensure we trim builds as part of triggering
             try await withSPIApp { app in
                 // setup
                 let p = Package(id: .id0, url: "2")
@@ -714,7 +714,6 @@ extension AllTests.BuildTriggerTests {
     }
 
     @Test func TriggerBuilds_triggerBuilds_error() async throws {
-        // Ensure we trim builds as part of triggering
         let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
