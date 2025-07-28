@@ -130,7 +130,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "gradyzhuo",
             name: "Grady Zhuo",
-            avatarUrl: "https://avatars.githubusercontent.com/u/719029?u=b5807baa05c87103455fe9ad757203cf63c55cc2&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/719029?u=7a4707ac7b14cb137acf5396974871d622f97fc4&v=4"
         ),
         .init(
             login: "Timac",
@@ -226,6 +226,11 @@ extension Array<Supporters.Community> {
             login: "gaige",
             name: "Gaige B Paulsen",
             avatarUrl: "https://avatars.githubusercontent.com/u/3351751?u=c27bedf869c3dbf75fe6e8857169d68b12e0678e&v=4"
+        ),
+        .init(
+            login: "florianpircher",
+            name: "Florian Pircher",
+            avatarUrl: "https://avatars.githubusercontent.com/u/3776198?u=84fc4e05bcbb253e5a8250cdd38f00fc8a98d2c6&v=4"
         ),
         .init(
             login: "vsanthanam",
@@ -358,11 +363,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
-            login: "TTOzzi",
-            name: nil,
-            avatarUrl: "https://avatars.githubusercontent.com/u/50410213?u=a2b6f0af136445dc1f57b69ca441b76b79d5429f&v=4"
-        ),
-        .init(
             login: "sliemeobn",
             name: "Simon Leeb",
             avatarUrl: "https://avatars.githubusercontent.com/u/52261246?u=d04df57adcd86042fc67e40a03144cd3929ecc54&v=4"
@@ -391,6 +391,11 @@ extension Array<Supporters.Community> {
             login: "AliMark71",
             name: "Ali AlSalman",
             avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
+        ),
+        .init(
+            login: "JamesCCoder",
+            name: "James W",
+            avatarUrl: "https://avatars.githubusercontent.com/u/95759159?u=a8d3e58e726c92d248d69208529c0bb4fdd6818f&v=4"
         ),
         .init(
             login: "sparrowcode",
