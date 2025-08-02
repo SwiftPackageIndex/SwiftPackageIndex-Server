@@ -42,10 +42,12 @@ extension ShellClient: DependencyKey {
             run: { command, path, environment in
                 @Dependency(\.logger) var logger
                 do {
-                    let res = try await ShellOut.shellOut(to: command,
-                                                          at: path,
-                                                          logger: logger,
-                                                          environment: environment)
+                    let res = try await ShellOut.shellOut(
+                        to: command,
+                        at: path,
+                        logger: logger,
+                        environment: (environment ?? [:]).merging(["SPI_PROCESSING": "1"], uniquingKeysWith: { $1 })
+                    )
                     if !res.stderr.isEmpty {
                         logger.warning("stderr: \(res.stderr)")
                     }
