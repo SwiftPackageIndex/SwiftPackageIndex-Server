@@ -1158,19 +1158,13 @@ extension AllTests.AnalyzerTests {
     }
 
     @Test func processingEnvironmentVariable() async throws {
-        let environment = QueueIsolated<[String: String]?>(nil)
         try await withDependencies {
-            $0.fileManager.fileExists = { _ in true }
-            $0.shell.run = { @Sendable _, _, env in
-                environment.setValue(env)
-                return #"{"name":"foo","products":[],"targets":[]}"#
-            }
+            $0.logger = .noop
+            $0.shell = .liveValue
         } operation: {
-            _ = try await Analyze.dumpPackage(at: "/somepath")
-            try environment.withValue {
-                let keys = try #require($0?.keys)
-                #expect(keys.contains("SPI_PROCESSING"))
-            }
+            @Dependency(\.shell) var shell
+            let res = try await shell.run(command: .init(command: "printenv", arguments: ["SPI_PROCESSING"]), at: "/tmp")
+            #expect(res == "1")
         }
     }
 
