@@ -19,14 +19,14 @@ import ShellOut
 
 @DependencyClient
 struct ShellClient {
-    var run: @Sendable (ShellOutCommand, String) async throws -> String
+    var run: @Sendable (ShellOutCommand, String, [String: String]?) async throws -> String
 }
 
 
 extension ShellClient {
     @discardableResult
-    func run(command: ShellOutCommand, at path: String) async throws -> String {
-        try await run(command, path)
+    func run(command: ShellOutCommand, at path: String, environment: [String: String]? = nil) async throws -> String {
+        try await run(command, path, environment)
     }
 }
 
@@ -39,10 +39,15 @@ extension String {
 extension ShellClient: DependencyKey {
     static var liveValue: Self {
         .init(
-            run: { command, path in
+            run: { command, path, environment in
                 @Dependency(\.logger) var logger
                 do {
-                    let res = try await ShellOut.shellOut(to: command, at: path, logger: logger)
+                    let res = try await ShellOut.shellOut(
+                        to: command,
+                        at: path,
+                        logger: logger,
+                        environment: (environment ?? [:]).merging(["SPI_PROCESSING": "1"], uniquingKeysWith: { $1 })
+                    )
                     if !res.stderr.isEmpty {
                         logger.warning("stderr: \(res.stderr)")
                     }

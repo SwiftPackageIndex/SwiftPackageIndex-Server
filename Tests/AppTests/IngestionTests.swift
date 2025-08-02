@@ -473,7 +473,7 @@ extension AllTests.IngestionTests {
                 $0.git.lastCommitDate = { @Sendable _ in .t0 }
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
                 $0.git.shortlog = { @Sendable _ in "" }
-                $0.shell.run = { @Sendable cmd, _ in
+                $0.shell.run = { @Sendable cmd, _, _ in
                     if cmd.description.hasSuffix("package dump-package") {
                         return .packageDump(name: "foo")
                     }

@@ -45,7 +45,7 @@ extension AllTests.GitTests {
 
     @Test func revInfo() async throws {
         try await withDependencies {
-            $0.shell.run = { @Sendable cmd, _ in
+            $0.shell.run = { @Sendable cmd, _, _ in
                 if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1"# {
                     return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
                 }
@@ -62,7 +62,7 @@ extension AllTests.GitTests {
         // Ensure we look up by tag name and not semver
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
         try await withDependencies {
-            $0.shell.run = { @Sendable cmd, _ in
+            $0.shell.run = { @Sendable cmd, _, _ in
                 if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" v2.2.1"# {
                     return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
                 }
@@ -83,8 +83,8 @@ private enum TestError: Error {
 }
 
 
-func mock(for command: String, _ result: String) -> @Sendable (ShellOutCommand, String) throws -> String {
-    { @Sendable cmd, path in
+func mock(for command: String, _ result: String) -> @Sendable (ShellOutCommand, String, [String: String]?) throws -> String {
+    { @Sendable cmd, path, _ in
         guard cmd.description == command else { throw TestError.unknownCommand }
         return result
     }

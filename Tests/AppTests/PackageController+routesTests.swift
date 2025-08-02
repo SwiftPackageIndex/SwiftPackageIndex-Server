@@ -1533,7 +1533,7 @@ extension AllTests.PackageController_routesTests {
             }
             $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
-            $0.shell.run = { @Sendable cmd, _ in
+            $0.shell.run = { @Sendable cmd, _, _ in
                 if cmd.description == "swift package dump-package" { return .mockManifest }
                 return ""
             }

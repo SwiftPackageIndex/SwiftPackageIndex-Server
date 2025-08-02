@@ -67,7 +67,7 @@ extension AllTests.AnalyzeErrorTests {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     switch cmd {
                         case _ where cmd.description.contains("git clone https://github.com/foo/1"):
                             throw SimulatedError()
@@ -131,7 +131,7 @@ extension AllTests.AnalyzeErrorTests {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     switch cmd {
                         case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
                             throw SimulatedError()
@@ -195,7 +195,7 @@ extension AllTests.AnalyzeErrorTests {
             $0.environment.allowSocialPosts = { true }
             $0.git = .analyzeErrorTestsMock
             $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
-            $0.shell.run = defaultShellRun(command:path:)
+            $0.shell.run = defaultShellRun(command:path:environment:)
         }
     }
 }
@@ -222,7 +222,7 @@ extension AllTests.AnalyzeErrorTests {
 }
 
 
-private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
+private func defaultShellRun(command: ShellOutCommand, path: String, environment: [String: String]? = nil) throws -> String {
     switch command {
         case .swiftDumpPackage where path.hasSuffix("foo-1"):
             return packageSwift1

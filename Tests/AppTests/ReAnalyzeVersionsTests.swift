@@ -63,7 +63,7 @@ extension AllTests.ReAnalyzeVersionsTests {
 
                 try await withDependencies {
                     $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-                    $0.shell.run = { @Sendable cmd, path in
+                    $0.shell.run = { @Sendable cmd, path, _ in
                         if cmd.description.hasSuffix("swift package dump-package") {
                             return #"""
                             {
@@ -91,7 +91,7 @@ extension AllTests.ReAnalyzeVersionsTests {
 
                     try await withDependencies {
                         // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
-                        $0.shell.run = { @Sendable cmd, path in
+                        $0.shell.run = { @Sendable cmd, path, _ in
                             if cmd.description.hasSuffix("swift package dump-package") {
                                 return #"""
                         {
@@ -203,7 +203,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                  2\tPerson 2
                 """
             }
-            $0.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path, _ in
                 if cmd == .swiftDumpPackage {
                     return #"""
                         {
@@ -232,7 +232,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 }
                 
                 try await withDependencies {
-                    $0.shell.run = { @Sendable cmd, path in
+                    $0.shell.run = { @Sendable cmd, path, _ in
                         if cmd == .swiftDumpPackage {
                             // simulate error during package dump
                             struct Error: Swift.Error { }

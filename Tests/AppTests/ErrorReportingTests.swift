@@ -64,7 +64,7 @@ extension AllTests.ErrorReportingTests {
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
-                $0.shell.run = { @Sendable cmd, _ in
+                $0.shell.run = { @Sendable cmd, _, _ in
                     if cmd.description == "git tag" { return "1.0.0" }
                     // returning a blank string will cause an exception when trying to
                     // decode it as the manifest result - we use this to simulate errors
