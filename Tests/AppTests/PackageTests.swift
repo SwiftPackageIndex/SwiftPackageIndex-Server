@@ -338,7 +338,7 @@ extension AllTests.PackageTests {
             $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
-            $0.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path, _ in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [] }"#
                 }

@@ -59,7 +59,7 @@ extension AllTests.AnalyzerTests {
                 }
                 $0.git = .liveValue
                 $0.httpClient.mastodonPost = { @Sendable _ in }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
                     commands.withValue {
                         $0.append(.init(command: cmd, path: trimmedPath)!)
@@ -249,7 +249,7 @@ extension AllTests.AnalyzerTests {
                 """
                 }
                 $0.httpClient.mastodonPost = { @Sendable _ in }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     if cmd.description.hasSuffix("package dump-package") {
                         return #"""
                         {
@@ -320,7 +320,7 @@ extension AllTests.AnalyzerTests {
                 $0.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
                 $0.git.lastCommitDate = { @Sendable _ in .t1 }
                 $0.git.shortlog = { @Sendable _ in "" }
-                $0.shell.run = { @Sendable _, _ in "" }
+                $0.shell.run = { @Sendable _, _, _ in "" }
             } operation: {
                 // setup
                 do {
@@ -374,7 +374,7 @@ extension AllTests.AnalyzerTests {
                  2\tPerson 2
                 """
                 }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     // first package fails
                     if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                         return "bad data"
@@ -439,7 +439,7 @@ extension AllTests.AnalyzerTests {
                     return false
                 }
                 $0.git = .liveValue
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     commands.withValue {
                         $0.append(.init(command: cmd, path: path)!)
                     }
@@ -500,7 +500,7 @@ extension AllTests.AnalyzerTests {
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     commands.withValue { $0.append(cmd.description) }
                     return ""
                 }
@@ -532,7 +532,7 @@ extension AllTests.AnalyzerTests {
                  2\tPerson 2
                 """
                 }
-                $0.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
+                $0.shell.run = { @Sendable cmd, _, _ in throw TestError.unknownCommand }
             } operation: {
                 // setup
                 let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
@@ -641,7 +641,7 @@ extension AllTests.AnalyzerTests {
                     if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
                     fatalError("unknown ref: \(ref)")
                 }
-                $0.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
+                $0.shell.run = { @Sendable cmd, _, _ in throw TestError.unknownCommand }
             } operation: {
                 //setup
                 let pkgId = UUID()
@@ -777,7 +777,7 @@ extension AllTests.AnalyzerTests {
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.shell.run = { @Sendable cmd, _ in
+                $0.shell.run = { @Sendable cmd, _, _ in
                     commands.withValue {
                         $0.append(cmd.description)
                     }
@@ -938,7 +938,7 @@ extension AllTests.AnalyzerTests {
                  2\tPerson 2
                 """
                 }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     if cmd.description.hasSuffix("swift package dump-package") {
                         return #"""
                         {
@@ -995,7 +995,7 @@ extension AllTests.AnalyzerTests {
                 // claim every file exists, including our ficticious 'index.lock' for which
                 // we want to trigger the cleanup mechanism
                 $0.fileManager.fileExists = { @Sendable path in true }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     commands.withValue { $0.append(cmd.description) }
                     return ""
                 }
@@ -1027,7 +1027,7 @@ extension AllTests.AnalyzerTests {
                 // claim every file exists, including our ficticious 'index.lock' for which
                 // we want to trigger the cleanup mechanism
                 $0.fileManager.fileExists = { @Sendable path in true }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     commands.withValue { $0.append(cmd.description) }
                     if cmd == .gitCheckout(branch: "master") {
                         throw TestError.simulatedCheckoutError
@@ -1132,29 +1132,29 @@ extension AllTests.AnalyzerTests {
         try await withDependencies {
             $0.logger = .noop
         } operation: {
-        try await withTempDir { @Sendable tempDir in
-            let fixture = fixturesDirectory()
-                .appendingPathComponent("5.9-Package-swift").path
-            let fname = tempDir.appending("/Package.swift")
-            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage, at: tempDir)
-            do {  // "root" references tempDir's absolute path - replace it to make the test stable
-                if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
-                   var packageKind = obj["packageKind"] as? [String: Any] {
-                    packageKind["root"] = ["<tempdir>"]
-                    obj["packageKind"] = packageKind
-                    let data = try JSONSerialization.data(withJSONObject: obj,
-                                                          options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
-                    json = String(decoding: data, as: UTF8.self)
+            try await withTempDir { @Sendable tempDir in
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("5.9-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage, at: tempDir)
+                do {  // "root" references tempDir's absolute path - replace it to make the test stable
+                    if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
+                       var packageKind = obj["packageKind"] as? [String: Any] {
+                        packageKind["root"] = ["<tempdir>"]
+                        obj["packageKind"] = packageKind
+                        let data = try JSONSerialization.data(withJSONObject: obj,
+                                                              options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+                        json = String(decoding: data, as: UTF8.self)
+                    }
                 }
-            }
 #if os(macOS)
-            assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "macos")
+                assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "macos")
 #elseif os(Linux)
-            assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
+                assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
 #endif
+            }
         }
-    }
     }
 
     @Test func issue_577() async throws {
@@ -1193,7 +1193,7 @@ extension AllTests.AnalyzerTests {
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.shell.run = { @Sendable cmd, _ in
+                $0.shell.run = { @Sendable cmd, _, _ in
                     commands.withValue { $0.append(cmd.description) }
                     if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
                     return ""
@@ -1297,7 +1297,7 @@ extension AllTests.AnalyzerTests {
                     if path.hasSuffix("github.com-foo-1") { return false }
                     return true
                 }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     if cmd == .gitClone(url: url, to: repoDir) {
                         struct ShellOutError: Error {}
                         throw ShellOutError()
@@ -1355,7 +1355,7 @@ extension AllTests.AnalyzerTests {
                 1\tPerson 2
                 """
                 }
-                $0.shell.run = { @Sendable _, _ in "" }
+                $0.shell.run = { @Sendable _, _, _ in "" }
             } operation: {
                 let pkgId = UUID()
                 let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1427,7 +1427,7 @@ extension AllTests.AnalyzerTests {
                 try await withDependencies {  // third scenario: everything throws
                     $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
                     $0.git.revisionInfo = { @Sendable _, _ in throw TestError.unspecifiedError }
-                    $0.shell.run = { @Sendable _, _ in throw TestError.unspecifiedError }
+                    $0.shell.run = { @Sendable _, _, _ in throw TestError.unspecifiedError }
                 } operation: {
                     // MUT
                     try await Analyze.analyze(client: app.client,
@@ -1464,7 +1464,7 @@ extension AllTests.AnalyzerTests {
                 """
                 }
                 $0.logger = .testLogger(capturingLogger)
-                $0.shell.run = { @Sendable _, _ in return "" }
+                $0.shell.run = { @Sendable _, _, _ in return "" }
             } operation: {
                 let pkgId = UUID()
                 let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1526,7 +1526,7 @@ extension AllTests.AnalyzerTests {
                                 throw Error()
                         }
                     }
-                    $0.shell.run = { @Sendable cmd, path in
+                    $0.shell.run = { @Sendable cmd, path, _ in
                         // simulate error in getPackageInfo by failing checkout
                         if cmd == .gitCheckout(branch: "main") {
                             throw Error()
@@ -1569,7 +1569,7 @@ extension AllTests.AnalyzerTests {
                 $0.git.lastCommitDate = { @Sendable _ in .t1 }
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
                 $0.git.shortlog = { @Sendable _ in "10\tPerson 1" }
-                $0.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path, _ in
                     if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
                     return ""
                 }

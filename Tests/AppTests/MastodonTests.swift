@@ -55,7 +55,7 @@ extension AllTests.MastodonTests {
                     Issue.record("message must only be set once")
                 }
             }
-            $0.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path, _ in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
