@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
+
 enum Supporters {
     static let primary: Corporate = .init(name: "Apple",
                                           logo: .init(lightModeUrl: "/images/sponsors/apple.svg",
@@ -19,18 +21,39 @@ enum Supporters {
                                                       width: 100, height: 123),
                                           url: "http://apple.com")
 
-    nonisolated(unsafe) static var corporate: [Corporate] = [
-        .init(name: "Emerge Tools",
-              logo: .init(lightModeUrl: "/images/sponsors/emerge.png",
-                          darkModeUrl: "/images/sponsors/emerge~dark.png"),
-              url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
-              advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
-        .init(name: "RevenueCat",
-              logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
-                          darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
-              url: "https://www.revenuecat.com/?utm_medium=sponsored&utm_source=swift_package_index&utm_campaign=general_sponsorship&utm_content=banner%20ad",
-              advertisingCopy: "The world’s best apps use RevenueCat to power in-app purchases, manage customer data, and grow revenue."),
-    ]
+    nonisolated(unsafe) static var corporate: [Corporate] = {
+        @Dependency(\.environment) var environment
+
+        if environment.current() == .development {
+            // Staging sponsors
+            return [
+                .init(name: "Sentry",
+                      logo: .init(lightModeUrl: "/images/sponsors/sentry.png",
+                                  darkModeUrl: "/images/sponsors/sentry~dark.png"),
+                      url: "https://sentry.io/welcome/",
+                      advertisingCopy: "Application monitoring software considered \"not bad\" by 4 million developers."),
+                .init(name: "RevenueCat",
+                      logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
+                                  darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
+                      url: "https://www.revenuecat.com/?utm_medium=sponsored&utm_source=swift_package_index&utm_campaign=general_sponsorship&utm_content=banner%20ad",
+                      advertisingCopy: "The world's best apps use RevenueCat to power in-app purchases, manage customer data, and grow revenue."),
+            ]
+        } else {
+            // Production sponsors
+            return [
+                .init(name: "Emerge Tools",
+                      logo: .init(lightModeUrl: "/images/sponsors/emerge.png",
+                                  darkModeUrl: "/images/sponsors/emerge~dark.png"),
+                      url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
+                      advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
+                .init(name: "RevenueCat",
+                      logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
+                                  darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
+                      url: "https://www.revenuecat.com/?utm_medium=sponsored&utm_source=swift_package_index&utm_campaign=general_sponsorship&utm_content=banner%20ad",
+                      advertisingCopy: "The world's best apps use RevenueCat to power in-app purchases, manage customer data, and grow revenue."),
+            ]
+        }
+    }()
 
     nonisolated(unsafe) static var infrastructure: [Corporate] = [
         .init(name: "MacStadium",
