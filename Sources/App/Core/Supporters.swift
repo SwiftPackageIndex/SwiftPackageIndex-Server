@@ -31,7 +31,7 @@ enum Supporters {
                       logo: .init(lightModeUrl: "/images/sponsors/sentry.png",
                                   darkModeUrl: "/images/sponsors/sentry~dark.png"),
                       url: "https://sentry.io/welcome/",
-                      advertisingCopy: "Application monitoring software considered \"not bad\" by 4 million developers."),
+                      advertisingCopy: "Application monitoring software considered “not bad” by 4 million developers."),
                 .init(name: "RevenueCat",
                       logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
                                   darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
