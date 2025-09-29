@@ -937,8 +937,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /transfer-aws/swift-aws-lambda-runtime/documentation:
-    url: ${base_url}/transfer-aws/swift-aws-lambda-runtime/documentation
+  /swift-server/swift-aws-lambda-runtime/documentation:
+    url: ${base_url}/swift-server/swift-aws-lambda-runtime/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
