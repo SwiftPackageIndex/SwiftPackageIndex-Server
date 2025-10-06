@@ -105,7 +105,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "davbeck",
             name: "David Beck",
-            avatarUrl: "https://avatars.githubusercontent.com/u/340006?u=0375ff26f288b636d51ab1f24347d1d6e215da92&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/340006?u=c4c343d27813970fee6b85e51ed7d5fbe93c83d9&v=4"
         ),
         .init(
             login: "simonnickel",
@@ -291,6 +291,11 @@ extension Array<Supporters.Community> {
             login: "Sherlouk",
             name: "James Sherlock",
             avatarUrl: "https://avatars.githubusercontent.com/u/15193942?u=f789c13c13098bf6f7e96aca9116d6d8dbf1a73b&v=4"
+        ),
+        .init(
+            login: "manucodin",
+            name: "Manu Rodríguez",
+            avatarUrl: "https://avatars.githubusercontent.com/u/15260744?u=6bae0835af37b2320f46a07a1d9a1611ba67ae83&v=4"
         ),
         .init(
             login: "slashmo",
