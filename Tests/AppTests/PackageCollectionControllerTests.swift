@@ -170,6 +170,68 @@ extension AllTests.PackageCollectionControllerTests {
         }
     }
 
+    @Test(
+        .disabled(
+            if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
+            "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
+        )
+    )
+    func cache_control_headers_for_cloudflare() async throws {
+        try await withDependencies {
+            $0.date.now = .t0
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+        } operation: {
+            try await withSPIApp { app in
+                let p = try await savePackage(on: app.db, "https://github.com/foo/1")
+                let v = try Version(id: UUID(),
+                                    package: p,
+                                    latest: .release,
+                                    packageName: "P1-tag",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.1")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                    .save(on: app.db)
+                try await Repository(package: p,
+                                     defaultBranch: "main",
+                                     license: .mit,
+                                     licenseUrl: "https://foo/mit",
+                                     owner: "foo",
+                                     summary: "summary 1").create(on: app.db)
+
+                // MUT
+                try await app.testing().test(
+                    .GET,
+                    "foo/collection.json",
+                    afterResponse: { @MainActor res async throws in
+                        #expect(res.status == .ok)
+
+                        // Verify Cache-Control contains no-transform
+                        let cacheControl = res.headers[.cacheControl].first ?? ""
+                        #expect(cacheControl.contains("no-transform"),
+                                "Cache-Control should contain 'no-transform', got: '\(cacheControl)'")
+                        #expect(cacheControl.contains("public"),
+                                "Cache-Control should contain 'public', got: '\(cacheControl)'")
+
+                        // Verify Content-Type
+                        let contentType = res.headers[.contentType].first ?? ""
+                        #expect(contentType == "application/json; charset=utf-8",
+                                "Content-Type should be 'application/json; charset=utf-8', got: '\(contentType)'")
+
+                        // Verify Content-Length is present
+                        let contentLength = res.headers[.contentLength].first
+                        #expect(contentLength != nil,
+                                "Content-Length header should be present")
+                        if let length = contentLength {
+                            #expect(Int(length) ?? 0 > 0,
+                                    "Content-Length should be > 0, got: '\(length)'")
+                        }
+                    })
+            }
+        }
+    }
+
 }
 
 
