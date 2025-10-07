@@ -64,8 +64,19 @@ extension API {
 extension SignedCollection: @retroactive RequestDecodable {}
 extension SignedCollection: @retroactive ResponseEncodable {}
 extension SignedCollection: @retroactive AsyncRequestDecodable {}
-extension SignedCollection: @retroactive AsyncResponseEncodable {}
 extension SignedCollection: @retroactive Content {}
+
+extension SignedCollection: @retroactive AsyncResponseEncodable {
+    public func encodeResponse(for request: Request) async throws -> Response {
+        let res = Response(status: .ok)
+        try res.content.encode(self)
+
+        // Set cache control headers to tell Cloudflare not to transform the data, and to cache it for 2 hours.
+        res.headers.replaceOrAdd(name: .cacheControl, value: "public, max-age=7200, s-maxage=7200, no-transform")
+
+        return res
+    }
+}
 
 
 extension API {
