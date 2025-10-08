@@ -961,14 +961,14 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /swift-server/swift-openapi-hummingbird/documentation:
-    url: ${base_url}/swift-server/swift-openapi-hummingbird/documentation
+  /hummingbird-project/swift-openapi-hummingbird/documentation:
+    url: ${base_url}/hummingbird-project/swift-openapi-hummingbird/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /swift-server/swift-openapi-vapor/documentation:
-    url: ${base_url}/swift-server/swift-openapi-vapor/documentation
+  /vapor/swift-openapi-vapor/documentation:
+    url: ${base_url}/vapor/swift-openapi-vapor/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
