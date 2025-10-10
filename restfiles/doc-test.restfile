@@ -985,8 +985,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /swift-server/swift-webauthn/documentation:
-    url: ${base_url}/swift-server/swift-webauthn/documentation
+  /brokenhandsio/swift-webauthn/documentation:
+    url: ${base_url}/brokenhandsio/swift-webauthn/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
