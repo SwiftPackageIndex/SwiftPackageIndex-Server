@@ -47,10 +47,6 @@
             }
         }
 
-        &.selected {
-            background-color: var(--package-list-selectedbackground);
-        }
-
         ul.metadata {
             display: inline-flex;
             gap: 10px;

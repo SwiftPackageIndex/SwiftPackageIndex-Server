@@ -120,9 +120,6 @@ extension SearchShow {
                 )),
                 .ul(
                     .id("package-list"),
-                    // Let the JavaScript know that keyboard navigation on this package list should
-                    // also include navigation into and out of the query field.
-                    .data(named: "focus-query-field", value: String(true)),
                     .group(
                         model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, matchingKeywords: model.matchingKeywords(packageKeywords: $0.keywords), repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt, hasDocs: $0.hasDocs) }
                     )
