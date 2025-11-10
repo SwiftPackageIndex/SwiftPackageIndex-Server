@@ -303,6 +303,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/16819233?v=4"
         ),
         .init(
+            login: "cesarbiods",
+            name: "Cesar D. Rincon",
+            avatarUrl: "https://avatars.githubusercontent.com/u/20908866?u=d0632e23e9873e45e7c4d31ab2e919632e8b0412&v=4"
+        ),
+        .init(
             login: "brokenhandsio",
             name: "Broken Hands",
             avatarUrl: "https://avatars.githubusercontent.com/u/23179490?v=4"
