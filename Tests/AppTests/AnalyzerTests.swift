@@ -1699,7 +1699,8 @@ private struct Command: CustomStringConvertible {
             case _ where command.description.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
             case _ where command.description.starts(with: #"git log -n1 --format=tformat:"%H\#(separator)%ct""#):
-                let ref = String(command.description.split(separator: " ").last!)
+                let trimmed = command.description.removingSuffix(" --")
+                let ref = String(trimmed.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
             case .swiftDumpPackage:

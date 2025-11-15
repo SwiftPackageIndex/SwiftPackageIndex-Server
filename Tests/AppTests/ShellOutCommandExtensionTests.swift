@@ -54,15 +54,15 @@ extension AllTests.ShellOutCommandExtensionTests {
         let dash = "-"
         #expect(
             ShellOutCommand
-                .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).description == #"git log -n1 --format=tformat:"%H\#(dash)%ct" 1.2.3"#
+                .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).description == #"git log -n1 --format=tformat:"%H\#(dash)%ct" 1.2.3 --"#
         )
         #expect(
             ShellOutCommand
-                .gitRevisionInfo(reference: .branch("foo"), separator: dash).description == #"git log -n1 --format=tformat:"%H\#(dash)%ct" foo"#
+                .gitRevisionInfo(reference: .branch("foo"), separator: dash).description == #"git log -n1 --format=tformat:"%H\#(dash)%ct" foo --"#
         )
         #expect(
             ShellOutCommand
-                .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).description == "git log -n1 --format=tformat:\"%H\(dash)%ct\" 'ba\nd'"
+                .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).description == "git log -n1 --format=tformat:\"%H\(dash)%ct\" 'ba\nd' --"
         )
     }
 
@@ -79,7 +79,7 @@ extension AllTests.ShellOutCommandExtensionTests {
             ShellOutCommand.gitReset(to: "foo ; rm *", hard: false).description == "git reset origin/'foo ; rm *'"
         )
         #expect(
-            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).description == #"git log -n1 --format=tformat:"%H-%ct" 'foo ; rm *'"#
+            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).description == #"git log -n1 --format=tformat:"%H-%ct" 'foo ; rm *' --"#
         )
         #expect(
             ShellOutCommand.gitShowDate("foo ; rm *").description == #"git show -s --format=%ct 'foo ; rm *'"#
