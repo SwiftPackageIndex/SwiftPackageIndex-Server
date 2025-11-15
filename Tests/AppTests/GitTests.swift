@@ -46,7 +46,7 @@ extension AllTests.GitTests {
     @Test func revInfo() async throws {
         try await withDependencies {
             $0.shell.run = { @Sendable cmd, _, _ in
-                if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1"# {
+                if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1 --"# {
                     return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
                 }
                 throw TestError.unknownCommand
@@ -63,7 +63,7 @@ extension AllTests.GitTests {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
         try await withDependencies {
             $0.shell.run = { @Sendable cmd, _, _ in
-                if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" v2.2.1"# {
+                if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" v2.2.1 --"# {
                     return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
                 }
                 throw TestError.unknownCommand
