@@ -36,7 +36,7 @@ jobs:
         run: sysctl -w vm.mmap_rnd_bits=28
 
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with: { 'fetch-depth': 0 }
 
       - name: Install unzip (for tests) and zstd (for faster caching)
@@ -167,7 +167,7 @@ jobs:
         run: sysctl -w vm.mmap_rnd_bits=28
 
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with: { 'fetch-depth': 0 }
 
       - name: Install zstd (for faster caching)
@@ -219,7 +219,7 @@ jobs:
   #         --health-timeout 5s
   #         --health-retries 5
   #   steps:
-  #     - uses: actions/checkout@v5
+  #     - uses: actions/checkout@v6
   #     - name: Select Xcode 11.4
   #       run: sudo xcode-select -s /Applications/Xcode_11.4.app
   #     - name: Log Xcode version
