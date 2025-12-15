@@ -45,7 +45,7 @@ jobs:
       - name: Restore .build
         if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
         id: "restore-cache"
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .build
           key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
@@ -56,7 +56,7 @@ jobs:
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .build
           key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
@@ -176,7 +176,7 @@ jobs:
       - name: Restore .build
         if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
         id: "restore-cache"
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .build
           key: "spi-release-build-${{ runner.os }}-${{ github.event.after }}"
@@ -191,7 +191,7 @@ jobs:
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .build
           key: "spi-release-build-${{ runner.os }}-${{ github.event.after }}"
