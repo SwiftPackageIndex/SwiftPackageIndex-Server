@@ -133,11 +133,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/738543?u=e9931d90bdd605eab906b85d0299ce636032374d&v=4"
         ),
         .init(
-            login: "alexito4",
-            name: "Alejandro Martínez",
-            avatarUrl: "https://avatars.githubusercontent.com/u/750912?v=4"
-        ),
-        .init(
             login: "brainray",
             name: "Raymund Beyer",
             avatarUrl: "https://avatars.githubusercontent.com/u/817177?v=4"
@@ -176,6 +171,11 @@ extension Array<Supporters.Community> {
             login: "WFT",
             name: "Will Field-Thompson",
             avatarUrl: "https://avatars.githubusercontent.com/u/1696960?u=480042020f9901e9459be75fc2e891081b6f0492&v=4"
+        ),
+        .init(
+            login: "davdroman",
+            name: "David Roman",
+            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=507cd76b3bff74e25fbe7f7ba029c0b7124ad306&v=4"
         ),
         .init(
             login: "dokun1",
@@ -226,11 +226,6 @@ extension Array<Supporters.Community> {
             login: "vsanthanam",
             name: "Varun Santhanam",
             avatarUrl: "https://avatars.githubusercontent.com/u/3914230?u=1437d22b9ada924bb0abd7c6e5e9323b53cade93&v=4"
-        ),
-        .init(
-            login: "Saklad5",
-            name: "Jeremy Saklad",
-            avatarUrl: "https://avatars.githubusercontent.com/u/4258823?v=4"
         ),
         .init(
             login: "objcio",
@@ -328,11 +323,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/28656495?u=6bd258345f9f19b6329ba3cdfe27b67b5b335482&v=4"
         ),
         .init(
-            login: "imjhk03",
-            name: "Joohee Kim",
-            avatarUrl: "https://avatars.githubusercontent.com/u/28954046?u=775af2ab5b835fd9f9489ce1717fed085f1d6e74&v=4"
-        ),
-        .init(
             login: "pointfreeco",
             name: "Point-Free",
             avatarUrl: "https://avatars.githubusercontent.com/u/29466629?v=4"
@@ -346,6 +336,11 @@ extension Array<Supporters.Community> {
             login: "alexandersandberg",
             name: "Alexander Sandberg",
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
+        ),
+        .init(
+            login: "alexey1312",
+            name: "Aleksei Kakoulin",
+            avatarUrl: "https://avatars.githubusercontent.com/u/36570774?u=37fb2d50402c4d5cf8c0af9129c3fb8a3bc3a7e6&v=4"
         ),
         .init(
             login: "dotgrid",
@@ -378,14 +373,9 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
         ),
         .init(
-            login: "AliMark71",
-            name: "Ali AlSalman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
-        ),
-        .init(
             login: "JamesCCoder",
             name: "James W",
-            avatarUrl: "https://avatars.githubusercontent.com/u/95759159?u=a8d3e58e726c92d248d69208529c0bb4fdd6818f&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/95759159?v=4"
         ),
         .init(
             login: "sparrowcode",
