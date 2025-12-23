@@ -327,6 +327,9 @@ class PublicPage {
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
+        return .empty
+
+        /*
         return .p(
             .class("announcement"),
             .text("Has it really been five years since Swift Package Index launched? Read our "),
@@ -336,6 +339,7 @@ class PublicPage {
             ),
             .text("!")
         )
+         */
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.
