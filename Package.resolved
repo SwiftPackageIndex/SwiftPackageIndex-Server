@@ -1,5 +1,5 @@
 {
-  "originHash" : "450a4f4aa3ad86420402e491c931da027398eff2f4597b5011b210fd21412182",
+  "originHash" : "a45231784dbbee91ff4bc166f2b7007a4d950de2dffa3138274bd82a5e3df04e",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "309a47b2b1d9b5e991f36961c983ecec72275be3",
-        "version" : "1.6.1"
+        "revision" : "c5d11a805e765f52ba34ec7284bd4fcd6ba68615",
+        "version" : "1.7.0"
       }
     },
     {
@@ -499,7 +499,7 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/finestructure/swift-package-manager.git",
+      "location" : "https://github.com/SwiftPackageIndex/swift-package-manager.git",
       "state" : {
         "branch" : "release/6.1",
         "revision" : "85e4b20acd9babda0b8428e16cd37de5b9412791"
@@ -573,8 +573,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-toolchain-sqlite",
       "state" : {
-        "revision" : "7c9bb9d012930a935d1ba6327459291d0b76414c",
-        "version" : "1.0.6"
+        "revision" : "b45b80b943e88db3cb8ddea798fa3fa9912375ff",
+        "version" : "1.0.7"
       }
     },
     {
