@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:2.1.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:2.1.0 AS build
 
 # Set up a build area
 WORKDIR /build
@@ -28,18 +28,22 @@ WORKDIR /build
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./
-RUN swift package resolve --skip-update \
-"$([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)"
+RUN swift package resolve \
+    $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
+
 
 # Copy entire repo into container
 COPY . .
 
+RUN mkdir /staging
+
 # Build everything, with optimizations, with static linking, and using jemalloc
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
-RUN swift build -c release \
-                --enable-experimental-prebuilts \
-                --static-swift-stdlib \
-                -Xlinker -ljemalloc
+RUN --mount=type=cache,target=/build/.build \
+    swift build -c release \
+        --enable-experimental-prebuilts \
+        --static-swift-stdlib \
+        -Xlinker -ljemalloc
 
 # Switch to the staging area
 WORKDIR /staging
