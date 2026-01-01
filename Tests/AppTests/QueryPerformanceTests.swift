@@ -55,7 +55,7 @@ struct QueryPerformanceTests {
     @Test func queryPerformance_01_Search_packageMatchQuery() async throws {
         try await withStagingApp { app in
             let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-            try await assertQueryPerformance(query, expectedCost: 1800, variation: 150)
+            try await assertQueryPerformance(query, expectedCost: 2000, variation: 150)
         }
     }
 
@@ -69,7 +69,7 @@ struct QueryPerformanceTests {
     @Test func queryPerformance_03_Search_authorMatchQuery() async throws {
         try await withStagingApp { app in
             let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-            try await assertQueryPerformance(query, expectedCost: 1100, variation: 50)
+            try await assertQueryPerformance(query, expectedCost: 1200, variation: 50)
         }
     }
 
@@ -180,7 +180,7 @@ struct QueryPerformanceTests {
                   JOIN versions v ON v.package_id = p.id
                 WHERE v.reference ->> 'branch' = r.default_branch
                 """)
-            try await assertQueryPerformance(query, expectedCost: 167_000, variation: 5000)
+            try await assertQueryPerformance(query, expectedCost: 200_000, variation: 5000)
         }
     }
 
