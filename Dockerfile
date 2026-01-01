@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:2.1.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:2.1.0 AS build
 
 # Set up a build area
 WORKDIR /build
