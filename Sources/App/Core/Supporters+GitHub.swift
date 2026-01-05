@@ -153,11 +153,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/863283?v=4"
         ),
         .init(
-            login: "TimTr",
-            name: "Tim Triemstra",
-            avatarUrl: "https://avatars.githubusercontent.com/u/923721?u=862992293d005a514df60ae4ab50101336e2717e&v=4"
-        ),
-        .init(
             login: "JoshuaKaden",
             name: "Joshua Kaden",
             avatarUrl: "https://avatars.githubusercontent.com/u/1244926?v=4"
@@ -226,6 +221,11 @@ extension Array<Supporters.Community> {
             login: "vsanthanam",
             name: "Varun Santhanam",
             avatarUrl: "https://avatars.githubusercontent.com/u/3914230?u=1437d22b9ada924bb0abd7c6e5e9323b53cade93&v=4"
+        ),
+        .init(
+            login: "Saklad5",
+            name: "Jeremy Saklad",
+            avatarUrl: "https://avatars.githubusercontent.com/u/4258823?v=4"
         ),
         .init(
             login: "objcio",
@@ -336,11 +336,6 @@ extension Array<Supporters.Community> {
             login: "alexandersandberg",
             name: "Alexander Sandberg",
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
-        ),
-        .init(
-            login: "alexey1312",
-            name: "Aleksei Kakoulin",
-            avatarUrl: "https://avatars.githubusercontent.com/u/36570774?u=37fb2d50402c4d5cf8c0af9129c3fb8a3bc3a7e6&v=4"
         ),
         .init(
             login: "dotgrid",
