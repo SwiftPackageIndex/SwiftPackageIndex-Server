@@ -919,8 +919,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /swift-server-community/APNSwift/documentation:
-    url: ${base_url}/swift-server-community/APNSwift/documentation
+  /kylebrowning/APNSwift/documentation:
+    url: ${base_url}/kylebrowning/APNSwift/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
