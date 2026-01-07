@@ -28,7 +28,7 @@ else
 endif
 
 build:
-	swift build --enable-experimental-prebuilts
+	swift build --disable-automatic-resolution --enable-experimental-prebuilts
 
 run:
 	swift run
@@ -36,12 +36,14 @@ run:
 build-tests: xcbeautify
 	set -o pipefail \
 	&& swift build --build-tests \
+	--disable-automatic-resolution \
 	--enable-experimental-prebuilts \
 	2>&1 | xcbeautify --renderer github-actions
 
 run-tests: xcbeautify
 	set -o pipefail \
 	&& swift test --skip-build \
+	--disable-automatic-resolution \
 	--enable-experimental-prebuilts \
 	2>&1 | xcbeautify --renderer github-actions
 
@@ -51,6 +53,7 @@ build-query-performance-tests:
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
 	   swift build --build-tests \
+	   --disable-automatic-resolution \
 	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | xcbeautify --renderer github-actions
@@ -59,6 +62,7 @@ run-query-performance-tests:
 	set -o pipefail \
 	&& env RUN_QUERY_PERFORMANCE_TESTS=true \
 	   swift test --skip-build \
+	   --disable-automatic-resolution \
 	   --enable-experimental-prebuilts \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
@@ -70,7 +74,7 @@ test-query-performance: build-query-performance-tests run-query-performance-test
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
-	swift test
+	swift test --disable-automatic-resolution
 
 xcbeautify:
 	command -v xcbeautify
