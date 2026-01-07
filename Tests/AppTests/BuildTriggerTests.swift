@@ -281,7 +281,7 @@ extension AllTests.BuildTriggerTests {
                                   configs:
                                   - documentation_targets: [t0]
                                 """)
-            #expect(manifest.docPairs == [.init(.macosSpm, .v6_1)])
+            #expect(manifest.docPairs == [.init(.macosSpm, .v6_2)])
         }
         do {
             let manifest = try SPIManifest.Manifest(yml: """
@@ -349,7 +349,7 @@ extension AllTests.BuildTriggerTests {
             let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(.macosSpm, $0) })
             #expect(res == [.init(versionId: versionId,
                                   buildPairs: expectedPairs,
-                                  docPairs: .init([.init(.macosSpm, .v6_1)]),
+                                  docPairs: .init([.init(.macosSpm, .v6_2)]),
                                   reference: .tag(1, 2, 3))!])
         }
     }
