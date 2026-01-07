@@ -345,8 +345,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-metrics-extras/documentation:
-    url: ${base_url}/apple/swift-metrics-extras/documentation
+  /apple/swift-system-metrics/documentation:
+    url: ${base_url}/apple/swift-system-metrics/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
