@@ -16,3 +16,7 @@ The source of all data indexed by this site is [this packages.json](https://gith
 This site uses [Plausible Analytics](https://plausible.io/) to gather anonymous usage data. We do not track visitors in any way and do not store a cookie or use local storage. You can read more about how Plausible analytics works in their [data policy](https://plausible.io/data-policy).
 
 This site routes all traffic through the Cloudflare CDN. For more information, see the [Cloudflare privacy policy](https://www.cloudflare.com/privacypolicy/).
+
+### Contacting Us
+
+If you have any questions about your privacy and this website, please email contact@swiftpackageindex.com.
