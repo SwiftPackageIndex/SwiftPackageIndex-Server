@@ -16,6 +16,6 @@
       "--network=spi_test"
     ],
     "containerEnv": {
-      "GITHUB_WORKFLOW": "1"
+      "RUNNING_IN_DEVCONTAINER": "1"
     }
 }

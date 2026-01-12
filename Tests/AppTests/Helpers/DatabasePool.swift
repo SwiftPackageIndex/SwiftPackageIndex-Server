@@ -50,7 +50,7 @@ actor DatabasePool {
 
         let runningDbs = try await runningDatabases()
 
-        if isRunningInCI() {
+        if !isDockerAvailable() {
             // In CI, running dbs are new and need to be set up
             try await withThrowingTaskGroup(of: Database.self) { group in
                 for db in runningDbs {
@@ -122,7 +122,7 @@ actor DatabasePool {
     }
 
     private func runningDatabases() async throws -> [Database] {
-        if isRunningInCI() {
+        if !isDockerAvailable() {
             // We don't have docker available in CI to probe for running dbs.
             // Instead, we have a hard-coded list of dbs we launch in the GH workflow
             // file and correspondingly, we hard-code their ports here.
@@ -184,7 +184,7 @@ extension DatabasePool.Database {
             // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
             // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
             // and to ensure the database resetting cannot impact any other network hosts.
-            if isRunningInCI() {
+            if !isDockerAvailable() {
                 self.host = "spi_test_\(index)"
                 self.port = 5432
             } else {
@@ -290,7 +290,7 @@ private func _withDatabase(_ databaseName: String,
 
 extension Environment {
     static var databasePoolSize: Int {
-        if isRunningInCI() {
+        if !isDockerAvailable() {
             8
         } else {
             Environment.get("DATABASEPOOL_SIZE").flatMap(Int.init) ?? 8
@@ -298,7 +298,7 @@ extension Environment {
     }
 
     static var databasePoolTearDown: Bool {
-        if isRunningInCI() {
+        if !isDockerAvailable() {
             false
         } else {
             Environment.get("DATABASEPOOL_TEARDOWN").flatMap(\.asBool) ?? true
