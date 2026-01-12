@@ -901,8 +901,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /stackotter/swift-bundler/documentation:
-    url: ${base_url}/stackotter/swift-bundler/documentation
+  /moreSwift/swift-bundler/documentation:
+    url: ${base_url}/moreSwift/swift-bundler/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
