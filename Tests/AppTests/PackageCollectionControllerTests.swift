@@ -27,7 +27,8 @@ extension AllTests.PackageCollectionControllerTests {
         .disabled(
             if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
             "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
-        )
+        ),
+        .disabled(if: isRunningInDevContainer(), "Skip test when running in dev container.")
     )
     func owner_request() async throws {
         try await withDependencies {
@@ -89,7 +90,8 @@ extension AllTests.PackageCollectionControllerTests {
         .disabled(
             if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
             "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
-        )
+        ),
+        .disabled(if: isRunningInDevContainer(), "Skip test when running in dev container.")
     )
     func custom_request() async throws {
         try await withDependencies {

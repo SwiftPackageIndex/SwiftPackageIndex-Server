@@ -14,5 +14,8 @@
     },
     "runArgs": [
       "--network=spi_test"
-    ]
+    ],
+    "containerEnv": {
+      "RUNNING_IN_DEVCONTAINER": "1"
+    }
 }

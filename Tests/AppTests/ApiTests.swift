@@ -845,8 +845,14 @@ extension AllTests.ApiTests {
         }
     }
 
-    @Test(.disabled(if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
-                    "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"))
+    @Test(
+        .disabled(
+            if: !isRunningInCI() && EnvironmentClient.liveValue
+                .collectionSigningPrivateKey() == nil,
+            "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
+        ),
+        .disabled(if: isRunningInDevContainer(), "Skip test when running in dev container.")
+    )
     func package_collections_owner() async throws {
         let event = App.ActorIsolated<TestEvent?>(nil)
         try await withDependencies {
@@ -916,8 +922,14 @@ extension AllTests.ApiTests {
         }
     }
 
-    @Test(.disabled(if: !isRunningInCI() && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil,
-                    "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"))
+    @Test(
+        .disabled(
+            if: !isRunningInCI() && EnvironmentClient.liveValue
+                .collectionSigningPrivateKey() == nil,
+            "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable"
+        ),
+        .disabled(if: isRunningInDevContainer(), "Skip test when running in dev container.")
+    )
     func package_collections_packageURLs() async throws {
         let refDate = Date(timeIntervalSince1970: 0)
         try await withDependencies {

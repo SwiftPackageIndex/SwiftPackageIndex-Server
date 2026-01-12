@@ -40,6 +40,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.8.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
+        // sas 2026-01-12: xctest-dynamic-overlay 1.7.0+ are causing hangs on Linux when running tests locally, and fail in CI
+        .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay.git", exact: "1.6.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(url: "https://github.com/soto-project/soto.git", from: "6.0.0"),
         .package(url: "https://github.com/vapor-community/soto-cognito-authentication.git", from: "4.0.0"),

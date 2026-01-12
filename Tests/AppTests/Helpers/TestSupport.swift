@@ -49,3 +49,17 @@ func withSPIApp(
 func isRunningInCI() -> Bool {
     ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
 }
+
+
+func isRunningInDevContainer() -> Bool {
+    ProcessInfo.processInfo.environment.keys.contains("RUNNING_IN_DEVCONTAINER")
+}
+
+
+func isDockerAvailable() -> Bool {
+    if isRunningInCI() || isRunningInDevContainer() {
+        false
+    } else {
+        true
+    }
+}
