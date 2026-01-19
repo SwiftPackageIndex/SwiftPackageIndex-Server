@@ -306,6 +306,8 @@ class PublicPage {
                     .h1(
                         .img(
                             .alt("The Swift Package Index logo."),
+                            .attribute(named: "width", value: "64"),
+                            .attribute(named: "height", value: "64"),
                             .src(SiteURL.images("logo.svg").relativeURL())
                         ),
                         "Swift Package Index"
