@@ -114,11 +114,11 @@ extension AllTests.AnalyzerTests {
                     // since 1970.
                     // It is important the tags aren't created at identical times for tags on the same
                     // package, or else we will collect multiple recent releases (as there is no "latest")
-                    if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha-0" }
-                    if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha-1" }
-                    if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha-2" }
-                    if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha-3" }
-                    if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha-4" }
+                    if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha0-0" }
+                    if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha1-1" }
+                    if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha2-2" }
+                    if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha3-3" }
+                    if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha4-4" }
 
                     if cmd == .gitCommitCount { return "12" }
                     if cmd == .gitFirstCommitDate { return "0" }
@@ -172,18 +172,18 @@ extension AllTests.AnalyzerTests {
                 #expect(pkg1.status == .ok)
                 #expect(pkg1.processingStage == .analysis)
                 #expect(pkg1.versions.map(\.packageName) == ["foo-1", "foo-1", "foo-1"])
-                let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-                #expect(sortedVersions1.map(\.reference.description) == ["main", "1.0.0", "1.1.1"])
-                #expect(sortedVersions1.map(\.latest) == [.defaultBranch, nil, .release])
-                #expect(sortedVersions1.map(\.releaseNotes) == [nil, "rel 1.0.0", nil])
+                let sortedVersions1 = pkg1.versions.sorted(by: { $0.commit < $1.commit })
+                #expect(sortedVersions1.map(\.reference.description) == ["1.0.0", "1.1.1", "main"])
+                #expect(sortedVersions1.map(\.latest) == [nil, .release, .defaultBranch])
+                #expect(sortedVersions1.map(\.releaseNotes) == ["rel 1.0.0", nil, nil])
 
                 let pkg2 = try await Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first()!
                 #expect(pkg2.status == .ok)
                 #expect(pkg2.processingStage == .analysis)
                 #expect(pkg2.versions.map(\.packageName) == ["foo-2", "foo-2", "foo-2"])
-                let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-                #expect(sortedVersions2.map(\.reference.description) == ["main", "2.0.0", "2.1.0"])
-                #expect(sortedVersions2.map(\.latest) == [.defaultBranch, nil, .release])
+                let sortedVersions2 = pkg2.versions.sorted(by: { $0.commit < $1.commit })
+                #expect(sortedVersions2.map(\.reference.description) == ["2.0.0", "2.1.0", "main"])
+                #expect(sortedVersions2.map(\.latest) == [nil, .release, .defaultBranch])
 
                 // validate products
                 // (2 packages with 3 versions with 1 product each = 6 products)
