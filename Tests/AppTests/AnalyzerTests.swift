@@ -398,7 +398,7 @@ extension AllTests.AnalyzerTests {
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
                 // assert packages have been updated
-                let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
+                let packages = try await Package.query(on: app.db).sort(\.$url).all()
                 packages.forEach { #expect($0.updatedAt! > lastUpdate)  }
                 #expect(packages.map(\.status) == [.noValidVersions, .ok])
             }
@@ -865,7 +865,7 @@ extension AllTests.AnalyzerTests {
             try await Analyze.createProducts(on: app.db, version: v, manifest: m)
 
             // validation
-            let products = try await Product.query(on: app.db).sort(\.$createdAt).all()
+            let products = try await Product.query(on: app.db).sort(\.$name).all()
             #expect(products.map(\.name) == ["p1", "p2"])
             #expect(products.map(\.targets) == [["t1", "t2"], ["t3", "t4"]])
             #expect(products.map(\.type) == [.library(.automatic), .executable])
@@ -888,7 +888,7 @@ extension AllTests.AnalyzerTests {
             try await Analyze.createTargets(on: app.db, version: v, manifest: m)
 
             // validation
-            let targets = try await Target.query(on: app.db).sort(\.$createdAt).all()
+            let targets = try await Target.query(on: app.db).sort(\.$name).all()
             #expect(targets.map(\.name) == ["t1", "t2"])
             #expect(targets.map(\.type) == [.regular, .executable])
         }
@@ -1178,10 +1178,10 @@ extension AllTests.AnalyzerTests {
             try await pkg.save(on: app.db)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             // existing "latest release" version
-            try await Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
+            try await Version(package: pkg, commit: "1", latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
                 .save(on: app.db)
             // new, not yet considered release version
-            try await Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
+            try await Version(package: pkg, commit: "2", packageName: "foo", reference: .tag(1, 3, 0))
                 .save(on: app.db)
             let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
@@ -1190,7 +1190,7 @@ extension AllTests.AnalyzerTests {
 
             // validate
             do {  // refetch package to ensure changes are persisted
-                let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+                let versions = versions.sorted(by: { $0.commit < $1.commit })
                 #expect(versions.map(\.reference.description) == ["1.2.3", "1.3.0"])
                 #expect(versions.map(\.latest) == [nil, .release])
             }
@@ -1246,9 +1246,9 @@ extension AllTests.AnalyzerTests {
             // validate
             do {
                 try await pkg.$versions.load(on: app.db)
-                let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-                #expect(versions.map(\.reference.description) == ["main", "1.2.3", "2.0.0-rc1"])
-                #expect(versions.map(\.latest) == [.defaultBranch, .release, .preRelease])
+                let versions = versions.sorted(by: { $0.commitDate < $1.commitDate })
+                #expect(versions.map(\.reference.description) == ["1.2.3", "2.0.0-rc1", "main"])
+                #expect(versions.map(\.latest) == [.release, .preRelease, .defaultBranch])
             }
         }
     }
