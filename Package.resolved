@@ -1,5 +1,5 @@
 {
-  "originHash" : "a84d30c39de3609ac3fe1396257f8a456b5e5ebc82c458e012b27382794f626a",
+  "originHash" : "a45231784dbbee91ff4bc166f2b7007a4d950de2dffa3138274bd82a5e3df04e",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -465,8 +465,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "233f61bc2cfbb22d0edeb2594da27a20d2ce514e",
-        "version" : "2.93.0"
+        "revision" : "5e72fc102906ebe75a3487595a653e6f43725552",
+        "version" : "2.94.0"
       }
     },
     {
@@ -636,8 +636,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b2ed9eabefe56202ee4939dd9fc46b6241c88317",
-        "version" : "1.6.1"
+        "revision" : "34e463e98ab8541c604af706c99bed7160f5ec70",
+        "version" : "1.8.1"
       }
     },
     {

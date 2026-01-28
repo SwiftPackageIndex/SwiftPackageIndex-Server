@@ -46,7 +46,11 @@ extension MetricsSystemClient: DependencyKey {
 
 extension MetricsSystemClient: TestDependencyKey {
     static var testValue: Self {
-        .init(prometheus: { unimplemented("testValue"); return .init() })
+        // 2026-01-28, sas: Normally, this should be
+        //   .init(prometheus: { unimplemented("testValue"); return .init() })
+        // However, this is currently causing an issue on Linux.
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3942
+        .init(prometheus: { .init() })
     }
 }
 

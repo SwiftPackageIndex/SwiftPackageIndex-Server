@@ -42,6 +42,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 """
             }
             $0.httpClient.mastodonPost = { @Sendable _ in }
+            $0.logger = .noop
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -215,6 +216,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 }
                 return ""
             }
+            $0.logger = .noop
         } operation: {
             try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db,
