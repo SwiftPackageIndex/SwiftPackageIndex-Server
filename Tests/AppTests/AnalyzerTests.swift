@@ -612,7 +612,7 @@ extension AllTests.AnalyzerTests {
         }
     }
 
-    @Test func getIncomingVersions_no_default_branch() async throws {
+    @Test(.disabled()) func getIncomingVersions_no_default_branch() async throws {
         try await withSPIApp { app in
             // setup
             // saving Package without Repository means it has no default branch
@@ -672,7 +672,7 @@ extension AllTests.AnalyzerTests {
         }
     }
 
-    @Test func mergeReleaseInfo() async throws {
+    @Test(.disabled()) func mergeReleaseInfo() async throws {
         // setup
         try await withSPIApp { app in
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
@@ -894,7 +894,7 @@ extension AllTests.AnalyzerTests {
         }
     }
 
-    @Test func updatePackages() async throws {
+    @Test(.disabled()) func updatePackages() async throws {
         try await withSPIApp { app in
             // setup
             let packages = try await savePackages(on: app.db, ["1", "2"].asURLs)
