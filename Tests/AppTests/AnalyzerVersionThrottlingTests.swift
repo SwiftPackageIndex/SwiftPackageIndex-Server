@@ -105,7 +105,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         }
     }
 
-    @Test(.disabled()) func throttle_branch_ref_change() async throws {
+    @Test func throttle_branch_ref_change() async throws {
         // Test behaviour when changing default branch names
         // Changed to return [new] to avoid branch renames causing 404s
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
@@ -257,7 +257,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
         }
     }
 
-    @Test(.disabled()) func progression() async throws {
+    @Test func progression() async throws {
         // Simulate progression through a time span of branch and tag updates
         // and checking the diffs are as expected.
         try await withSPIApp { app in
