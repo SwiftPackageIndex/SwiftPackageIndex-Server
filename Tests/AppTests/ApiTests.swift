@@ -32,7 +32,7 @@ extension AllTests.ApiTests {
         }
                            }
 
-    @Test(.disabled()) func search_noQuery() async throws {
+    @Test func search_noQuery() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
             $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
@@ -416,7 +416,7 @@ extension AllTests.ApiTests {
         }
     }
 
-    @Test(.disabled()) func post_buildReport_large() async throws {
+    @Test func post_buildReport_large() async throws {
         // Ensure we can handle large build reports
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2825
         try await withDependencies {
