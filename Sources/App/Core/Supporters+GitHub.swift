@@ -170,7 +170,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "davdroman",
             name: "David Roman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=507cd76b3bff74e25fbe7f7ba029c0b7124ad306&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=98a182cd791be4317fa61dc7ae775a8cac5e3212&v=4"
         ),
         .init(
             login: "dokun1",
@@ -278,11 +278,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/15193942?u=f789c13c13098bf6f7e96aca9116d6d8dbf1a73b&v=4"
         ),
         .init(
-            login: "manucodin",
-            name: "Manu Rodríguez",
-            avatarUrl: "https://avatars.githubusercontent.com/u/15260744?u=6fa009624c224a05eca9c118e952029da9869a8e&v=4"
-        ),
-        .init(
             login: "xavierLowmiller",
             name: "Xaver Lohmüller",
             avatarUrl: "https://avatars.githubusercontent.com/u/16212751?v=4"
@@ -350,7 +345,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "SwiftyJoeyy",
             name: "Joe Maghzal",
-            avatarUrl: "https://avatars.githubusercontent.com/u/69967145?u=476cafff997d6bc179934efed7a8aa339be51b08&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/69967145?u=3f827dcf9c87957bcdddadfec9c1bb26b552c4cc&v=4"
         ),
         .init(
             login: "Emerge-Tools",
