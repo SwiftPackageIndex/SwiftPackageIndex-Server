@@ -22,6 +22,7 @@ extension AllTests.LicenseTests {
     @Test func init_from_dto() throws {
         #expect(License(from: Github.Metadata.LicenseInfo(key: "mit")) == .mit)
         #expect(License(from: Github.Metadata.LicenseInfo(key: "agpl-3.0")) == .agpl_3_0)
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "0bsd")) == .bsd_0_clause)
         #expect(License(from: Github.Metadata.LicenseInfo(key: "other")) == .other)
         #expect(License(from: .none) == .none)
     }
