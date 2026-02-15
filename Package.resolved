@@ -1,5 +1,5 @@
 {
-  "originHash" : "aaf45ceddb02850c5d6086f7000395f1a9b823249c741db3bd80dcfa4085bd7c",
+  "originHash" : "9978544e6ca79b58ebaa3a632d4cb9b6307f41ee76cc674f8052af2dcd8b793d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -204,8 +204,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SemanticVersion.git",
       "state" : {
-        "revision" : "3b18d75a3cece558fb98e72d7dd5c83394d86d5b",
-        "version" : "0.5.1"
+        "branch" : "accept-leading-zeroes",
+        "revision" : "526b17968035addc23fd01ccaa74ff4f98f35f1f"
       }
     },
     {
