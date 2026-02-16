@@ -48,6 +48,10 @@ let package = Package(
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
         .package(url: "https://github.com/vapor/redis.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.102.0"),
+        // sas 2026-02-15: OpenCombine gets pulled in only on Linux and we declare it explicitly,
+        // so package resolve does not strip it when run on macOS. That would break CI,
+        // due to --disable-automatic-resolution.
+        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
