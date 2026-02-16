@@ -13,7 +13,6 @@
 # limitations under the License.
 
 version: 2
-enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -28,8 +27,6 @@ updates:
           - "*"
   - package-ecosystem: "swift"
     directory: "/"
-    allow:
-      - dependency-type: all
     commit-message:
       prefix: "Swift:"
     schedule:
