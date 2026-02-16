@@ -15,6 +15,7 @@
 enum License: String, Codable, Equatable, CaseIterable {
 
     // This is not an exhaustive list, but includes most commonly used license types
+    case bsd_0_clause = "0bsd"
     case afl_3_0 = "afl-3.0"
     case apache_2_0 = "apache-2.0"
     case artistic_2_0 = "artistic-2.0"
@@ -53,6 +54,7 @@ enum License: String, Codable, Equatable, CaseIterable {
 
     var fullName: String {
         switch self {
+            case .bsd_0_clause: return "BSD Zero Clause License"
             case .afl_3_0: return "Academic Free License v3.0"
             case .apache_2_0: return "Apache License 2.0"
             case .artistic_2_0: return "Artistic License 2.0"
@@ -92,6 +94,7 @@ enum License: String, Codable, Equatable, CaseIterable {
 
     var shortName: String {
         switch self {
+            case .bsd_0_clause: return "0BSD"
             case .afl_3_0: return "AFL 3.0"
             case .apache_2_0: return "Apache 2.0"
             case .artistic_2_0: return "Artistic 2.0"
