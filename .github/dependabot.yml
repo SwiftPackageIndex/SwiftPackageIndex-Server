@@ -27,6 +27,8 @@ updates:
           - "*"
   - package-ecosystem: "swift"
     directory: "/"
+    allow:
+      - dependency-type: all
     commit-message:
       prefix: "Swift:"
     schedule:
