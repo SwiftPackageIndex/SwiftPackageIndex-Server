@@ -333,11 +333,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
-            login: "sliemeobn",
-            name: "Simon Leeb",
-            avatarUrl: "https://avatars.githubusercontent.com/u/52261246?u=d04df57adcd86042fc67e40a03144cd3929ecc54&v=4"
-        ),
-        .init(
             login: "mattesmohr",
             name: "Mattes Mohr",
             avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
