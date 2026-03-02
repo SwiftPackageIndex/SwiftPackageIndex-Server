@@ -862,6 +862,90 @@ extension AllTests.PackageController_routesTests {
         }
     }
 
+    @Test func referenceIndex_withDocumentation() async throws {
+        try await withSPIApp { app in
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
+            .save(on: app.db)
+
+            // MUT
+            try await app.testing().test(.GET, "/owner/package/main") { res async in
+                #expect(res.status == .ok)
+                let body = res.body.asString()
+                #expect(body.contains("href=\"/owner/package/main/documentation/target\""))
+                #expect(body.contains("href=\"/owner/package\""))
+            }
+        }
+    }
+
+    @Test func referenceIndex_withoutDocumentation() async throws {
+        try await withSPIApp { app in
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
+            .save(on: app.db)
+
+            // MUT
+            try await app.testing().test(.GET, "/owner/package/main") { res async in
+                #expect(res.status == .ok)
+                let body = res.body.asString()
+                #expect(!body.contains("documentation"))
+                #expect(body.contains("href=\"/owner/package\""))
+            }
+        }
+    }
+
+    @Test func referenceIndex_tagReference() async throws {
+        try await withSPIApp { app in
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
+            .save(on: app.db)
+
+            // MUT
+            try await app.testing().test(.GET, "/owner/package/1.0.0") { res async in
+                #expect(res.status == .ok)
+                let body = res.body.asString()
+                #expect(body.contains("href=\"/owner/package/1.0.0/documentation/target\""))
+                #expect(body.contains("href=\"/owner/package\""))
+            }
+        }
+    }
+
+    @Test func referenceIndex_nonExistentPackage() async throws {
+        try await withSPIApp { app in
+            // MUT - no setup, the package doesn't exist
+            try await app.testing().test(.GET, "/nonexistent/package/main") { res async in
+                #expect(res.status == .notFound)
+            }
+        }
+    }
+
     @Test func documentationRoot_notFound() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }

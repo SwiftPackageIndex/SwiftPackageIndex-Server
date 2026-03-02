@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Dependencies
+import Plot
 import Vapor
 
 
@@ -31,6 +32,33 @@ func docRoutes(_ app: Application) throws {
     }
     app.get(":owner", ":repository", ":reference", "documentation") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
+    }
+    app.get(":owner", ":repository", ":reference") { req -> HTML in
+        guard let owner = req.parameters.get("owner"),
+              let repository = req.parameters.get("repository"),
+              let reference = req.parameters.get("reference")
+        else { throw Abort(.badRequest) }
+
+        // Verify the package exists (throws 404 if not)
+        _ = try await Joined<Package, Repository>.query(on: req.db, owner: owner, repository: repository)
+
+        let docTarget = try await DocumentationTarget.query(
+            on: req.db, owner: owner, repository: repository,
+            docVersion: .reference(reference)
+        )
+        let documentationURL = docTarget.map {
+            SiteURL.relativeURL(owner: owner, repository: repository,
+                                documentation: $0, fragment: .documentation)
+        }
+        let packageURL = SiteURL.package(.value(owner), .value(repository), nil).relativeURL()
+        let model = ReferenceIndex.Model(
+            owner: owner,
+            repository: repository,
+            reference: reference,
+            packageURL: packageURL,
+            documentationURL: documentationURL
+        )
+        return ReferenceIndex.View(path: req.url.path, model: model).document()
     }
 
     // Stable URLs with reference (real reference or ~)
