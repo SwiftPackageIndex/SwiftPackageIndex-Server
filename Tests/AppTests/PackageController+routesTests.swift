@@ -576,6 +576,12 @@ extension AllTests.PackageController_routesTests {
                 #expect(res.status == .seeOther)
                 #expect(res.headers.location == "/owner/package/1.0.0/tutorials/foo")
             }
+
+            // Test bare reference redirect (no /documentation suffix)
+            try await app.testing().test(.GET, "/owner/package/main") { res async in
+                #expect(res.status == .seeOther)
+                #expect(res.headers.location == "/owner/package/main/documentation/target")
+            }
         }
     }
 

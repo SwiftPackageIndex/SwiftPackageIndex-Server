@@ -32,6 +32,9 @@ func docRoutes(_ app: Application) throws {
     app.get(":owner", ":repository", ":reference", "documentation") { req -> Response in
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
     }
+    app.get(":owner", ":repository", ":reference") { req -> Response in
+        req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
+    }
 
     // Stable URLs with reference (real reference or ~)
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
