@@ -33,7 +33,7 @@ updates:
       prefix: "Swift:"
     schedule:
       interval: "daily"
-      time: "02:00"
+      time: "08:00"
     groups:
       swift-dependencies:
         patterns:
