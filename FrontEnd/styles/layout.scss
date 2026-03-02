@@ -21,8 +21,12 @@
     margin: 0 auto;
 }
 
-main > .inner {
-    padding: 20px 10px;
+main {
+    flex-grow: 1;
+
+    > .inner {
+        padding: 20px 10px;
+    }
 }
 
 .two-column {
