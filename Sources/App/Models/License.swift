@@ -30,6 +30,7 @@ enum License: String, Codable, Equatable, CaseIterable {
     case ecl_2_0 = "ecl-2.0"
     case epl_1_0 = "epl-1.0"
     case eupl_1_1 = "eupl-1.1"
+    case eupl_1_2 = "eupl-1.2"
     case agpl_3_0 = "agpl-3.0"
     case gpl
     case gpl_2_0 = "gpl-2.0"
@@ -68,6 +69,7 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .ecl_2_0: return "Educational Community License v2.0"
             case .epl_1_0: return "Eclipse Public License 1.0"
             case .eupl_1_1: return "European Union Public License 1.1"
+            case .eupl_1_2: return "European Union Public License 1.2"
             case .agpl_3_0: return "GNU Affero General Public License v3.0"
             case .gpl: return "GNU General Public License family"
             case .gpl_2_0: return "GNU General Public License v2.0"
@@ -107,6 +109,7 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .ecl_2_0: return "ECL 2.0"
             case .epl_1_0: return "EPL 1.0"
             case .eupl_1_1: return "EUPL 1.1"
+            case .eupl_1_2: return "EUPL 1.2"
             case .agpl_3_0: return "AGPL 3.0"
             case .gpl: return "GPL"
             case .gpl_2_0: return "GPL 2.0"
