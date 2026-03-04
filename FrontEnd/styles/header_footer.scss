@@ -107,6 +107,9 @@ header {
 // Footer specific.
 
 footer {
+    position: sticky;
+    top: 100vh;
+
     .inner {
         padding: 20px 10px;
     }

@@ -263,7 +263,6 @@ class PublicPage {
             main(),
             postMain(),
             footer(),
-            stagingBanner(),
             postBody(),
             frontEndDebugPanel()
         )
