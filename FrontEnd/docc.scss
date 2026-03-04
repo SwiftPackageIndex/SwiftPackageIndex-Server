@@ -16,7 +16,7 @@
 // Wrapped DocC documentation pages.
 // -------------------------------------------------------------------------
 
-$mobile-breakpoint: 740px;
+@use 'styles/variables' as *;
 
 header.spi,
 footer.spi {
