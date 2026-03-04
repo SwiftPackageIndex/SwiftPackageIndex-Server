@@ -12,11 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// -------------------------------------------------------------------------
-// Any styles shared between SPI and the SPI documentation pages.
-// -------------------------------------------------------------------------
-
-@use 'styles/colors';
-@use 'styles/utility';
-@use 'styles/debug_panel';
-@use 'styles/images';
+$mobile-breakpoint: 740px;
