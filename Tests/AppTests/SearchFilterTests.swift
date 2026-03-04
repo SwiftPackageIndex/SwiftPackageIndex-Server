@@ -189,7 +189,7 @@ extension AllTests.SearchFilterTests {
                                                                    value: "compatible"))
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
-                                              bindableValue: .array(["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]),
+                                              bindableValue: .array(["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]),
                                               displayValue: "compatible with the App Store"))
 
             // test view representation
@@ -198,7 +198,7 @@ extension AllTests.SearchFilterTests {
             // test sql representation
             #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
-            #expect(app.db.binds(filter.rightHandSide) == ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+            #expect(app.db.binds(filter.rightHandSide) == ["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"])
         }
     }
 
@@ -235,7 +235,7 @@ extension AllTests.SearchFilterTests {
         #expect(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "Compatible")).bindableValue == ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]
+                                  value: "Compatible")).bindableValue == ["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]
         )
     }
 
@@ -245,7 +245,7 @@ extension AllTests.SearchFilterTests {
                                                                    value: "incompatible"))
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
-                                              bindableValue: .array(["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"]),
+                                              bindableValue: .array(["agpl-3.0", "cecill-2.1", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "ms-rl", "osl-3.0"]),
                                               displayValue: "incompatible with the App Store"))
 
             // test view representation
@@ -254,7 +254,7 @@ extension AllTests.SearchFilterTests {
             // test sql representation
             #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
-            #expect(app.db.binds(filter.rightHandSide) == ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
+            #expect(app.db.binds(filter.rightHandSide) == ["agpl-3.0", "cecill-2.1", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "ms-rl", "osl-3.0"])
         }
     }
 
