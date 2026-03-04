@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/adam-fowler/big-num.git",
       "state" : {
-        "revision" : "5c5511ad06aeb2b97d0868f7394e14a624bfb1c7",
-        "version" : "2.0.2"
+        "revision" : "9059dcab8dd001b8143bc512b4477d079e97957f",
+        "version" : "2.0.3"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "7fa45c5a1f6e79338a26e18121210a87389f7a67",
-        "version" : "1.31.0"
+        "revision" : "ea1b42104a24cee93c9a9b2b2b8498598b3cfd81",
+        "version" : "1.32.0"
       }
     },
     {
