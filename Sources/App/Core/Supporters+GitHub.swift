@@ -20,7 +20,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "czottmann",
             name: "Carlo Zottmann",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1501?u=1f800f15e858ca6c21cedfeef1ce5838887ac14d&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/1501?u=8a7927537279a0ee70912e984d9bc74321f177ea&v=4"
         ),
         .init(
             login: "Abizern",
@@ -351,11 +351,6 @@ extension Array<Supporters.Community> {
             login: "TapEnvy-us-LLC",
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
-        ),
-        .init(
-            login: "AliMark71",
-            name: "Ali AlSalman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
         ),
         .init(
             login: "JamesCCoder",
