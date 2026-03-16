@@ -1,5 +1,5 @@
 {
-  "originHash" : "aaf45ceddb02850c5d6086f7000395f1a9b823249c741db3bd80dcfa4085bd7c",
+  "originHash" : "054e8ccec3d8bd782f1ff35457e590d91e520c14dd4506812c74587d0a61df06",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -116,15 +116,6 @@
       "state" : {
         "revision" : "13e7513b3ba0afa13967daf77af2fb4ad087306c",
         "version" : "4.13.5"
-      }
-    },
-    {
-      "identity" : "lrucache",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/LRUCache.git",
-      "state" : {
-        "revision" : "cb5b2bd0da83ad29c0bec762d39f41c8ad0eaf3e",
-        "version" : "1.2.1"
       }
     },
     {
@@ -609,8 +600,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "d86f244ed497d48012782e2f59c985a55e77b3f5",
-        "version" : "2.11.3"
+        "revision" : "dba183c96b2da4e4b80bb31b1e2e59cb9542b8fc",
+        "version" : "2.13.1"
       }
     },
     {
