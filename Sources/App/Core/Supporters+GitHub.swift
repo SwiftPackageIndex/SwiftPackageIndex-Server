@@ -213,11 +213,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/3351751?u=c27bedf869c3dbf75fe6e8857169d68b12e0678e&v=4"
         ),
         .init(
-            login: "florianpircher",
-            name: "Florian Pircher",
-            avatarUrl: "https://avatars.githubusercontent.com/u/3776198?u=84fc4e05bcbb253e5a8250cdd38f00fc8a98d2c6&v=4"
-        ),
-        .init(
             login: "vsanthanam",
             name: "Varun Santhanam",
             avatarUrl: "https://avatars.githubusercontent.com/u/3914230?u=1437d22b9ada924bb0abd7c6e5e9323b53cade93&v=4"
@@ -335,7 +330,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "mattesmohr",
             name: "Mattes Mohr",
-            avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=e2ff19cb8d9d225232d4d384f9131bd26726fea6&v=4"
         ),
         .init(
             login: "SwiftyJoeyy",
