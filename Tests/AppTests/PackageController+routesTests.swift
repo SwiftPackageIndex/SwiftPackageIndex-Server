@@ -1705,8 +1705,8 @@ private extension String {
                 <script>
                     var baseUrl = "\(baseURL)"
                 </script>
-                <script defer="defer" src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
-                <script defer="defer" src="\(baseURL)js/index.2871ffbd.js"></script>
+                <script defer src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
+                <script defer src="\(baseURL)js/index.2871ffbd.js"></script>
                 <link href="\(baseURL)css/index.ff036a9e.css" rel="stylesheet">
             </head>
 
