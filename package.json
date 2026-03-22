@@ -21,7 +21,7 @@
         "esbuild-sass-plugin": "^3.7.0",
         "postcss": "^8.5.8",
         "prettier": "^3.8.1",
-        "stylelint": "^17.4.0",
+        "stylelint": "^17.5.0",
         "stylelint-config-standard-scss": "^17.0.0",
         "stylelint-order": "^8.1.1",
         "stylelint-scss": "^7.0.0"
