@@ -126,7 +126,7 @@ struct DocumentationPageProcessor {
     var javascriptLinks: String {
         Plot.Node<HTML.HeadContext>.script(
             .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
-            .data(named: "turbolinks-track", value: "reload"),
+            .data(named: "turbo-track", value: "reload"),
             .defer()
         ).render()
     }

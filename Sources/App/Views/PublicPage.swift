@@ -48,6 +48,7 @@ class PublicPage {
             metaNoIndex(),
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
+            .meta(.name("turbo-refresh-method"), .content("replace")),
             .siteName("The Swift Package Index"),
             .url(canonicalURL()),
             .title(title()),
@@ -59,21 +60,21 @@ class PublicPage {
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
-                .data(named: "turbolinks-track", value: "reload")
+                .data(named: "turbo-track", value: "reload")
             ),
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
-                .data(named: "turbolinks-track", value: "reload")
+                .data(named: "turbo-track", value: "reload")
             ),
             .script(
                 .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
-                .data(named: "turbolinks-track", value: "reload"),
+                .data(named: "turbo-track", value: "reload"),
                 .defer()
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
-                .data(named: "turbolinks-track", value: "reload"),
+                .data(named: "turbo-track", value: "reload"),
                 .defer()
             ),
             analyticsHead(),

@@ -119,15 +119,6 @@
       }
     },
     {
-      "identity" : "lrucache",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/LRUCache.git",
-      "state" : {
-        "revision" : "cb5b2bd0da83ad29c0bec762d39f41c8ad0eaf3e",
-        "version" : "1.2.1"
-      }
-    },
-    {
       "identity" : "multipart-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/multipart-kit.git",
@@ -168,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "ea1b42104a24cee93c9a9b2b2b8498598b3cfd81",
-        "version" : "1.32.0"
+        "revision" : "a5c85d2bdc704f64aa2800a32e60ff697ec49a3f",
+        "version" : "1.32.1"
       }
     },
     {
@@ -276,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sql-kit.git",
       "state" : {
-        "revision" : "c0ea243ffeb8b5ff9e20a281e44003c6abb8896f",
-        "version" : "3.34.0"
+        "revision" : "46d1a644846c6c42890a06988eb85cd975c3afc6",
+        "version" : "3.35.0"
       }
     },
     {
@@ -294,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "c5d11a805e765f52ba34ec7284bd4fcd6ba68615",
-        "version" : "1.7.0"
+        "revision" : "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
+        "version" : "1.7.1"
       }
     },
     {
@@ -303,8 +294,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "810496cf121e525d660cd0ea89a758740476b85f",
-        "version" : "1.5.1"
+        "revision" : "9f542610331815e29cc3821d3b6f488db8715517",
+        "version" : "1.6.0"
       }
     },
     {
@@ -384,8 +375,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
       "state" : {
-        "revision" : "2a2a938798236b8fa0bc57c453ee9de9f9ec3ab0",
-        "version" : "1.4.1"
+        "revision" : "06c57924455064182d6b217f06ebc05d00cb2990",
+        "version" : "1.5.0"
       }
     },
     {
@@ -402,8 +393,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-distributed-tracing.git",
       "state" : {
-        "revision" : "e109d8b5308d0e05201d9a1dd1c475446a946a11",
-        "version" : "1.4.0"
+        "revision" : "dc4030184203ffafbb2ec614352487235d747fe0",
+        "version" : "1.4.1"
       }
     },
     {
@@ -465,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "e932d3c4d8f77433c8f7093b5ebcbf91463948a0",
-        "version" : "2.95.0"
+        "revision" : "bdf004b44f77c56fca752cd1cf243c802f8469c9",
+        "version" : "2.97.0"
       }
     },
     {
@@ -483,8 +474,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "b6571f3db40799df5a7fc0e92c399aa71c883edd",
-        "version" : "1.40.0"
+        "revision" : "6d8d596f0a9bfebb925733003731fe2d749b7e02",
+        "version" : "1.42.0"
       }
     },
     {
@@ -492,8 +483,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "173cc69a058623525a58ae6710e2f5727c663793",
-        "version" : "2.36.0"
+        "revision" : "df9c3406028e3297246e6e7081977a167318b692",
+        "version" : "2.36.1"
       }
     },
     {
@@ -564,8 +555,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "bf8d8c27f0f0c6d5e77bff0db76ab68f2050d15d",
-        "version" : "1.18.9"
+        "revision" : "05b6f05b55ff9e2dcdcc21ac78c6ba81ea624791",
+        "version" : "1.19.1"
       }
     },
     {
@@ -609,8 +600,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "d86f244ed497d48012782e2f59c985a55e77b3f5",
-        "version" : "2.11.3"
+        "revision" : "fd541c4b3fa7dcec2e7cfe049505b6e4382cd66b",
+        "version" : "2.13.2"
       }
     },
     {

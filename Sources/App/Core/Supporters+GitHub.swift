@@ -20,7 +20,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "czottmann",
             name: "Carlo Zottmann",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1501?u=1f800f15e858ca6c21cedfeef1ce5838887ac14d&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/1501?u=8a7927537279a0ee70912e984d9bc74321f177ea&v=4"
         ),
         .init(
             login: "Abizern",
@@ -31,11 +31,6 @@ extension Array<Supporters.Community> {
             login: "nh7a",
             name: "Naoki Hiroshima",
             avatarUrl: "https://avatars.githubusercontent.com/u/10003?v=4"
-        ),
-        .init(
-            login: "davelester",
-            name: "Dave Lester",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=ee5a7043674e46bcb2a7c4cf66a5020680e31b32&v=4"
         ),
         .init(
             login: "phatblat",
@@ -213,11 +208,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/3351751?u=c27bedf869c3dbf75fe6e8857169d68b12e0678e&v=4"
         ),
         .init(
-            login: "florianpircher",
-            name: "Florian Pircher",
-            avatarUrl: "https://avatars.githubusercontent.com/u/3776198?u=84fc4e05bcbb253e5a8250cdd38f00fc8a98d2c6&v=4"
-        ),
-        .init(
             login: "vsanthanam",
             name: "Varun Santhanam",
             avatarUrl: "https://avatars.githubusercontent.com/u/3914230?u=1437d22b9ada924bb0abd7c6e5e9323b53cade93&v=4"
@@ -335,7 +325,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "mattesmohr",
             name: "Mattes Mohr",
-            avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=e2ff19cb8d9d225232d4d384f9131bd26726fea6&v=4"
         ),
         .init(
             login: "SwiftyJoeyy",
@@ -351,11 +341,6 @@ extension Array<Supporters.Community> {
             login: "TapEnvy-us-LLC",
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
-        ),
-        .init(
-            login: "AliMark71",
-            name: "Ali AlSalman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
         ),
         .init(
             login: "JamesCCoder",
