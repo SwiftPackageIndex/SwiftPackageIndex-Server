@@ -113,6 +113,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/653000?u=42aa57fce8f6e0423320c2db2e299470ed19932a&v=4"
         ),
         .init(
+            login: "marcprux",
+            name: "Marc Prud'hommeaux",
+            avatarUrl: "https://avatars.githubusercontent.com/u/659086?u=addf6826cdcce92a410ff75b9c5823497d0caffe&v=4"
+        ),
+        .init(
             login: "tuparev",
             name: "Georg Tuparev",
             avatarUrl: "https://avatars.githubusercontent.com/u/693171?u=219818bce486228f3a7099db56ed078241b597c5&v=4"
@@ -165,7 +170,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "davdroman",
             name: "David Roman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=98a182cd791be4317fa61dc7ae775a8cac5e3212&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=26e20b4c449794f7d9830394819757661dda5944&v=4"
         ),
         .init(
             login: "dokun1",
