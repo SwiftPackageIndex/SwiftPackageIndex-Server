@@ -11,13 +11,13 @@
         "@hotwired/stimulus": "^3.2.1",
         "@hotwired/turbo": "^8.0.23",
         "highlight.js": "^11.11.1",
-        "mermaid": "^11.13.0",
+        "mermaid": "^11.14.0",
         "normalize.css": "^8.0.1",
         "vega": "^6.2.0",
         "vega-tooltip": "^1.1.0"
     },
     "devDependencies": {
-        "esbuild": "^0.27.4",
+        "esbuild": "^0.28.0",
         "esbuild-sass-plugin": "^3.7.0",
         "postcss": "^8.5.8",
         "prettier": "^3.8.1",
