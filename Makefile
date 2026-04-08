@@ -47,7 +47,8 @@ run-tests: xcbeautify
 	--enable-experimental-prebuilts \
 	2>&1 | xcbeautify --renderer github-actions
 
-test: build-tests run-tests
+test:
+	swift test
 
 build-query-performance-tests:
 	set -o pipefail \
