@@ -17,7 +17,8 @@ extension SwiftVersion: BuildResultPresentable {
     var longDisplayName: String { "Swift \(displayName)" }
     var note: String? {
         switch self {
-            case .v6_2: return nil
+                // Use this to add a "beta" note to a Swift version
+                // case .v6_3: return "beta"
             default: return nil
         }
     }
