@@ -42,27 +42,8 @@ jobs:
       - name: Install unzip (for tests) and zstd (for faster caching)
         run: apt-get update && apt-get install -y unzip zstd
 
-      - name: Restore .build
-        if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
-        id: "restore-cache"
-        uses: actions/cache/restore@v5
-        with:
-          path: .build
-          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
-          restore-keys: "spi-debug-build-${{ runner.os }}-"
-
-      - name: Build tests
-        run: cp .env.testing.template .env.testing && make build-tests
-
-      - name: Cache .build
-        if: steps.restore-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: .build
-          key: "spi-debug-build-${{ runner.os }}-${{ github.event.after }}"
-
       - name: Run tests
-        run: cp .env.testing.template .env.testing && make run-tests
+        run: cp .env.testing.template .env.testing && swift test
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           
