@@ -271,30 +271,66 @@ enum Ingestion {
             throw Github.Error.requestFailed(.internalServerError)
         }
 
-        // Need to pull in github functions individually, because otherwise the `async let` will trigger a
-        // concurrency error if github gets used more than once:
-        //   Sending 'github' into async let risks causing data races between async let uses and local uses
-        @Dependency(\.github.fetchMetadata) var fetchMetadata
-        @Dependency(\.github.fetchLicense) var fetchLicense
-        @Dependency(\.github.fetchReadme) var fetchReadme
-
-        async let metadata = try await fetchMetadata(owner, repository)
-        async let license = await fetchLicense(owner, repository)
-        async let readme = await fetchReadme(owner, repository)
-
+        // 2026-04-08, sas: revert this back to `async let` instead of `withThrowingTaskGroup` when a fix for https://github.com/swiftlang/swift/issues/75501 is available.
         do {
-            return try await (metadata, license, readme)
+            enum FetchResult: Sendable {
+                case metadata(Github.Metadata)
+                case license(Github.License?)
+                case readme(Github.Readme?)
+            }
+
+            let results = try await withThrowingTaskGroup(of: FetchResult.self) { group in
+                group.addTask {
+                    @Dependency(\.github.fetchMetadata) var fetchMetadata
+                    return .metadata(try await fetchMetadata(owner, repository))
+                }
+                group.addTask {
+                    @Dependency(\.github.fetchLicense) var fetchLicense
+                    return .license(await fetchLicense(owner, repository))
+                }
+                group.addTask {
+                    @Dependency(\.github.fetchReadme) var fetchReadme
+                    return .readme(await fetchReadme(owner, repository))
+                }
+
+                var results = [FetchResult]()
+                for try await result in group {
+                    results.append(result)
+                }
+                return results
+            }
+
+            var metadata: Github.Metadata?
+            var license: Github.License?
+            var readme: Github.Readme?
+            for res in results {
+                switch res {
+                    case .metadata(let data):
+                        metadata = data
+                    case .license(let data):
+                        license = data
+                    case .readme(let data):
+                        readme = data
+                }
+            }
+
+            guard let metadata = metadata else {
+                struct MetadataIsNil: Swift.Error { }
+                throw Github.Error.unexpectedError(MetadataIsNil())
+            }
+
+            return (metadata, license, readme)
         } catch let error as Github.Error {
             throw error
         } catch {
             // This whole do { ... } catch { ... } should be unnecessary - it's a workaround for
             // https://github.com/swiftlang/swift/issues/76169
-            assert(false, "Unexpected error type: \(type(of: error))")
-            // We need to throw _something_ here (we should never hit this codepath though)
+                assert(false, "Unexpected error type: \(type(of: error))")
+                // We need to throw _something_ here (we should never hit this codepath though)
             throw Github.Error.unexpectedError(error)
-            // We could theoretically avoid this whole second catch and just do
-            //   error as! GithubError
-            // but let's play it safe and not risk a server crash, unlikely as it may be.
+                // We could theoretically avoid this whole second catch and just do
+                //   error as! GithubError
+                // but let's play it safe and not risk a server crash, unlikely as it may be.
         }
     }
 
