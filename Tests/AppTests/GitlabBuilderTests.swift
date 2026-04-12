@@ -133,7 +133,7 @@ extension AllTests.GitlabBuilderTests {
             $0.environment.gitlabApiToken = { "api token" }
             $0.httpClient.get = { @Sendable url, _ in
                 #expect(
-                    url == "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page.value)&per_page=20"
+                    url == "https://gitlab.com/api/v4/projects/19564054/jobs?scope=pending&page=\(page.value)&per_page=20"
                 )
                 let pending = #"{"id": 1, "status": "pending"}"#
                 defer { page.increment() }
