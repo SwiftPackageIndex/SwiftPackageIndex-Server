@@ -197,9 +197,9 @@ func triggerBuilds(on database: Database,
     async let pendingJobsTask = getStatusCount(.pending)
     async let runningJobsTask = getStatusCount(.running)
     let pendingJobs = try await pendingJobsTask
-    // 2026-04-10 sas: default running job count to (current) maximum to mitigate 500s from Gitlab API.
+    // 2026-04-10 sas: default running job count to 0 to mitigate 500s from Gitlab API.
     // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024 for details.
-    let runningJobs = (try? await runningJobsTask) ?? 20
+    let runningJobs = (try? await runningJobsTask) ?? 0
 
     AppMetrics.buildPendingJobsCount?.set(pendingJobs)
     AppMetrics.buildRunningJobsCount?.set(runningJobs)

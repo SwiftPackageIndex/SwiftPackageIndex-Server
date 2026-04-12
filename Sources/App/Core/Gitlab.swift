@@ -152,19 +152,18 @@ extension Gitlab.Builder {
     }
 
     // periphery:ignore
-    struct Pipeline: Decodable {
+    struct Job: Decodable {
         var id: Int
-        var status: Status
     }
 
-    // https://docs.gitlab.com/ee/api/pipelines.html
-    static func fetchPipelines(status: Status,
-                               page: Int,
-                               pageSize: Int = 20) async throws -> [Pipeline] {
+    // https://docs.gitlab.com/ee/api/jobs.html
+    static func fetchJobs(status: Status,
+                          page: Int,
+                          pageSize: Int = 20) async throws -> [Job] {
         @Dependency(\.environment) var environment
         @Dependency(\.httpClient) var httpClient
         guard let apiToken = environment.gitlabApiToken() else { throw Gitlab.Error.missingToken }
-        let url = "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)"
+        let url = "\(projectURL)/jobs?scope=\(status)&page=\(page)&per_page=\(pageSize)"
 
         let response = try await httpClient.get(url: url, headers: .bearer(apiToken))
 
@@ -173,14 +172,14 @@ extension Gitlab.Builder {
         }
         guard let body = response.body else { throw Gitlab.Error.noBody }
 
-        return try Gitlab.decoder.decode([Pipeline].self, from: body)
+        return try Gitlab.decoder.decode([Job].self, from: body)
     }
 
     static func getStatusCount(status: Status,
                                page: Int = 1,
                                pageSize: Int = 20,
                                maxPageCount: Int = 5) async throws -> Int {
-        let count = try await fetchPipelines(status: status, page: page, pageSize: pageSize).count
+        let count = try await fetchJobs(status: status, page: page, pageSize: pageSize).count
         if count == pageSize && page < maxPageCount {
             let statusCount = try await getStatusCount(status: status,
                                                        page: page + 1,
