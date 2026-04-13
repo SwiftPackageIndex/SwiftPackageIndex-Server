@@ -35,8 +35,8 @@ extension BuildSystemClient: DependencyKey {
             getStatusCount: { status in
                 try await Gitlab.Builder.getStatusCount(status: status,
                                                         page: 1,
-                                                        pageSize: 100,
-                                                        maxPageCount: 5)
+                                                        pageSize: 20,
+                                                        maxPageCount: 10)
             },
             triggerBuild: { buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(buildId: buildId,
