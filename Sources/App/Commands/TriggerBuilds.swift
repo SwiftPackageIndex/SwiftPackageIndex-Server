@@ -134,8 +134,15 @@ func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async
             logger.info("Triggering builds (limit: \(limit)) ...")
 
             let withLatestSwiftVersion = environment.buildTriggerCandidatesWithLatestSwiftVersion
-            let candidates = try await fetchBuildCandidates(database,
+            let candidates: [Package.Id]
+            do {
+                candidates = try await fetchBuildCandidates(database,
                                                             withLatestSwiftVersion: withLatestSwiftVersion)
+            } catch {
+                logger.error("fetchBuildCandidates failed: \(error)")
+                throw error
+            }
+
             AppMetrics.buildCandidatesCount?.set(candidates.count)
 
             let limitedCandidates = Array(candidates.prefix(limit))
@@ -196,7 +203,13 @@ func triggerBuilds(on database: Database,
     let getStatusCount = buildSystem.getStatusCount
     async let pendingJobsTask = getStatusCount(.pending)
     async let runningJobsTask = getStatusCount(.running)
-    let pendingJobs = try await pendingJobsTask
+    let pendingJobs: Int
+    do {
+        pendingJobs = try await pendingJobsTask
+    } catch {
+        logger.error("pendingJobsTask failed: \(error)")
+        throw error
+    }
     // 2026-04-10 sas: default running job count to 0 to mitigate 500s from Gitlab API.
     // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024 for details.
     let runningJobs = (try? await runningJobsTask) ?? 0
