@@ -90,14 +90,14 @@ struct TriggerBuildsCommand: AsyncCommand {
         do {
             try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
-            logger.critical("\(error)")
+            logger.critical("triggerBuilds.run: \(error)")
         }
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "trigger-builds")
         } catch {
-            logger.warning("\(error)")
+            logger.warning("triggerBuilds.run: \(error)")
         }
     }
 
@@ -201,6 +201,8 @@ func triggerBuilds(on database: Database,
     // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024 for details.
     let runningJobs = (try? await runningJobsTask) ?? 0
 
+    logger.info("Jobs pending: \(pendingJobs), running: \(runningJobs)")
+
     AppMetrics.buildPendingJobsCount?.set(pendingJobs)
     AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
@@ -235,7 +237,12 @@ func triggerBuilds(on database: Database,
                 let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
-                try await triggerBuildsUnchecked(on: database, triggers: triggers)
+                do {
+                    try await triggerBuildsUnchecked(on: database, triggers: triggers)
+                } catch {
+                    logger.error("triggerBuildsUnchecked failed: \(error)")
+                    throw error
+                }
             }
         }
     }
