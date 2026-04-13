@@ -90,14 +90,14 @@ struct TriggerBuildsCommand: AsyncCommand {
         do {
             try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
-            logger.critical("\(error)")
+            logger.critical("triggerBuilds.run: \(error)")
         }
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "trigger-builds")
         } catch {
-            logger.warning("\(error)")
+            logger.warning("triggerBuilds.run: \(error)")
         }
     }
 
@@ -235,7 +235,12 @@ func triggerBuilds(on database: Database,
                 let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
-                try await triggerBuildsUnchecked(on: database, triggers: triggers)
+                do {
+                    try await triggerBuildsUnchecked(on: database, triggers: triggers)
+                } catch {
+                    logger.error("triggerBuildsUnchecked failed: \(error)")
+                    throw error
+                }
             }
         }
     }

@@ -181,11 +181,17 @@ extension Gitlab.Builder {
                                maxPageCount: Int = 5) async throws -> Int {
         let count = try await fetchJobs(status: status, page: page, pageSize: pageSize).count
         if count == pageSize && page < maxPageCount {
-            let statusCount = try await getStatusCount(status: status,
-                                                       page: page + 1,
-                                                       pageSize: pageSize,
-                                                       maxPageCount: maxPageCount)
-            return count + statusCount
+            do {
+                let statusCount = try await getStatusCount(status: status,
+                                                           page: page + 1,
+                                                           pageSize: pageSize,
+                                                           maxPageCount: maxPageCount)
+                return count + statusCount
+            } catch {
+                @Dependency(\.logger) var logger
+                logger.error("Gitlab.Builder.getStatusCount failed: \(error)")
+                throw error
+            }
         } else {
             return count
         }
