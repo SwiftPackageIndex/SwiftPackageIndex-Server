@@ -201,6 +201,8 @@ func triggerBuilds(on database: Database,
     // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024 for details.
     let runningJobs = (try? await runningJobsTask) ?? 0
 
+    logger.info("Jobs pending: \(pendingJobs), running: \(runningJobs)")
+
     AppMetrics.buildPendingJobsCount?.set(pendingJobs)
     AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
