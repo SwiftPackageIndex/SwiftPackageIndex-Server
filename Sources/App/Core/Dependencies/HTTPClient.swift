@@ -41,10 +41,10 @@ extension HTTPClient: DependencyKey {
             },
             post: { url, headers, body in
                 let req = try Request(url: url, method: .POST, headers: headers, body: body.map({.data($0)}))
-                return try await shared.execute(request: req).get()
+                return try await Vapor.HTTPClient.shared.execute(request: req).get()
             },
             fetchDocumentation: { url in
-                try await shared.get(url: url.string).get()
+                try await Vapor.HTTPClient.shared.get(url: url.string).get()
             },
             fetchHTTPStatusCode: { url in
                 var config = Vapor.HTTPClient.Configuration()
