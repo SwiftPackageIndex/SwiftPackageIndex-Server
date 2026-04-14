@@ -37,14 +37,14 @@ extension HTTPClient: DependencyKey {
         .init(
             get: { url, headers in
                 let req = try Request(url: url, method: .GET, headers: headers)
-                return try await Vapor.HTTPClient.shared.execute(request: req).get()
+                return try await shared.execute(request: req).get()
             },
             post: { url, headers, body in
                 let req = try Request(url: url, method: .POST, headers: headers, body: body.map({.data($0)}))
-                return try await Vapor.HTTPClient.shared.execute(request: req).get()
+                return try await shared.execute(request: req).get()
             },
             fetchDocumentation: { url in
-                try await Vapor.HTTPClient.shared.get(url: url.string).get()
+                try await shared.get(url: url.string).get()
             },
             fetchHTTPStatusCode: { url in
                 var config = Vapor.HTTPClient.Configuration()
@@ -71,6 +71,8 @@ extension HTTPClient: DependencyKey {
     func post(url: String, body: Data?) async throws -> Response {
         try await post(url: url, headers: .init(), body: body)
     }
+
+    private static var shared: Vapor.HTTPClient { globallySharedHTTPClient }
 }
 
 
@@ -85,6 +87,21 @@ extension DependencyValues {
         set { self[HTTPClient.self] = newValue }
     }
 }
+
+
+private let globallySharedHTTPClient: Vapor.HTTPClient = {
+    var conf = Vapor.HTTPClient.Configuration.singletonConfiguration
+    // 2026-04-14 sas: Increasing limit from default `.enabled(limit: .ratio(25))`, which caused requests to fail in the past.
+    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024#issuecomment-4237684071
+    conf.decompression = .enabled(limit: .size(Constants.httpDecompressionSizeLimit))
+
+    let httpClient = Vapor.HTTPClient(
+        eventLoopGroup: Vapor.HTTPClient.defaultEventLoopGroup,
+        configuration: conf,
+        backgroundActivityLogger: .noop
+    )
+    return httpClient
+}()
 
 
 #if DEBUG

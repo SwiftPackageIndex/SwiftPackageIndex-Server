@@ -49,4 +49,8 @@ enum Constants {
 
     // package
     static let maxKeywordPackageCollectionCount = 300
+
+    // HTTP client
+    // 2026-04-14 sas: For details, see: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4024#issuecomment-4237684071
+    static let httpDecompressionSizeLimit = 1_000_000
 }
