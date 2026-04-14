@@ -40,12 +40,12 @@ extension DependencyValues {
 }
 
 
-#if DEBUG
 extension Logger {
     static var noop: Self { .init(label: "noop") { _ in SwiftLogNoOpLogHandler() } }
 
+#if DEBUG
     static func testLogger(_ handler: LogHandler) -> Self {
         .init(label: "test", factory: { _ in handler })
     }
-}
 #endif
+}
