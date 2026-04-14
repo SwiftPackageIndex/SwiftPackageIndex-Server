@@ -22,9 +22,9 @@ import Vapor
 enum Alerting {
     static let defaultLimit = 2000
     static let defaultTimePeriod = 2
-    // CHECK_MON_001 has to run on a longer time period, because it currently takes ~4h to visit every package
+    // CHECK_MON_001 has to run on a longer time period, because it currently takes ~8h to visit every package
     // during analysis. With a window shorter than that, they query will always report errors.
-    static let checkMon001TimePeriod: TimeAmount = .hours(6)
+    static let checkMon001TimePeriod: TimeAmount = .hours(9)
 
     struct Command: AsyncCommand {
         var help: String { "Application level alerting" }
