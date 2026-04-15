@@ -466,8 +466,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /argmaxinc/WhisperKit/documentation:
-    url: ${base_url}/argmaxinc/WhisperKit/documentation
+  /argmaxinc/argmax-oss-swift/documentation:
+    url: ${base_url}/argmaxinc/argmax-oss-swift/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
