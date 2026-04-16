@@ -51,14 +51,13 @@ services:
       - app_backend
 
 
-  promtail:
-    # https://github.com/grafana/loki/releases
-    # (promtail is released in parallel with loki)
-    image: grafana/promtail:3.5.1
-    command: -config.file=/promtail.yml
+  alloy:
+    # https://github.com/grafana/alloy/releases
+    image: grafana/alloy:v1.15.1
+    command: /config.alloy
     configs:
-      - source: promtail_cfg
-        target: /promtail.yml
+      - source: alloy_cfg
+        target: /config.alloy
     volumes:
       - /var/lib/docker/containers:/var/log
     networks:
@@ -129,8 +128,8 @@ services:
 configs:
   loki_cfg:
     file: ./infrastructure/loki.yml
-  promtail_cfg:
-    file: ./infrastructure/promtail.yml
+  alloy_cfg:
+    file: ./infrastructure/config.alloy
   prometheus_cfg:
     file: ./infrastructure/prometheus.yml
 
