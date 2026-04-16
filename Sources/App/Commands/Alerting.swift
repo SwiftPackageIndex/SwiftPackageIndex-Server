@@ -275,8 +275,7 @@ extension [Alerting.BuildInfo] {
 
     func validateSuccessRateInRange() -> Alerting.Validation {
         let successRate = Double(filter { $0.status == .ok }.count) / Double(count)
-        // Success rate has been around 30% generally
-        if 0.15 <= successRate && successRate <= 0.45 {
+        if 0.15 <= successRate && successRate <= 0.85 {
             return .ok
         } else {
             let percentSuccessRate = (successRate * 1000).rounded() / 10

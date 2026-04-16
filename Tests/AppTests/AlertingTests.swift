@@ -117,12 +117,12 @@ extension AllTests.AlertingTests {
             #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 14.9% out of bounds"]))
         }
         do {
-            let okCount = 451
+            let okCount = 851
             let failedCount = 1000 - okCount
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 45.1% out of bounds"]))
+            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 85.1% out of bounds"]))
         }
     }
 
