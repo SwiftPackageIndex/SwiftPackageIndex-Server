@@ -54,7 +54,7 @@ services:
   alloy:
     # https://github.com/grafana/alloy/releases
     image: grafana/alloy:v1.15.1
-    command: /config.alloy
+    command: run /config.alloy
     configs:
       - source: alloy_cfg
         target: /config.alloy
