@@ -1,7 +1,6 @@
 {
   "cLanguageStandard" : null,
   "cxxLanguageStandard" : null,
-  "defaultLocalization" : null,
   "dependencies" : [
     {
       "sourceControl" : [
@@ -215,10 +214,7 @@
     }
   ],
   "toolsVersion" : {
-    "_version" : "5.9.0",
-    "experimentalFeatures" : [
-
-    ]
+    "_version" : "5.9.0"
   },
   "traits" : [
 
