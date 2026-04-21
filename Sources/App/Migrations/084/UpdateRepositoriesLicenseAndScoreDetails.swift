@@ -42,6 +42,8 @@ struct UpdateRepositoriesLicenseAndScoreDetails: AsyncMigration {
             SET score_details = jsonb_set(score_details::jsonb, '{licenseKind}', '"unknown"')
             WHERE score_details::jsonb->>'licenseKind' = 'other'
             """).run()
+
+        try await db.raw("REFRESH MATERIALIZED VIEW search").run()
     }
 
     func revert(on database: Database) async throws {
@@ -71,5 +73,7 @@ struct UpdateRepositoriesLicenseAndScoreDetails: AsyncMigration {
             SET score_details = jsonb_set(score_details::jsonb, '{licenseKind}', '"other"')
             WHERE score_details::jsonb->>'licenseKind' = 'unknown'
             """).run()
+
+        try await db.raw("REFRESH MATERIALIZED VIEW search").run()
     }
 }
