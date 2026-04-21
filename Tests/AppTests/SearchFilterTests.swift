@@ -263,6 +263,9 @@ extension AllTests.SearchFilterTests {
         try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "unknown"))
             #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["unknown"]),
+                                              displayValue: "unknown"))
 
             // test view representation
             #expect(filter.viewModel.description == "license is unknown")
