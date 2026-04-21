@@ -137,7 +137,7 @@ extension AllTests.SearchFilterTests {
                                                                         value: "1970-01-01"))
             #expect(filter.key == .lastActivity)
             #expect(filter.predicate == .init(operator: .equal,
-                                              bindableValue: .value("1970-01-01"),
+                                              bindableValue: .value("1970-01-01 00:00:00 +0000"),
                                               displayValue: "1 Jan 1970"))
 
             // test view representation
@@ -163,7 +163,7 @@ extension AllTests.SearchFilterTests {
                                                                       value: "1970-01-01"))
             #expect(filter.key == .lastCommit)
             #expect(filter.predicate == .init(operator: .equal,
-                                              bindableValue: .value("1970-01-01"),
+                                              bindableValue: .value("1970-01-01 00:00:00 +0000"),
                                               displayValue: "1 Jan 1970"))
 
             // test view representation
@@ -292,7 +292,7 @@ extension AllTests.SearchFilterTests {
                                                                     value: "ios"))
             #expect(filter.key == .platform)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("ios"),
+                                              bindableValue: .value("[App.Package.PlatformCompatibility.iOS]"),
                                               displayValue: "iOS"))
 
             // test view representation
@@ -404,7 +404,7 @@ extension AllTests.SearchFilterTests {
                                                                        value: "executable"))
             #expect(filter.key == .productType)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("executable"),
+                                              bindableValue: .value("[App.ProductTypeSearchFilter.ProductType.executable]"),
                                               displayValue: "Executable"))
 
             // test view representation
@@ -423,7 +423,7 @@ extension AllTests.SearchFilterTests {
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
             #expect(filter.key == .productType)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("macro"),
+                                              bindableValue: .value("[App.ProductTypeSearchFilter.ProductType.macro]"),
                                               displayValue: "Macro"))
 
             // test view representation
