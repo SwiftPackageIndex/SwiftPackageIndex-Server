@@ -510,9 +510,19 @@ extension App.SearchFilter.Predicate: Swift.Equatable {
 
 extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
     public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
-        renderGenericSQL(lhs.sqlBind) == renderGenericSQL(rhs.sqlBind)
+        switch (lhs, rhs) {
+            case (.value(let l), .value(let r)):
+                return "\(l)" == "\(r)"
+            case (.array(let l), .array(let r)):
+                return "\(l)" == "\(r)"
+            default:
+                return false
+        }
     }
+}
 
+
+extension App.SearchFilter.Predicate.BoundValue {
     var asPlatforms: [Package.PlatformCompatibility]? {
         switch self {
             case .value(let value):
@@ -522,14 +532,4 @@ extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
                 return nil
         }
     }
-}
-
-
-// This renderSQL helper uses a dummy SQLDatabase dialect defined in `TestDatabase`.
-// It should only be used in cases where app.db (which is using the PostgresDB dialect)
-// is not available and where the exact syntax of SQL details is not relevant.
-private func renderGenericSQL(_ query: SQLExpression) -> String {
-    var serializer = SQLSerializer(database: TestDatabase())
-    query.serialize(to: &serializer)
-    return serializer.sql
 }
