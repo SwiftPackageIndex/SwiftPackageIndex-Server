@@ -351,7 +351,7 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
         app.migrations.add(UpdateCustomCollectionAddKey())
     }
     do { // Migration 084 - Update licenses with `other` -> `unknown` and `compatible`/`incompatible` -> `known`
-        app.migrations.add(UpdateScoreDetailsLicenseKind())
+        app.migrations.add(UpdateRepositoriesLicenseAndScoreDetails())
     }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")

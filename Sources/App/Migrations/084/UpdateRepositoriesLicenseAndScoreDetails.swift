@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateScoreDetailsLicenseKind: AsyncMigration {
+struct UpdateRepositoriesLicenseAndScoreDetails: AsyncMigration {
     func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
