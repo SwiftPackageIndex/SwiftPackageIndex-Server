@@ -59,6 +59,8 @@ enum Score {
         switch candidate.licenseKind {
             case .known:
                 scoreBreakdown[.license] = 10
+            case .unknown:
+                scoreBreakdown[.license] = 5
             default: break;
         }
 

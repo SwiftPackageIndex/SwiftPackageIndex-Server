@@ -32,6 +32,16 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 20)
+        #expect(Score.computeBreakdown(.init(licenseKind: .unknown,
+                                             releaseCount: 0,
+                                             likeCount: 0,
+                                             isArchived: false,
+                                             numberOfDependencies: nil,
+                                             lastActivityAt: .t0.adding(days: -400),
+                                             hasDocumentation: false,
+                                             hasReadme: false,
+                                             numberOfContributors: 0,
+                                             hasTestTargets: false)).score == 25)
         #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 0,
                                              likeCount: 0,
