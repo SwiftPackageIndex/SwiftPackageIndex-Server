@@ -145,7 +145,7 @@ extension AllTests.WebpageSnapshotTests {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShow_document_open_source_license() throws {
+    @Test func PackageShow_document_known_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
@@ -154,18 +154,9 @@ extension AllTests.WebpageSnapshotTests {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShow_document_app_store_incompatible_license() throws {
+    @Test func PackageShow_document_unknown_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.license = .gpl_3_0
-        model.licenseUrl = "https://example.com/license.html"
-
-        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        assertSnapshot(of: page, as: .html)
-    }
-
-    @Test func PackageShow_document_other_license() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.license = .other
+        model.license = .unknown
         model.licenseUrl = "https://example.com/license.html"
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }

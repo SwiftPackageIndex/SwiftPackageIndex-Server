@@ -32,17 +32,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 20)
-        #expect(Score.computeBreakdown(.init(licenseKind: .incompatibleWithAppStore,
-                                             releaseCount: 0,
-                                             likeCount: 0,
-                                             isArchived: false,
-                                             numberOfDependencies: nil,
-                                             lastActivityAt: .t0.adding(days: -400),
-                                             hasDocumentation: false,
-                                             hasReadme: false,
-                                             numberOfContributors: 0,
-                                             hasTestTargets: false)).score == 23)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 0,
                                              likeCount: 0,
                                              isArchived: false,
@@ -52,7 +42,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 30)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 10,
                                              likeCount: 0,
                                              isArchived: false,
@@ -62,7 +52,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 40)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 10,
                                              likeCount: 50,
                                              isArchived: false,
@@ -72,7 +62,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 50)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 10,
                                              likeCount: 50,
                                              isArchived: true,
@@ -82,7 +72,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 30)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -92,7 +82,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 87)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -102,7 +92,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 89)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -112,7 +102,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 92)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -122,7 +112,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 92)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -132,7 +122,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 97)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -142,7 +132,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 102)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -152,7 +142,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 107)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -162,7 +152,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 122)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -172,7 +162,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 5,
                                              hasTestTargets: false)).score == 127)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -182,7 +172,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 20,
                                              hasTestTargets: false)).score == 132)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -192,7 +182,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: false)).score == 107)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,
@@ -202,7 +192,7 @@ extension AllTests.ScoreTests {
                                              hasReadme: false,
                                              numberOfContributors: 0,
                                              hasTestTargets: true)).score == 112)
-        #expect(Score.computeBreakdown(.init(licenseKind: .compatibleWithAppStore,
+        #expect(Score.computeBreakdown(.init(licenseKind: .known,
                                              releaseCount: 20,
                                              likeCount: 20_000,
                                              isArchived: false,

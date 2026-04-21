@@ -14,7 +14,6 @@ description: Frequently Asked Questions about the Swift Package Index
 - [What about the GitHub Package Registry?](#package-registry)
 - [How is the Swift language and platform support calculated?](#language-and-platforms)
 - [Can the Swift Package Index host my package's documentation?](#documentation)
-- [Why are certain licenses highlighted?](#licenses)
 - [Can I contribute to the Swift Package Index?](#contributing)
 - [Is there an API?](#api)
 - [Why are package versions missing?](#missing-versions)
@@ -90,36 +89,6 @@ The Swift Package Index build system can generate and host DocC documentation an
 
 ---
 
-<h3 id="licenses">Why are certain licenses highlighted?</h3>
-
-If a package's license shows with an orange or red exclamation mark icon, it is for one of three reasons:
-
-1. The package has no license.
-2. We have been unable to automatically detect the software license used by the package.
-3. The license chosen by the package authors may be incompatible with the App Store.
-
-#### No License
-
-If the package license is showing as "No License" with a red exclamation icon, we could not find _any_ license information in the package repository.
-
-Using a package that does not have a license presents a significant legal risk. Unlicensed code is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on using unlicensed code.
-
-If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license in your package's repository. The Swift Package Index will update license metadata a few hours after you add the license.
-
-#### Unknown License
-
-If the package license is showing as "Unknown License" with an orange exclamation icon, we have been unable to automatically detect a license in the package repository.
-
-There could be one of several reasons automatic detection failed. The package may use a commercial or closed-source license, or it could be that GitHub's license detection algorithm has failed. Before using a package with an unknown license, you should check the package repository for a `LICENSE` file and ensure you understand the terms that the package author has defined.
-
-If you are the author of a package showing with an unknown license and believe it should show a valid open-source license, please [see GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
-
-#### Incompatible license
-
-If the package license shows with an orange exclamation icon but does _not_ say "No License" or "Unknown License", then the package is using a license which may be incompatible with how the App Store works, such as a GPL-style license. If you are considering shipping software that includes a package licensed with one of these licenses to the App Store, you should be aware that using code licensed under one of these licences may present a legal risk.
-
----
-
 <h3 id="contributing">Can I contribute to the Swift Package Index?</h3>
 
 Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server), and we’d love it if you wanted to help us make it better. Please see the [guide to contributing in our README](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#contributing) for more information.
@@ -186,7 +155,7 @@ For example, a query of [`charts last_activity:>=2021-02-01`](https://swiftpacka
 
 #### Querying License values
 
-You can search for packages that have a license which is [compatible with the App Store](#licenses) by simply querying [`license:compatible`](https://swiftpackageindex.com/search?query=license%3Acompatible).
+You can search for packages that have a known license by querying [`license:known`](/search?query=license%3Aknown). You can also search for unknown licenses with [`license:unknown`](/search?query=license%3Aunknown), or packages where we could not find a license with [`license:none`](/search?query=license%3Anone).
 
 You can also specify a specific license you wish a package to have from one of the [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any package licensed under the LGPL 2.1.
 

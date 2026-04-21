@@ -1331,7 +1331,7 @@ extension AllTests.SearchTests {
 
             do {
                 // MUT
-                let res = try await Search.fetch(app.db, ["test", "license:compatible"], page: 1, pageSize: 20)
+                let res = try await Search.fetch(app.db, ["test", "license:known"], page: 1, pageSize: 20)
 
                 // validate
                 #expect(res.results.compactMap(\.packageResult?.repositoryName) == ["1"])

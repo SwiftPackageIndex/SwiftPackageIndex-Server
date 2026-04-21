@@ -35,7 +35,7 @@ extension Score.Details {
     static var mock: Self {
         @Dependency(\.date.now) var now
         return .init(
-            licenseKind: .compatibleWithAppStore,
+            licenseKind: .known,
             releaseCount: 10,
             likeCount: 300,
             isArchived: false,

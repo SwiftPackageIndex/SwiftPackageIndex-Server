@@ -105,18 +105,11 @@
             }
 
             li.license {
-                background-image: var(--image-osi);
+                background-image: var(--image-license);
 
-                &.warning {
-                    background-image: var(--image-warning);
-                }
-
-                &.error {
-                    background-image: var(--image-error);
-                }
-
-                .no-license {
+                &.no-license {
                     color: var(--red-text);
+                    background-image: var(--image-error);
                 }
             }
 

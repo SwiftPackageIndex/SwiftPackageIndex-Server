@@ -67,8 +67,8 @@ enum License: String, Codable, Equatable, CaseIterable {
     case zlib
 
     // These are special cases, not license types
-    case other // An unknown or unidentified license
-    case none // Actually unlicensed code!
+    case unknown // A license has been found but is either in a non-standard format or does not match a known license.
+    case none // No license was found, assumed to be without a license.
 
     var fullName: String {
         switch self {
@@ -123,8 +123,8 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .wtfpl: return "Do What The F**k You Want To Public License"
             case .zlib: return "zLib License"
 
-            case .other: return "Unknown or Unrecognised License"
-            case .none: return "No License"
+            case .unknown: return "Unknown or Unrecognised License"
+            case .none: return "No License Found"
         }
     }
 
@@ -181,49 +181,31 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .wtfpl: return "DWTFYWTPL"
             case .zlib: return "zLib"
 
-            case .other: return "Unknown license"
-            case .none: return "No license"
+            case .unknown: return "Unknown license"
+            case .none: return "No license found"
         }
     }
 
     var licenseKind: Kind {
         switch self {
-            case .other:
-                return .other
+            case .unknown:
+                return .unknown
             case .none:
                 return .none
-            case .agpl_3_0,
-                 .cecill_2_1,
-                 .cern_ohl_s_2_0,
-                 .cern_ohl_w_2_0,
-                 .eupl_1_1,
-                 .eupl_1_2,
-                 .gfdl_1_3,
-                 .gpl,
-                 .gpl_2_0,
-                 .gpl_3_0,
-                 .lgpl,
-                 .lgpl_2_1,
-                 .lgpl_3_0,
-                 .lppl_1_3c,
-                 .ms_rl,
-                 .osl_3_0: return .incompatibleWithAppStore
-            default: return .compatibleWithAppStore
+            default: return .known
         }
     }
 
     enum Kind: String, Codable {
         case none
-        case other
-        case incompatibleWithAppStore = "incompatible"
-        case compatibleWithAppStore = "compatible"
+        case unknown
+        case known
 
         var userFacingString: String {
             switch self {
             case .none: return "not defined"
-            case .other: return "unknown"
-            case .incompatibleWithAppStore: return "incompatible with the App Store"
-            case .compatibleWithAppStore: return "compatible with the App Store"
+            case .unknown: return "unknown"
+            case .known: return "known"
             }
         }
     }
@@ -232,7 +214,7 @@ enum License: String, Codable, Equatable, CaseIterable {
 extension License {
     init(from dto: Github.Metadata.LicenseInfo?) {
         if let key = dto?.key {
-            self = License(rawValue: key) ?? .other
+            self = License(rawValue: key) ?? .unknown
         } else {
             self = .none
         }

@@ -103,7 +103,11 @@ private extension Score.Details {
             case .archive:
                 return "Repository is \(isArchived ? "" : "not") archived."
             case .license:
-                return "\(licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
+                switch licenseKind {
+                case .known: return "Has a known license."
+                case .unknown: return "Has an unknown license."
+                case .none: return "No license found."
+                }
             case .releases:
                 return "Has \(pluralizedCount: releaseCount, singular: "release")."
             case .stars:
