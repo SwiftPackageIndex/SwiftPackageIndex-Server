@@ -264,9 +264,6 @@ enum Ingestion {
         }
     }
 
-#if compiler(>=6.3.1)
-#error("Check if we can revert commit a5ec37ecd58d4971b5a04305d39fe7666b69bde3 `Convert Ingestion.fetchMetadata` (2026-04-08)")
-#endif
 
     static func fetchMetadata(package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         @Dependency(\.environment) var environment
