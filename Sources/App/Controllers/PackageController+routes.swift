@@ -154,20 +154,95 @@ enum PackageController {
             ).encodeResponse(for: req)
         }
 
+        // Remove cookies from response headers to prevent "upstream sent too big header" errors
+        var headers = req.headers
+        headers.remove(name: .cookie)
+        headers.replaceOrAdd(name: .contentType, value: route.contentType)
+
         return try await processor.processedPage.encodeResponse(
             status: .ok,
-            headers: req.headers.replacingOrAdding(name: .contentType,
-                                                   value: route.contentType),
+            headers: headers,
             for: req
         )
     }
 
     static func awsResponse(client: Client, route: DocRoute) async throws -> HTTPClient.Response {
         @Dependency(\.httpClient) var httpClient
+        @Dependency(\.environment) var environment
+        @Dependency(\.s3) var s3
 
+        // Check if direct S3 access is enabled
+        if environment.awsDirectS3Access() {
+            guard let bucket = environment.awsDocsBucket() else {
+                throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+            }
+
+            // Construct the S3 key path - try exact path first
+            let primaryS3Key: String
+            if route.path.isEmpty {
+                primaryS3Key = "\(route.baseURL)/\(route.fragment.urlFragment)"
+            } else {
+                primaryS3Key = "\(route.baseURL)/\(route.fragment.urlFragment)/\(route.path)"
+            }
+            do {
+                let data = try await s3.fetchDocumentation(bucket, primaryS3Key)
+
+                // Create a mock HTTPClient.Response with the S3 data
+                let response = HTTPClient.Response(
+                    host: bucket,
+                    status: .ok,
+                    version: .http1_1,
+                    headers: HTTPHeaders([
+                        ("content-type", route.fragment.contentType),
+                        ("content-length", "\(data.count)")
+                    ]),
+                    body: ByteBuffer(data: data)
+                )
+                return response
+            } catch {
+                // If the primary key fails and this is a documentation/tutorials request,
+                // try appending /index.html as a fallback
+                if (route.fragment == .documentation || route.fragment == .tutorials) {
+                    let fallbackS3Key = route.path.isEmpty ?
+                        "\(route.baseURL)/index.html" :
+                        "\(route.baseURL)/\(route.fragment.urlFragment)/\(route.path)/index.html"
+                    do {
+                        let data = try await s3.fetchDocumentation(bucket, fallbackS3Key)
+
+                        let response = HTTPClient.Response(
+                            host: bucket,
+                            status: .ok,
+                            version: .http1_1,
+                            headers: HTTPHeaders([
+                                ("content-type", route.fragment.contentType),
+                                ("content-length", "\(data.count)")
+                            ]),
+                            body: ByteBuffer(data: data)
+                        )
+                        return response
+                    } catch let fallbackError {
+                        throw Abort(.notFound)
+                    }
+                } else {
+                    throw Abort(.notFound)
+                }
+            }
+        }
+
+        // Fallback to existing HTTP-based approach
         let url = try Self.awsDocumentationURL(route: route)
-        guard let response = try? await httpClient.fetchDocumentation(url) else {
-            throw Abort(.notFound)
+
+        let response: HTTPClient.Response
+        if environment.awsUseIamRole() {
+            guard let iamResponse = try? await httpClient.fetchDocumentationWithIAM(url) else {
+                throw Abort(.notFound)
+            }
+            response = iamResponse
+        } else {
+            guard let standardResponse = try? await httpClient.fetchDocumentation(url) else {
+                throw Abort(.notFound)
+            }
+            response = standardResponse
         }
         guard (200..<399).contains(response.status.code) else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
@@ -307,7 +382,7 @@ enum PackageController {
 
         do {
             @Dependency(\.s3) var s3
-            let readme = try await s3.fetchReadme(owner, repository)
+            let readme = try await s3.fetchReadme(owner.lowercased(), repository.lowercased())
             guard let branch = pkg.repository?.defaultBranch else {
                 return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
             }
@@ -443,12 +518,17 @@ extension PackageController {
 extension PackageController {
     static func awsDocumentationURL(route: DocRoute) throws -> URI {
         @Dependency(\.environment) var environment
+
         guard let bucket = environment.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 
-        let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
-        let baseURL = "http://\(baseURLHost)/\(route.baseURL)"
+        // Use the correct region for the docs bucket
+        let region = environment.awsDocsBucketRegion() ?? environment.awsRegion() ?? "us-east-2"
+        let baseURLHost = "\(bucket).s3-website.\(region).amazonaws.com"
+        let urlScheme = "http"
+
+        let baseURL = "\(urlScheme)://\(baseURLHost)/\(route.baseURL)"
         let path = route.path
 
         switch route.fragment {

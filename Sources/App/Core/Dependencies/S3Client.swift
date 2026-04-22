@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import Dependencies
+import Foundation
 import IssueReporting
+import S3Store
 
 
 // We currently cannot use @DependencyClient here due to
@@ -25,6 +27,9 @@ struct S3Client {
         reportIssue("storeS3Readme"); return ""
     }
     var storeReadmeImages: @Sendable (_ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
+    var fetchDocumentation: @Sendable (_ bucket: String, _ key: String) async throws -> Data = { _, _ in
+        reportIssue("fetchDocumentation"); return Data()
+    }
 }
 
 
@@ -39,6 +44,13 @@ extension S3Client: DependencyKey {
             },
             storeReadmeImages: { images throws(S3Readme.Error) in
                 try await S3Readme.storeReadmeImages(imagesToCache: images)
+            },
+            fetchDocumentation: { bucket, key in
+                @Dependency(\.environment) var environment
+                let region = environment.awsDocsBucketRegion()
+                let s3Store = S3Store(region: region)
+                let s3Key = S3Store.Key(bucket: bucket, path: key)
+                return try await s3Store.readData(from: s3Key)
             }
         )
     }
@@ -50,7 +62,8 @@ extension S3Client: TestDependencyKey {
         .init(
             fetchReadme: { _, _ in unimplemented(); return "" },
             storeReadme: { _, _, _ in unimplemented("storeS3Readme"); return "" },
-            storeReadmeImages: { _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
+            storeReadmeImages: { _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") },
+            fetchDocumentation: { _, _ in unimplemented("fetchDocumentation"); return Data() }
         )
     }
 }

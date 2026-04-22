@@ -169,9 +169,16 @@ extension Request {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository"),
               let reference = parameters.get("reference")
-        else { throw Abort(.badRequest) }
+        else {
+            logger.error("Missing required parameters - owner: \(parameters.get("owner") ?? "nil"), repository: \(parameters.get("repository") ?? "nil"), reference: \(parameters.get("reference") ?? "nil")")
+            throw Abort(.badRequest)
+        }
         let archive = parameters.get("archive")
-        if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
+
+        if fragment.requiresArchive && archive == nil {
+            logger.error("Fragment \(fragment) requires archive but none provided")
+            throw Abort(.badRequest)
+        }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
         @Dependency(\.environment) var environment
@@ -184,7 +191,10 @@ extension Request {
                 }
 
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-                else { throw Abort(.notFound) }
+                else {
+                    logger.error("No documentation target found for \(owner)/\(repository)")
+                    throw Abort(.notFound)
+                }
 
                 await currentReferenceCache.set(owner: owner, repository: repository, reference: "\(params.docVersion)")
                 return .current(referencing: "\(params.docVersion)")
@@ -193,7 +203,8 @@ extension Request {
             }
         }()
 
-        return DocRoute(owner: owner, repository: repository, docVersion: docVersion, fragment: fragment, pathElements: pathElements)
+        let route = DocRoute(owner: owner, repository: repository, docVersion: docVersion, fragment: fragment, pathElements: pathElements)
+        return route
     }
 }
 

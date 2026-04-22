@@ -19,6 +19,7 @@
 # Build image
 # ================================
 FROM registry.gitlab.com/finestructure/spi-base:2.2.1 AS build
+ARG COMPILATION_MODE="release"
 
 # Set up a build area
 WORKDIR /build
@@ -39,7 +40,7 @@ RUN mkdir /staging
 
 # Build everything, with optimizations, with static linking, and using jemalloc
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
-RUN swift build -c release \
+RUN swift build -c ${COMPILATION_MODE} \
         --enable-experimental-prebuilts \
         --static-swift-stdlib \
         -Xlinker -ljemalloc
@@ -48,19 +49,18 @@ RUN swift build -c release \
 WORKDIR /staging
 
 # Copy main executable to staging area
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
+RUN cp "$(swift build --package-path /build -c $COMPILATION_MODE --show-bin-path)/Run" ./
 
 # Copy static swift backtracer binary to staging area
 RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
 
 # Copy resources bundled by SPM to staging area
-RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
+RUN find -L "$(swift build --package-path /build -c $COMPILATION_MODE --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
 
 # Copy any resources from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
 RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
-
 
 # ================================
 # Run image
@@ -74,6 +74,9 @@ FROM registry.gitlab.com/finestructure/spi-base:2.2.1
 
 # Create a vapor user and group with /app as its home directory
 # RUN useradd --user-group --create-home --system --home-dir /app vapor
+
+# Download the AWS global certificate for SSL connections and add it to the cert store
+RUN curl -L -o /usr/local/share/ca-certificates/aws-global-bundle.crt https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem && update-ca-certificates
 
 # Switch to the new home directory
 WORKDIR /app
