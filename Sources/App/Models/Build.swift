@@ -15,6 +15,7 @@
 import Dependencies
 import Fluent
 import PostgresKit
+import S3Store
 import Vapor
 
 
@@ -280,7 +281,67 @@ extension Build {
 
     static func fetchLogs(client: Client, logUrl: String?) async throws -> String? {
         guard let logUrl = logUrl else { return nil }
-        return try await client.get(URI(string: logUrl)).body?.asString()
+
+        // Check if the URL is an S3 URI (s3://)
+        if logUrl.hasPrefix("s3://") {
+            return try await fetchLogsFromS3(logUrl: logUrl)
+        } else {
+            // Use HTTP client for regular URLs
+            return try await client.get(URI(string: logUrl)).body?.asString()
+        }
+    }
+
+    private static func fetchLogsFromS3(logUrl: String) async throws -> String? {
+        @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
+
+        // Parse the S3 URI to extract bucket and key
+        guard let s3Key = parseS3URI(logUrl) else {
+            logger.error("Failed to parse S3 URI: \(logUrl)")
+            throw Abort(.badRequest, reason: "Invalid S3 URI format")
+        }
+
+        logger.debug("Reading build logs from S3: \(s3Key.s3Uri)")
+
+        // Use bucket-specific region, fallback to general AWS region, then default
+        let region = environment.awsBuildLogsBucketRegion() ?? environment.awsRegion() ?? "us-east-2"
+
+        let store: S3Store
+        if environment.awsUseIamRole() {
+            logger.debug("Using AWS IAM authentication for build logs S3 read")
+            store = S3Store(region: region)
+        } else {
+            logger.debug("Using AWS key/secret authentication for build logs S3 read")
+            guard let accessKeyId = environment.awsAccessKeyId() else {
+                throw Abort(.internalServerError, reason: "AWS_ACCESS_KEY_ID not set")
+            }
+            guard let secretAccessKey = environment.awsSecretAccessKey() else {
+                throw Abort(.internalServerError, reason: "AWS_SECRET_ACCESS_KEY not set")
+            }
+            store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey), region: region)
+        }
+
+        do {
+            return try await store.readString(from: s3Key)
+        } catch {
+            logger.error("Failed to read build logs from S3 \(s3Key.s3Uri): \(error)")
+            throw Abort(.internalServerError, reason: "Failed to read build logs from S3")
+        }
+    }
+
+    private static func parseS3URI(_ uri: String) -> S3Store.Key? {
+        // Expected format: s3://bucket-name/path/to/object
+        guard uri.hasPrefix("s3://") else { return nil }
+
+        let withoutScheme = String(uri.dropFirst(5)) // Remove "s3://"
+        let components = withoutScheme.components(separatedBy: "/")
+
+        guard components.count >= 2 else { return nil }
+
+        let bucket = components[0]
+        let path = components.dropFirst().joined(separator: "/")
+
+        return S3Store.Key(bucket: bucket, path: path)
     }
 
 }

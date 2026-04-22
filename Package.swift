@@ -79,6 +79,7 @@ let package = Package(
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
                     .product(name: "Vapor", package: "vapor"),
                     .product(name: "SotoCognitoAuthentication", package: "soto-cognito-authentication"),
+                    .product(name: "SotoS3", package: "soto"),
                     .product(name: "JWTKit", package: "jwt-kit")
                 ],
                 swiftSettings: swiftSettings,
