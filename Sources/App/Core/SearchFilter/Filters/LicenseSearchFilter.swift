@@ -19,9 +19,9 @@ import Foundation
 ///
 /// Examples:
 /// ```
-/// license:compatible   - The license is compatible with the app store
-/// license:!compatible - The license is unknown, none is provided, or the one provided is not compatible with the app store
-/// license:mit - The package specifically uses the MIT license (any can be used)
+/// license:known - The license is identified as a known open source license
+/// license:!known - The license is either unknown or not found
+/// license:mit - The package specifically uses the MIT license
 /// ```
 struct LicenseSearchFilter: SearchFilterProtocol {
     static let key: SearchFilter.Key = .license

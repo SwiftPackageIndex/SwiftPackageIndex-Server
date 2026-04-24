@@ -55,12 +55,12 @@ enum Score {
             scoreBreakdown[.archive] = 20
         }
 
-        // Is the license open-source and compatible with the App Store?
+        // Is the license a known open-source license?
         switch candidate.licenseKind {
-            case .compatibleWithAppStore:
+            case .known:
                 scoreBreakdown[.license] = 10
-            case .incompatibleWithAppStore:
-                scoreBreakdown[.license] = 3
+            case .unknown:
+                scoreBreakdown[.license] = 5
             default: break;
         }
 

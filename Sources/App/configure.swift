@@ -350,6 +350,9 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
     do { // Migration 083 - Add `key` and unique constraint to `custom_collections`
         app.migrations.add(UpdateCustomCollectionAddKey())
     }
+    do { // Migration 084 - Update licenses with `other` -> `unknown` and `compatible`/`incompatible` -> `known`
+        app.migrations.add(UpdateRepositoriesLicenseAndScoreDetails())
+    }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")

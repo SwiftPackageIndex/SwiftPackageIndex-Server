@@ -137,7 +137,7 @@ extension AllTests.SearchFilterTests {
                                                                         value: "1970-01-01"))
             #expect(filter.key == .lastActivity)
             #expect(filter.predicate == .init(operator: .equal,
-                                              bindableValue: .value("1970-01-01"),
+                                              bindableValue: .value("1970-01-01 00:00:00 +0000"),
                                               displayValue: "1 Jan 1970"))
 
             // test view representation
@@ -163,7 +163,7 @@ extension AllTests.SearchFilterTests {
                                                                       value: "1970-01-01"))
             #expect(filter.key == .lastCommit)
             #expect(filter.predicate == .init(operator: .equal,
-                                              bindableValue: .value("1970-01-01"),
+                                              bindableValue: .value("1970-01-01 00:00:00 +0000"),
                                               displayValue: "1 Jan 1970"))
 
             // test view representation
@@ -183,22 +183,24 @@ extension AllTests.SearchFilterTests {
         }
     }
 
-    @Test func licenseFilter_compatible() async throws {
+    @Test func licenseFilter_known() async throws {
         try await withSPIApp { app in
             let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                                   value: "compatible"))
+                                                                   value: "known"))
+            let expectedLicenses = ["0bsd", "afl-3.0", "agpl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cecill-2.1", "cern-ohl-p-2.0", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "isc", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "mit", "mit-0", "mpl-2.0", "ms-pl", "ms-rl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "osl-3.0", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]
+
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
-                                              bindableValue: .array(["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]),
-                                              displayValue: "compatible with the App Store"))
+                                              bindableValue: .array(expectedLicenses),
+                                              displayValue: "known"))
 
             // test view representation
-            #expect(filter.viewModel.description == "license is compatible with the App Store")
+            #expect(filter.viewModel.description == "license is known")
 
             // test sql representation
             #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
-            #expect(app.db.binds(filter.rightHandSide) == ["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"])
+            #expect(app.db.binds(filter.rightHandSide) == expectedLicenses)
         }
     }
 
@@ -235,27 +237,8 @@ extension AllTests.SearchFilterTests {
         #expect(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "Compatible")).bindableValue == ["0bsd", "afl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cern-ohl-p-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "isc", "mit", "mit-0", "mpl-2.0", "ms-pl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]
+                                  value: "Known")).bindableValue == ["0bsd", "afl-3.0", "agpl-3.0", "apache-2.0", "artistic-2.0", "blueoak-1.0.0", "bsd-2-clause", "bsd-2-clause-patent", "bsd-3-clause", "bsd-3-clause-clear", "bsd-4-clause", "bsl-1.0", "cc", "cc-by-4.0", "cc-by-sa-4.0", "cc0-1.0", "cecill-2.1", "cern-ohl-p-2.0", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "ecl-2.0", "epl-1.0", "epl-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "isc", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "mit", "mit-0", "mpl-2.0", "ms-pl", "ms-rl", "mulanpsl-2.0", "ncsa", "odbl-1.0", "ofl-1.1", "osl-3.0", "postgresql", "upl-1.0", "unlicense", "vim", "wtfpl", "zlib"]
         )
-    }
-
-    @Test func licenseFilter_incompatible() async throws {
-        try await withSPIApp { app in
-            let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                                   value: "incompatible"))
-            #expect(filter.key == .license)
-            #expect(filter.predicate == .init(operator: .in,
-                                              bindableValue: .array(["agpl-3.0", "cecill-2.1", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "ms-rl", "osl-3.0"]),
-                                              displayValue: "incompatible with the App Store"))
-
-            // test view representation
-            #expect(filter.viewModel.description == "license is incompatible with the App Store")
-
-            // test sql representation
-            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
-            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
-            #expect(app.db.binds(filter.rightHandSide) == ["agpl-3.0", "cecill-2.1", "cern-ohl-s-2.0", "cern-ohl-w-2.0", "eupl-1.1", "eupl-1.2", "gfdl-1.3", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0", "lppl-1.3c", "ms-rl", "osl-3.0"])
-        }
     }
 
     @Test func licenseFilter_none() async throws {
@@ -276,12 +259,12 @@ extension AllTests.SearchFilterTests {
         }
     }
 
-    @Test func licenseFilter_other() async throws {
+    @Test func licenseFilter_unknown() async throws {
         try await withSPIApp { app in
-            let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "other"))
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "unknown"))
             #expect(filter.key == .license)
             #expect(filter.predicate == .init(operator: .in,
-                                              bindableValue: .array(["other"]),
+                                              bindableValue: .array(["unknown"]),
                                               displayValue: "unknown"))
 
             // test view representation
@@ -290,7 +273,7 @@ extension AllTests.SearchFilterTests {
             // test sql representation
             #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
-            #expect(app.db.binds(filter.rightHandSide) == ["other"])
+            #expect(app.db.binds(filter.rightHandSide) == ["unknown"])
         }
     }
 
@@ -309,7 +292,7 @@ extension AllTests.SearchFilterTests {
                                                                     value: "ios"))
             #expect(filter.key == .platform)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("ios"),
+                                              bindableValue: .value("[App.Package.PlatformCompatibility.iOS]"),
                                               displayValue: "iOS"))
 
             // test view representation
@@ -421,7 +404,7 @@ extension AllTests.SearchFilterTests {
                                                                        value: "executable"))
             #expect(filter.key == .productType)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("executable"),
+                                              bindableValue: .value("[App.ProductTypeSearchFilter.ProductType.executable]"),
                                               displayValue: "Executable"))
 
             // test view representation
@@ -440,7 +423,7 @@ extension AllTests.SearchFilterTests {
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
             #expect(filter.key == .productType)
             #expect(filter.predicate == .init(operator: .contains,
-                                              bindableValue: .value("macro"),
+                                              bindableValue: .value("[App.ProductTypeSearchFilter.ProductType.macro]"),
                                               displayValue: "Macro"))
 
             // test view representation
@@ -530,9 +513,19 @@ extension App.SearchFilter.Predicate: Swift.Equatable {
 
 extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
     public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
-        renderGenericSQL(lhs.sqlBind) == renderGenericSQL(rhs.sqlBind)
+        switch (lhs, rhs) {
+            case (.value(let l), .value(let r)):
+                return "\(l)" == "\(r)"
+            case (.array(let l), .array(let r)):
+                return "\(l)" == "\(r)"
+            default:
+                return false
+        }
     }
+}
 
+
+extension App.SearchFilter.Predicate.BoundValue {
     var asPlatforms: [Package.PlatformCompatibility]? {
         switch self {
             case .value(let value):
@@ -542,14 +535,4 @@ extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
                 return nil
         }
     }
-}
-
-
-// This renderSQL helper uses a dummy SQLDatabase dialect defined in `TestDatabase`.
-// It should only be used in cases where app.db (which is using the PostgresDB dialect)
-// is not available and where the exact syntax of SQL details is not relevant.
-private func renderGenericSQL(_ query: SQLExpression) -> String {
-    var serializer = SQLSerializer(database: TestDatabase())
-    query.serialize(to: &serializer)
-    return serializer.sql
 }

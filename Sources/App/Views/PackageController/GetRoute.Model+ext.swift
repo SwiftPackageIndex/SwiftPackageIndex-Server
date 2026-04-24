@@ -59,7 +59,7 @@ extension API.PackageController.GetRoute.Model {
     func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
-                case .compatibleWithAppStore, .incompatibleWithAppStore:
+                case .known:
                     return .group(
                         .unwrap(licenseUrl, {
                             .a(
@@ -70,58 +70,27 @@ extension API.PackageController.GetRoute.Model {
                         }),
                         .text(" licensed")
                     )
-                case .other:
+                case .unknown:
                     return .unwrap(licenseUrl, {
                         .a(.href($0), .text(license.shortName))
                     })
                 case .none:
-                    return .span(
-                        .class(license.licenseKind.cssClass),
-                        .text(license.shortName)
-                    )
+                    return .text(license.shortName)
             }
         }()
 
         let licenseClass: String = {
             switch license.licenseKind {
-                case .compatibleWithAppStore:
+                case .known, .unknown:
                     return "license"
-                case .incompatibleWithAppStore, .other:
-                    return "license warning"
                 case .none:
-                    return "license error"
-            }
-        }()
-
-        let moreInfoLink: Node<HTML.BodyContext> = {
-            switch license.licenseKind {
-                case .compatibleWithAppStore:
-                    return .empty
-                case .incompatibleWithAppStore:
-                    return .a(
-                        .class("more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                        "Why might the \(license.shortName) be problematic?"
-                    )
-                case .other:
-                    return .a(
-                        .class("more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                        "Why is this package's license unknown?"
-                    )
-                case .none:
-                    return .a(
-                        .class("more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                        "Why should you not use unlicensed code?"
-                    )
+                    return "license no-license"
             }
         }()
 
         return .li(
             .class(licenseClass),
-            licenseDescription,
-            moreInfoLink
+            licenseDescription
         )
     }
 
@@ -663,17 +632,6 @@ extension API.PackageController.GetRoute.Model.Activity {
 
 
 // MARK: - General helpers
-
-private extension License.Kind {
-    var cssClass: String {
-        switch self {
-            case .none: return "no-license"
-            case .incompatibleWithAppStore, .other: return "incompatible_license"
-            case .compatibleWithAppStore: return "compatible_license"
-        }
-    }
-}
-
 
 private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentable {
     var cellNode: Node<HTML.BodyContext> {

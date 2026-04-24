@@ -38,54 +38,33 @@ extension AllTests.LicenseTests {
         #expect(License(from: Github.Metadata.LicenseInfo(key: "ofl-1.1")) == .ofl_1_1)
         #expect(License(from: Github.Metadata.LicenseInfo(key: "upl-1.0")) == .upl_1_0)
         #expect(License(from: Github.Metadata.LicenseInfo(key: "vim")) == .vim)
-        #expect(License(from: Github.Metadata.LicenseInfo(key: "other")) == .other)
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "other")) == .unknown)
         #expect(License(from: .none) == .none)
     }
 
     @Test func init_from_dto_unknown() throws {
-        // ensure unknown licenses are mapped to `.other`
-        #expect(License(from: Github.Metadata.LicenseInfo(key: "non-existing license")) == .other)
+        // ensure unknown licenses are mapped to `.unknown`
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "non-existing license")) == .unknown)
     }
 
     @Test func fullName() throws {
         #expect(License.mit.fullName == "MIT License")
         #expect(License.agpl_3_0.fullName == "GNU Affero General Public License v3.0")
-        #expect(License.other.fullName == "Unknown or Unrecognised License")
-        #expect(License.none.fullName == "No License")
+        #expect(License.unknown.fullName == "Unknown or Unrecognised License")
+        #expect(License.none.fullName == "No License Found")
     }
 
     @Test func shortName() throws {
         #expect(License.mit.shortName == "MIT")
         #expect(License.agpl_3_0.shortName == "AGPL 3.0")
-        #expect(License.other.shortName == "Unknown license")
-        #expect(License.none.shortName == "No license")
+        #expect(License.unknown.shortName == "Unknown license")
+        #expect(License.none.shortName == "No license found")
     }
 
-    @Test func isCompatibleWithAppStore() throws {
-        // Compatible
-        #expect(License.mit.licenseKind == .compatibleWithAppStore)
-        #expect(License.mit_0.licenseKind == .compatibleWithAppStore)
-        #expect(License.apache_2_0.licenseKind == .compatibleWithAppStore)
-        #expect(License.blueoak_1_0_0.licenseKind == .compatibleWithAppStore)
-        #expect(License.bsd_2_clause_patent.licenseKind == .compatibleWithAppStore)
-        #expect(License.epl_2_0.licenseKind == .compatibleWithAppStore)
-        #expect(License.cern_ohl_p_2_0.licenseKind == .compatibleWithAppStore)
-        #expect(License.upl_1_0.licenseKind == .compatibleWithAppStore)
-        // Incompatible
-        #expect(License.agpl_3_0.licenseKind == .incompatibleWithAppStore)
-        #expect(License.cecill_2_1.licenseKind == .incompatibleWithAppStore)
-        #expect(License.cern_ohl_s_2_0.licenseKind == .incompatibleWithAppStore)
-        #expect(License.cern_ohl_w_2_0.licenseKind == .incompatibleWithAppStore)
-        #expect(License.eupl_1_1.licenseKind == .incompatibleWithAppStore)
-        #expect(License.eupl_1_2.licenseKind == .incompatibleWithAppStore)
-        #expect(License.gfdl_1_3.licenseKind == .incompatibleWithAppStore)
-        #expect(License.gpl_2_0.licenseKind == .incompatibleWithAppStore)
-        #expect(License.lgpl_3_0.licenseKind == .incompatibleWithAppStore)
-        #expect(License.lppl_1_3c.licenseKind == .incompatibleWithAppStore)
-        #expect(License.ms_rl.licenseKind == .incompatibleWithAppStore)
-        #expect(License.osl_3_0.licenseKind == .incompatibleWithAppStore)
-        // Special
-        #expect(License.other.licenseKind == .other)
+    @Test func licenseKind() throws {
+        #expect(License.mit.licenseKind == .known)
+        #expect(License.agpl_3_0.licenseKind == .known)
+        #expect(License.unknown.licenseKind == .unknown)
         #expect(License.none.licenseKind == .none)
     }
 
