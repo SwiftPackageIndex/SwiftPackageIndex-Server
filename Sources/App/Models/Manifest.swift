@@ -67,13 +67,18 @@ struct Manifest: Decodable, Equatable {
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
-            do { // case-insensitive decoding of Platform.Name
+            do { // case-insensitive decoding and re-mapping (where required) of Platform.Name
                 let rawValue = try container.decode(String.self, forKey: CodingKeys.platformName).lowercased()
-                guard let name = Name(rawValue: rawValue) else {
-                    throw DecodingError.dataCorrupted(.init(codingPath: [CodingKeys.platformName],
-                                                            debugDescription: "invalid rawValue: \(rawValue)"))
+                switch rawValue {
+                    case "xros":
+                        self.platformName = .visionos
+                    default:
+                        guard let name = Name(rawValue: rawValue) else {
+                            throw DecodingError.dataCorrupted(.init(codingPath: [CodingKeys.platformName],
+                                                                    debugDescription: "invalid rawValue: \(rawValue)"))
+                        }
+                        self.platformName = name
                 }
-                self.platformName = name
             }
             self.version = try container.decode(String.self, forKey: CodingKeys.version)
         }
