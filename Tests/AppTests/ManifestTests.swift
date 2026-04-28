@@ -21,6 +21,25 @@ import Testing
 
 extension AllTests.ManifestTests {
 
+    @Test func decode_Platform() throws {
+        struct Test: Decodable, Equatable {
+            var platform: Manifest.Platform
+        }
+        
+        let data = Data("""
+            {
+              "platform" : {
+                "options" : [
+            
+                ],
+                "platformName" : "xros",
+                "version" : "1.0"
+              }
+            }
+            """.utf8)
+        #expect(try JSONDecoder().decode(Test.self, from: data) == .init(platform: .init(platformName: .visionos, version: "1.0")))
+    }
+
     @Test func decode_Product_Type() throws {
         // Test product type decoding.
         // JSON snippets via `swift package dump-package` from the following
