@@ -153,11 +153,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/863283?v=4"
         ),
         .init(
-            login: "JoshuaKaden",
-            name: "Joshua Kaden",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1244926?v=4"
-        ),
-        .init(
             login: "PSPDFKit",
             name: "Nutrient (formerly PSPDFKit)",
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
