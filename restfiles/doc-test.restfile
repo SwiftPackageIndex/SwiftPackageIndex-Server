@@ -739,8 +739,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /ordo-one/package-benchmark/documentation:
-    url: ${base_url}/ordo-one/package-benchmark/documentation
+  /ordo-one/benchmark/documentation:
+    url: ${base_url}/ordo-one/benchmark/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
