@@ -24,6 +24,12 @@ struct CapturingLogger: LogHandler {
     var logs = QueueIsolated<[LogEntry]>([])
     var logLevel: Logger.Level = .warning
 
+    func log(event: Logging.LogEvent) {
+        logs.withValue { logs in
+            logs.append(.init(level: event.level, message: "\(event.message)"))
+        }
+    }
+
     func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, source: String, file: String, function: String, line: UInt) {
         logs.withValue { logs in
             logs.append(.init(level: level, message: "\(message)"))
