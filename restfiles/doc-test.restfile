@@ -55,12 +55,6 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /EmergeTools/SnapshotPreviews/documentation:
-    url: ${base_url}/EmergeTools/SnapshotPreviews/documentation
-    headers:
-      X-SPI-Smoke-Test: ${smoke_test_token}
-    validation:
-      status: .regex((2|3)\d\d)
   /FabrizioBrancati/Queuer/documentation:
     url: ${base_url}/FabrizioBrancati/Queuer/documentation
     headers:
