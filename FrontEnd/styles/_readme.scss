@@ -110,7 +110,7 @@
         font-weight: 500;
     }
 
-    .markdown-alert p:nth-child(2) {
+    .markdown-alert p:not(.markdown-alert-title) {
         color: var(--page-text);
     }
 
