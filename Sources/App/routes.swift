@@ -55,10 +55,6 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.privacy.pathComponents) { req in
             MarkdownPage(path: req.url.path, "privacy.md").document()
         }
-
-        app.get(SiteURL.tryInPlayground.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "try-package.md").document()
-        }
     }
 
     try docRoutes(app)

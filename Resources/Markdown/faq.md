@@ -17,7 +17,6 @@ description: Frequently Asked Questions about the Swift Package Index
 - [Can I contribute to the Swift Package Index?](#contributing)
 - [Is there an API?](#api)
 - [Why are package versions missing?](#missing-versions)
-- [What is the SPI-Playgrounds app?](#spi-playgrounds-app)
 - [How can I filter search results?](#search-filters)
 
 ---
@@ -113,14 +112,6 @@ A good way to check what the latest semantic version release of a package is is 
   <source srcset="/images/screenshots/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/screenshots/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
-
----
-
-<h3 id="spi-playgrounds-app">What is the SPI-Playgrounds app?</h3>
-
-Have you ever wanted to try out a package in a Swift playground before you decide to use it? Click “Try in a Playground” from any package page and have the Swift Package Index Playgrounds app create a playground with the package automatically imported, ready for testing and experimentation.
-
-If you don't have the SPI-Playgrounds app installed, you can [download it for macOS here](/try-in-a-playground).
 
 ---
 
