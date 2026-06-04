@@ -266,43 +266,6 @@
         }
     }
 
-    .try-in-playground {
-        position: relative;
-
-        #app-download-explainer {
-            position: absolute;
-            left: -25%;
-            width: 150%;
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 14px;
-            color: var(--page-text);
-            background-color: var(--panel-background);
-            border-top: 3px var(--panel-border) solid;
-            box-shadow: var(--panel-shadow);
-
-            &::before {
-                content: '';
-                position: absolute;
-                top: -13px;
-                left: 50%;
-                width: 0;
-                height: 0;
-                margin-left: -10px;
-                border-style: solid;
-                border-width: 0 10px 10px;
-                border-color: transparent transparent var(--panel-border) transparent;
-            }
-        }
-
-        @media screen and (max-width: $mobile-breakpoint) {
-            #app-download-explainer {
-                left: 10%;
-                width: 80%;
-            }
-        }
-    }
-
     .use-this-package {
         .version {
             display: flex;

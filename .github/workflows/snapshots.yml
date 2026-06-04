@@ -52,7 +52,9 @@ jobs:
       - name: Run Percy
         if: steps.front-end-changes.outputs.matching-files != '0'
         run: |
-          npm install -g @percy/cli
+          # Pinned: @percy/cli 1.31.14 and every later build (incl. 1.32.x betas)
+          # hang during asset discovery on the turboframe HTML fragment snapshots
+          npm install -g @percy/cli@1.31.13
           echo "=== Installed Percy Version ==="
           npx percy --version
           echo "=== Running Snapshots ==="

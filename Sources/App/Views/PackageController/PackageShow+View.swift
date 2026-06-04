@@ -237,26 +237,6 @@ extension PackageShow {
                             "View on GitHub"
                         )
                     ),
-                    .li(
-                        .class("try-in-playground"),
-                        .a(
-                            .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
-                            "Try in a Playground"
-                        ),
-                        .div(
-                            .id("app-download-explainer"),
-                            .class("hidden"),
-                            .strong("Launching the SPI Playgrounds app&hellip;"),
-                            .p(
-                                .text("If nothing happens, you may not have the app installed. "),
-                                .a(
-                                    .href(SiteURL.tryInPlayground.relativeURL(parameters: [QueryParameter(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])),
-                                    "Download the Swift Package Index Playgrounds app"
-                                ),
-                                .text(" and try again.")
-                            )
-                        )
-                    ),
                     .unwrap(model.homepageUrl) { homepageUrl in
                         .li(
                             .a(
