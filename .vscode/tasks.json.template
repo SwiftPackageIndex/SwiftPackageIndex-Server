@@ -5,6 +5,25 @@
             "label": "Serve Front End",
             "type": "shell",
             "command": "npm install && npm run serve",
+            "isBackground": true,
+            "problemMatcher": {
+                // The begin/end markers (logged by `esbuild.mjs`) flip the task between
+                // "building" and "watching" so the task isn't shown as permanently busy.
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Build started",
+                    "endsPattern": "Build finished"
+                },
+                "fileLocation": "relative",
+                // Error reporting is intentionally disabled, but VS Code still requires
+                // a valid pattern, so the regex is a no-op that never matches.
+                "pattern": {
+                    "regexp": "()()(?!)",
+                    "kind": "file",
+                    "file": 1,
+                    "message": 2
+                }
+            },
             "presentation": {
                 "reveal": "always",
                 "panel": "new"

@@ -15,6 +15,17 @@
 import * as esbuild from 'esbuild'
 import { sassPlugin } from 'esbuild-sass-plugin'
 
+const isWatching = process.argv.includes('--watch')
+
+// Log each rebuild while in watch mode
+const watchLogPlugin = {
+    name: 'watch-log',
+    setup(build) {
+        build.onStart(() => console.log('Build started'))
+        build.onEnd(() => console.log('Build finished'))
+    },
+}
+
 try {
     const context = await esbuild.context({
         entryPoints: [
@@ -28,12 +39,12 @@ try {
         bundle: true,
         sourcemap: true,
         minify: true,
-        plugins: [sassPlugin()],
+        plugins: isWatching ? [sassPlugin(), watchLogPlugin] : [sassPlugin()],
         external: ['/images/*'],
         platform: 'browser',
     })
 
-    if (process.argv.includes('--watch')) {
+    if (isWatching) {
         // Watch forever!
         await context.watch()
         await new Promise(() => {})
@@ -41,6 +52,7 @@ try {
         await context.rebuild()
         await context.dispose()
     }
-} catch {
+} catch (error) {
+    console.error(error)
     process.exit(1)
 }
