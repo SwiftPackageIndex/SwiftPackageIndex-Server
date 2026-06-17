@@ -329,19 +329,10 @@ class PublicPage {
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
-        return .empty
-
-        /*
         return .p(
             .class("announcement"),
-            .text("Has it really been five years since Swift Package Index launched? Read our "),
-            .a(
-                .href(SiteURL.blogPost(.value("five-years-of-the-swift-package-index")).relativeURL()),
-                .text("anniversary blog post")
-            ),
-            .text("!")
+            .text("Swift Package Index will be temporarily unavailable on Tuesday, 23rd of June for scheduled maintenance.")
         )
-         */
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.
