@@ -6,7 +6,7 @@ As Swift continues to grow, we believe the ecosystem needs a robust and comprehe
 
 Swift Package Index automatically tests every Swift package across supported platforms and Swift versions, giving developers confidence before adding a dependency. We’ll continue supporting multi-platform package testing, and expanding that coverage as Swift grows. We launched with macOS, iOS, tvOS, watchOS, and Linux testing and later added support for visionOS, WebAssembly and Android. Last year alone, we processed over 3.5 million compatibility builds across all tested platforms.
 
-With Apple's support, we're able to invest deeply in helping developers make better decisions about their package dependencies. operate at greater scale, and take on the next set of challenges with confidence.
+With Apple's support, we're able to invest deeply in helping developers make better decisions about their package dependencies, operate at greater scale, and take on the next set of challenges with confidence.
 
 ### What This Means for the Community
 
