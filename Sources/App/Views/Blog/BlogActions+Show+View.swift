@@ -69,6 +69,8 @@ extension BlogActions {
                         .text(model.title)
                     ),
                     .small(
+                        .class("post-meta"),
+                        .unwrap(model.writtenBy) { .text("\($0) &ndash; ") },
                         model.publishInformation()
                     ),
                     .hr(
@@ -98,7 +100,7 @@ extension BlogActions {
             }
 
             override func navMenuItems() -> [NavMenuItem] {
-                [.supporters, .searchLink, .addPackage, .blog, .faq]
+                [.searchLink, .addPackage, .blog, .faq]
             }
         }
 

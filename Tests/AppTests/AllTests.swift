@@ -55,6 +55,7 @@ extension AllTests {
     @Suite struct BuildTriggerTests { }
     @Suite struct CustomCollectionControllerTests { }
     @Suite struct CustomCollectionTests { }
+    @Suite struct DateExtensionTests { }
     @Suite struct DefaultStringInterpolationTests { }
     @Suite struct DocUploadTests { }
     @Suite struct DocumentationPageProcessorTests { }
@@ -95,7 +96,7 @@ extension AllTests {
     @Suite struct PackageResultTests { }
     @Suite struct PackageTests { }
     @Suite struct PipelineTests { }
-    @Suite struct PlausibleTests { }
+    @Suite struct AnalyticsTests { }
     @Suite struct ProductTests { }
     @Suite struct QueryPlanTests { }
     @Suite struct RSSTests { }

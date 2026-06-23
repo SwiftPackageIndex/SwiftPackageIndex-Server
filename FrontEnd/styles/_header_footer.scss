@@ -81,14 +81,6 @@ header {
         align-items: center;
 
         a {
-            &.supporters {
-                padding-left: 28px;
-                background-position: left 5px center;
-                background-repeat: no-repeat;
-                background-size: 19px;
-                background-image: var(--image-heart);
-            }
-
             &:hover {
                 border-color: var(--header-link-highlight);
             }
@@ -112,6 +104,10 @@ footer {
     position: sticky;
     top: 100vh;
 
+    a[href^='mailto:'] {
+        font-weight: 400;
+    }
+
     .inner {
         padding: 20px 10px;
     }
@@ -119,6 +115,7 @@ footer {
     nav {
         display: flex;
         flex-direction: column;
+        gap: 15px;
         align-items: center;
 
         p {
@@ -135,10 +132,6 @@ footer {
 
         a {
             font-size: 12px;
-        }
-
-        @media screen and (max-width: $mobile-breakpoint) {
-            margin-top: 10px;
         }
     }
 

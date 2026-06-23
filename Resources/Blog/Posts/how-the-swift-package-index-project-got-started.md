@@ -21,7 +21,7 @@ There was still no sign of “the button”, though, even many months after the 
 
 It wasn’t through any malice or deliberate neglect. It was just that there was always something else that took a slightly higher priority. We worked on [language and platform compatibility reporting](/posts/launching-language-and-platform-package-compatibility), [Apple silicon builds](/posts/building-3238-packages-for-apple-silicon), [gathering additional metadata](/posts/the-swift-package-index-metadata-file-first-steps), [funding the project](/posts/funding-the-future-of-the-swift-package-index), [RSS feeds](/posts/keeping-up-to-date-with-swift-packages), [inline README files](/posts/inline-readme-files), [finding suitable hosting](/posts/hosting-the-swift-package-index), and [many more things](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pulls?q=is%3Apr+is%3Aclosed) that didn’t make it to the blog.
 
-I’m delighted to say that today sees the launch of “the button”! But what does the button do? Read more about that in the [official launch post](/posts/launching-the-swift-package-index-playgrounds-app-for-macos).
+I’m delighted to say that today sees the launch of “the button”!
 
 That deserves more than a cake! 🥂🍾
 

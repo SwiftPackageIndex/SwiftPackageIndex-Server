@@ -4,7 +4,7 @@ Around [three months ago](posts/whats-next-february-2021/), we published a list 
 - Intermediate Search Page. **Implemented.** We re-worked the search function on the home page, added a new search box in the header. You can also now [share search results](https://swiftpackageindex.com/search?query=networking).
 - Package Collections. **Mostly Implemented.** We have a basic implementation of [Package Collections](https://github.com/apple/swift-evolution/blob/main/proposals/0291-package-collections.md) up and running. However, we didn’t activate it yet, mainly because the feature will go live in Swift Package Manager with Swift 5.5.
 - Design Updates. **Mostly Implemented.** The package page has the new design, and the README files are now in so much better shape, with anchor links, relative links, and images all working reliably. The only thing we didn’t get to was the home page, where we’re waiting until we have package categories implemented before tackling it.
-- The SPI Playgrounds macOS App. **Implemented.** You can [read all about it here](https://blog.swiftpackageindex.com/posts/launching-the-swift-package-index-playgrounds-app-for-macos).
+- The SPI Playgrounds macOS App. **Implemented.**
 
 We’re pretty happy with that progress, and that list doesn’t cover all of the other things we did, such as adding build support for Swift 5.4. 🚀
 

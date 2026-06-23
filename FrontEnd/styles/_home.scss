@@ -19,8 +19,8 @@
 // -------------------------------------------------------------------------
 
 body.home {
-    .two-column {
-        grid-template-columns: 4fr 2fr;
+    main > .inner {
+        max-width: 680px;
     }
 }
 
@@ -53,42 +53,5 @@ body.home {
 @media screen and (max-width: $mobile-breakpoint) {
     .recent {
         grid-template-columns: 1fr;
-    }
-}
-
-.supporter-ctas {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-
-    .ccta picture {
-        width: 100%;
-        height: 60px;
-        text-align: center;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-    }
-}
-
-.ccta-availability {
-    padding: 15px;
-    font-size: 13px;
-    background-color: var(--panel-button-background);
-
-    p {
-        margin: 5px 0;
-    }
-
-    .support {
-        margin: 0 0 5px;
-        font-weight: bold;
-    }
-
-    .cta {
-        text-align: right;
     }
 }

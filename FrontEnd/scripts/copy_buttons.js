@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { measurePlausibleEvent } from './plausible_analytics.js'
+import { measureAnalyticsEvent } from './analytics.js'
 
 class SPICopyButton {
     installCopyEvent(button, contentElement, analyticsEvent) {
@@ -43,7 +43,7 @@ class SPICopyButton {
                 }, 1000)
 
                 // Log the analytics event.
-                measurePlausibleEvent(analyticsEvent)
+                measureAnalyticsEvent(analyticsEvent)
             })
         })
     }

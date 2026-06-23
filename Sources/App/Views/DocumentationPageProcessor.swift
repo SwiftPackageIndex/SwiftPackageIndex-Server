@@ -267,19 +267,13 @@ struct DocumentationPageProcessor {
                     .ul(
                         .li(
                             .a(
-                                .href(SiteURL.blog.relativeURL()),
-                                "Blog"
-                            )
-                        ),
-                        .li(
-                            .a(
                                 .href(ExternalURL.projectGitHub),
                                 "GitHub"
                             )
                         ),
                         .li(
                             .a(
-                                .href(SiteURL.privacy.relativeURL()),
+                                .href(ExternalURL.privacyPolicy),
                                 "Privacy"
                             )
                         ),
@@ -303,26 +297,12 @@ struct DocumentationPageProcessor {
                         ),
                         .li(
                             .a(
-                                .href(ExternalURL.podcast),
-                                "Podcast"
-                            )
-                        ),
-                        .li(
-                            .a(
                                 .href(SiteURL.readyForSwift6.relativeURL()),
                                 "Ready for Swift 6"
                             )
                         )
                     )
                 ),
-                .small(
-                    .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
-                    .a(
-                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
-                        "all our sponsors for their generosity"
-                    ),
-                    .text(".")
-                )
             ),
             .if(environment.current() == .development, stagingBanner())
         ).render()

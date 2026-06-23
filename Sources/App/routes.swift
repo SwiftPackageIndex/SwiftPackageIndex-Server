@@ -51,10 +51,6 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.packageCollections.pathComponents) { req in
             MarkdownPage(path: req.url.path, "package-collections.md").document()
         }
-
-        app.get(SiteURL.privacy.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "privacy.md").document()
-        }
     }
 
     try docRoutes(app)
@@ -121,10 +117,6 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.search.pathComponents, use: SearchController.show)
     }
 
-    do {  // Supporters
-        app.get(SiteURL.supporters.pathComponents, use: SupportersController.show)
-    }
-
     do { // Uptime check
         app.get(SiteURL.healthCheck.pathComponents, use: HealthCheckController.show)
     }
@@ -177,7 +169,7 @@ func routes(_ app: Application) throws {
             protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
                          body: .collect(maxSize: 100_000),
                          use: API.BuildController.buildReport)
-            
+
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          body: .collect(maxSize: 100_000),
                          use: API.BuildController.docReport)

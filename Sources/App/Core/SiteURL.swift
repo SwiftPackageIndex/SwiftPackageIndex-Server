@@ -126,7 +126,6 @@ enum SiteURL: Resourceable, Sendable {
     case packageCollectionAuthor(_ owner: Parameter<String>)
     case packageCollectionCustom(_ key: Parameter<String>)
     case packageCollections
-    case privacy
     case readyForSwift6
     case rssPackages
     case rssReleases
@@ -134,7 +133,6 @@ enum SiteURL: Resourceable, Sendable {
     case siteMapIndex
     case siteMapStaticPages
     case stylesheets(String)
-    case supporters
     case healthCheck
     case validateSPIManifest
 
@@ -232,9 +230,6 @@ enum SiteURL: Resourceable, Sendable {
             case .packageCollections:
                 return "package-collections"
 
-            case .privacy:
-                return "privacy"
-
             case .readyForSwift6:
                 return "ready-for-swift-6"
 
@@ -252,9 +247,6 @@ enum SiteURL: Resourceable, Sendable {
 
             case .siteMapStaticPages:
                 return "sitemap-static-pages.xml"
-
-            case .supporters:
-                return "supporters"
 
             case let .stylesheets(name):
                 return "/\(name).css"
@@ -275,14 +267,12 @@ enum SiteURL: Resourceable, Sendable {
                     .faq,
                     .home,
                     .packageCollections,
-                    .privacy,
                     .readyForSwift6,
                     .rssPackages,
                     .rssReleases,
                     .search,
                     .siteMapIndex,
                     .siteMapStaticPages,
-                    .supporters,
                     .healthCheck,
                     .validateSPIManifest:
                 return [.init(stringLiteral: path)]

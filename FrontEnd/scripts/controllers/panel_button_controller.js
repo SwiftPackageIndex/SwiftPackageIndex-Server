@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import { Controller } from '@hotwired/stimulus'
-import { measurePlausibleEvent } from '../plausible_analytics'
+import { measureAnalyticsEvent } from '../analytics'
 
 export class PanelButtonController extends Controller {
     static values = { analyticsEvent: String }
 
     click(event) {
-        measurePlausibleEvent('Panel Button Clickthrough', {
+        measureAnalyticsEvent('Panel Button Clickthrough', {
             props: {
                 panel: this.analyticsEventValue,
             },

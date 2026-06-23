@@ -18,11 +18,6 @@
   summary: As part of the Swift Package Index build system, we have processed what must be the most extensive test of Apple Silicon compatibility outside of Apple. Here’s what we found.
   published_at: 2020-09-09
   published: true
-- slug: funding-the-future-of-the-swift-package-index
-  title: Funding the Future of the Swift Package Index
-  summary: Many open-source projects are just code and don’t need constant attention. The Swift Package Index is a little different, so we are opening up GitHub sponors for the project. We’d love your support.
-  published_at: 2020-10-12
-  published: true
 - slug: the-swift-package-index-metadata-file-first-steps
   title: The Swift Package Index Metadata File – First Steps
   summary: The Swift Package Index gathers most of the metadata about a package from external sources. The package manifest, the git repository, and GitHub. But, there are some things we need to know that are specific to the Swift Package Index. Learn how to take advantage of the extra settings available to your package.
@@ -48,20 +43,10 @@
   summary: Making any open-source project sustainable for the long term is challenging in many ways, but with the Swift Package Index we also need significant hardware resources to keep it available.
   published_at: 2021-03-30
   published: true
-- slug: launching-the-swift-package-index-playgrounds-app-for-macos
-  title: Launching the Swift Package Index Playgrounds app for macOS
-  summary: Try out any Swift package in Xcode with just a couple of clicks. It’s the launch of the first native app from the Swift Package Index!
-  published_at: 2021-05-05
-  published: true
 - slug: how-the-swift-package-index-project-got-started
   title: How the Swift Package Index project got started because of a button
   summary: How did the Swift Package Index project get started, and why does a button feature so prominently in the story? Read on to find out.
   published_at: 2021-05-05
-  published: true
-- slug: using-the-spi-playgrounds-app-to-file-better-bug-reports
-  title: Using the SPI Playgrounds app to file better bug reports
-  summary: If you’ve been wondering why we created the SPI Playgrounds app, read on for a story where we used a playground to file a better bug report in the Vapor project.
-  published_at: 2021-05-17
   published: true
 - slug: progress-update-may-2021
   title: Progress Report - May 2021
@@ -98,11 +83,6 @@
   summary: How often do you update your package dependencies, and when you do, do you check what’s new or changed? We have a new tool that can help!
   published_at: 2022-01-25
   published: true
-- slug: we-support-ukraine
-  title: We support Ukraine
-  summary: Russia’s invasion of Ukraine is appalling and we support Ukraine.
-  published_at: 2022-02-26
-  published: true
 - slug: two-years-of-the-swift-package-index
   title: Two years of the Swift Package Index
   summary: It’s been exactly two years since the first commit of the Swift Package Index! More than 950 pull requests and 5,000 commits later, we now index and compatibility test over 4,500 packages!
@@ -112,11 +92,6 @@
   title: Auto-generating, Auto-hosting, and Auto-updating DocC Documentation
   summary: DocC is Apple’s recommended way to provide documentation for your packages, and launching today, the Swift Package Index can generate, host, and update package documentation for any package in the index!
   published_at: 2022-06-03
-  published: true
-- slug: we-need-your-help-to-fund-this-project
-  title: We need your help to fund this project
-  summary: As an open-source project without the backing of a big company, we need your help to keep this project going.
-  published_at: 2022-07-11
   published: true
 - slug: searching-for-plugins
   title: Searching for plugins?
@@ -207,4 +182,10 @@
   title: Five years of the Swift Package Index
   summary: This week sees a rather significant anniversary for the Swift Package Index. It's been five years since we launched, so it's time to reflect!
   published_at: 2025-06-05
+  published: true
+- slug: swift-package-index-joins-apple
+  title: Swift Package Index joins Apple
+  summary: Swift Package Index is now part of Apple. Here's what that means.
+  written_by: Ted Kremenek, Dave Verwer, and Sven A. Schmidt
+  published_at: 2026-06-23
   published: true

@@ -86,4 +86,23 @@ extension Date {
         @Dependency(\.date.now) var now
         return "\(date: self, relativeTo: now)"
     }
+
+    var ordinalLongDateString: String {
+        @Dependency(\.timeZone) var timeZone
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let day = calendar.component(.day, from: self)
+
+        let ordinal = NumberFormatter()
+        ordinal.numberStyle = .ordinal
+        ordinal.locale = .init(identifier: "en_GB")
+        let dayString = ordinal.string(from: NSNumber(value: day)) ?? "\(day)"
+
+        let monthYear = DateFormatter()
+        monthYear.dateFormat = "MMMM yyyy"
+        monthYear.locale = .init(identifier: "en_GB")
+        monthYear.timeZone = timeZone
+
+        return "\(dayString) \(monthYear.string(from: self))"
+    }
 }

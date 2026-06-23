@@ -10,12 +10,6 @@
     <loc>http://localhost:8080/faq</loc>
   </url>
   <url>
-    <loc>http://localhost:8080/supporters</loc>
-  </url>
-  <url>
     <loc>http://localhost:8080/build-monitor</loc>
-  </url>
-  <url>
-    <loc>http://localhost:8080/privacy</loc>
   </url>
 </urlset>

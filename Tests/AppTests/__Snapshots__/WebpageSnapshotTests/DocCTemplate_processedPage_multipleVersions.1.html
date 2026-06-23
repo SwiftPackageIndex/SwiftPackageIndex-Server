@@ -10,8 +10,15 @@
   <link rel="stylesheet" href="/shared.css?test" />
   <script src="/shared.js?test" data-turbo-track="reload" defer></script>
   <link rel="canonical" href="https://example.com/owner/repo/canonical-ref" />
-  <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script> 
-  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script>var s_account = 'awdswiftpackageindexcom'</script> 
+  <script src="https://developer.apple.com/assets/metrics/scripts/analytics.js"></script> 
+  <script>
+    s.pageName = AC && AC.Tracking && AC.Tracking.pageName()
+
+    /************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+    var s_code = s.t()
+    if (s_code) document.write(s_code)
+</script>
  </head> 
  <body>
   <header class="spi">
@@ -57,17 +64,14 @@
     <time datetime="1970-01-01">Last updated on 1 Jan 1970</time>
     <nav>
      <ul>
-      <li><a href="/blog">Blog</a></li>
       <li><a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a></li>
-      <li><a href="/privacy">Privacy</a></li>
+      <li><a href="https://www.apple.com/privacy/privacy-policy/">Privacy</a></li>
       <li><a href="https://swiftpackageindex.statuspage.io">System Status</a></li>
       <li><a href="/build-monitor">Build System Monitor</a></li>
-      <li><a href="https://mas.to/@SwiftPackageIndex">Mastodon</a></li>
-      <li><a href="https://swiftpackageindexing.transistor.fm">Podcast</a></li>
+      <li><a href="https://mas.to/@SwiftPackageUpdates">Mastodon</a></li>
       <li><a href="/ready-for-swift-6">Ready for Swift 6</a></li>
      </ul>
     </nav>
-    <small>The Swift Package Index is entirely funded by sponsorship. Thank you to <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.</small>
    </div>
   </footer>
   <spi-debug-panel class="hidden">

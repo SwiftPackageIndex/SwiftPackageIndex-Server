@@ -33,6 +33,7 @@ enum BlogActions {
             var slug: String
             var title: String
             var summary: String
+            var writtenBy: String? = nil
             var publishedAt: Date
             var published: Bool
         }
@@ -98,7 +99,10 @@ extension BlogActions.Model.PostSummary {
 
     func publishInformation() -> Plot.Node<HTML.BodyContext> {
         if published {
-            return .publishedTime(publishedAt, label: "Published on")
+            return .time(
+                .datetime(DateFormatter.yearMonthDayDateFormatter.string(from: publishedAt)),
+                .text(publishedAt.ordinalLongDateString)
+            )
         } else {
             return .group(
                 .strong("DRAFT POST"),
@@ -120,6 +124,7 @@ extension BlogActions.Model.PostSummary: Decodable {
         case slug
         case title
         case summary
+        case writtenBy = "written_by"
         case publishedAt = "published_at"
         case published
     }
@@ -129,6 +134,7 @@ extension BlogActions.Model.PostSummary: Decodable {
         self.slug = try container.decode(String.self, forKey: .slug)
         self.title = try container.decode(String.self, forKey: .title)
         self.summary = try container.decode(String.self, forKey: .summary)
+        self.writtenBy = try container.decodeIfPresent(String.self, forKey: .writtenBy)
         self.published = try container.decode(Bool.self, forKey: .published)
 
         let dateString = try container.decode(String.self, forKey: .publishedAt)

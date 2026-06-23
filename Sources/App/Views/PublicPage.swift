@@ -170,8 +170,8 @@ class PublicPage {
         return [.blog, .packages]
     }
 
-    /// The Plausible analytics code to be inserted into the <head> element.
-    /// - Returns: A <script> containing the Plausible script tags.
+    /// The analytics code to be inserted into the <head> element.
+    /// - Returns: A <script> containing the analytics script tags.
     final func analyticsHead() -> Node<HTML.HeadContext> {
         @Dependency(\.environment) var environment
         return .if(environment.current() == .production, .raw(PublicPage.analyticsScriptTags))
@@ -179,8 +179,15 @@ class PublicPage {
 
     static var analyticsScriptTags: String {
         """
-        <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
-        <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+        <script>var s_account = 'awdswiftpackageindexcom'</script>
+        <script src="https://developer.apple.com/assets/metrics/scripts/analytics.js"></script>
+        <script>
+            s.pageName = AC && AC.Tracking && AC.Tracking.pageName()
+
+            /************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+            var s_code = s.t()
+            if (s_code) document.write(s_code)
+        </script>
         """
     }
 
@@ -325,7 +332,7 @@ class PublicPage {
     /// The items to be rendered in the site navigation menu.
     /// - Returns: An array of `NavMenuItem` items used in `header`.
     func navMenuItems() -> [NavMenuItem] {
-        [.supporters, .addPackage, .blog, .faq, .search]
+        [.addPackage, .blog, .faq, .search]
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
@@ -411,19 +418,13 @@ class PublicPage {
                     .ul(
                         .li(
                             .a(
-                                .href(SiteURL.blog.relativeURL()),
-                                "Blog"
-                            )
-                        ),
-                        .li(
-                            .a(
                                 .href(ExternalURL.projectGitHub),
                                 "GitHub"
                             )
                         ),
                         .li(
                             .a(
-                                .href(SiteURL.privacy.relativeURL()),
+                                .href(ExternalURL.privacyPolicy),
                                 "Privacy"
                             )
                         ),
@@ -447,27 +448,21 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href(ExternalURL.podcast),
-                                "Podcast"
-                            )
-                        ),
-                        .li(
-                            .a(
                                 .href(SiteURL.readyForSwift6.relativeURL()),
                                 "Ready for Swift 6"
                             )
                         )
                     ),
                     .small(
-                        .text("The Swift Package Index is entirely funded by community sponsorship. Thank you to "),
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
-                            "all our sponsors for their generosity"
-                        ),
-                        .text(".")
+                        .text("Copyright © 2026 SPI Operations Limited. All rights reserved. Swift Package Index and the Swift Package Index logo are trademarks of SPI Operations Limited. Swift and the Swift logo are trademarks of Apple Inc.")
                     ),
                     .small(
-                        .text("The Swift Package Index is operated by SPI Operations Limited, a company registered in the UK with company number 13466692.")
+                        .text("The Swift Package Index is operated by SPI Operations Limited ("),
+                        .a(
+                            .href("mailto:contact@swiftpackageindex.com"),
+                            .text("contact@swiftpackageindex.com")
+                        ),
+                        .text("), a company registered in England and Wales with company number 13466692, with its registered office at 280 Bishopsgate, London, EC2M 4AG.")
                     ),
                     // Mastodon verification links
                     .a(

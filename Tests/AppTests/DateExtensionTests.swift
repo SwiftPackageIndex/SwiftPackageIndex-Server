@@ -12,20 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
+@testable import App
+
 import Dependencies
-import Vapor
+import Testing
 
+extension AllTests.DateExtensionTests {
 
-struct BackendReportingMiddleware: AsyncMiddleware {
-    var path: Analytics.Path
-    var isActive: Bool = true
-
-    func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
-        let response = try await next.respond(to: request)
-        guard isActive else { return response }
-        let user = try? request.auth.require(User.self)
-        @Dependency(\.httpClient) var httpClient
-        try await httpClient.postAnalyticsEvent(kind: .pageview, path: path, user: user)
-        return response
+    @Test(arguments: [
+        ("2021-04-01", "1st April 2021"),
+        ("2021-04-02", "2nd April 2021"),
+        ("2021-04-03", "3rd April 2021"),
+        ("2021-04-04", "4th April 2021"),
+    ])
+    func ordinalLongDateString(input: String, expected: String) throws {
+        try withDependencies {
+            $0.timeZone = .utc
+        } operation: {
+            let fmt = DateFormatter.yearMonthDayDateFormatter
+            let date = try #require(fmt.date(from: input))
+            #expect(date.ordinalLongDateString == expected)
+        }
     }
+
 }

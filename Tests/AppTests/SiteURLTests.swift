@@ -23,8 +23,8 @@ import Vapor
 extension AllTests.SiteURLTests {
 
     @Test func pathComponents_simple() throws {
-        let p = SiteURL.privacy.pathComponents
-        #expect(p.map(\.description) == ["privacy"])
+        let p = SiteURL.addAPackage.pathComponents
+        #expect(p.map(\.description) == ["add-a-package"])
     }
 
     @Test func pathComponents_with_parameter() throws {
@@ -40,7 +40,7 @@ extension AllTests.SiteURLTests {
     @Test func relativeURL() throws {
         #expect(SiteURL.home.relativeURL() == "/")
         #expect(SiteURL.images("foo.png").relativeURL() == "/images/foo.png")
-        #expect(SiteURL.privacy.relativeURL() == "/privacy")
+        #expect(SiteURL.addAPackage.relativeURL() == "/add-a-package")
     }
 
     @Test func relativeURL_for_Package() throws {
@@ -66,7 +66,7 @@ extension AllTests.SiteURLTests {
         } operation: {
             #expect(SiteURL.home.absoluteURL() == "https://indexsite.com/")
             #expect(SiteURL.images("foo.png").absoluteURL() == "https://indexsite.com/images/foo.png")
-            #expect(SiteURL.privacy.absoluteURL() == "https://indexsite.com/privacy")
+            #expect(SiteURL.addAPackage.absoluteURL() == "https://indexsite.com/add-a-package")
         }
     }
 

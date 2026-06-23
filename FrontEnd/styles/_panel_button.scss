@@ -53,94 +53,14 @@
     // Specific panel buttons.
     // -------------------------------------------------------------------------
 
-    &.scta {
-        --panel-accent: var(--scta-panel-accent);
-        position: relative;
-        margin-top: 20px;
 
-        &::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            right: -5px;
-            display: block;
-            width: 40px;
-            height: 35px;
-            background-repeat: no-repeat;
-            background-size: 100%;
-            background-image: var(--image-heart);
-        }
-
-        .avatars {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 2px;
-            margin-top: 10px;
-
-            img {
-                justify-self: center;
-                width: 100%;
-                height: 100%;
-                border-radius: 100%;
-            }
-
-            &::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--scta-avatar-gradient);
-            }
-        }
-    }
-
-    &.ccta {
-        --panel-accent: var(--ccta-panel-accent);
-
+    &.news {
         .body {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-
-            img {
-                max-width: 180px;
-            }
+            text-align: left;
         }
-    }
 
-    &.ghcta {
-        --panel-accent: var(--ghcta-panel-accent);
-
-        .body {
-            padding-top: 65px;
-            background-position: center top 10px;
-            background-repeat: no-repeat;
-            background-size: 120px;
-            background-image: var(--image-ghcta-header);
-        }
-    }
-
-    &.podcast {
-        --panel-accent: var(--podcast-panel-accent);
-        --panel-button-background: var(--podcast-panel-background);
-        position: relative;
-        margin-top: 20px;
-
-        &::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            right: -5px;
-            display: block;
-            width: 40px;
-            height: 40px;
-            background-repeat: no-repeat;
-            background-size: 100%;
-            background-image: var(--image-podcast);
+        @media screen and (max-width: $mobile-breakpoint) {
+            max-width: none;
         }
     }
 

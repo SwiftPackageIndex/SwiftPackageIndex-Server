@@ -20,26 +20,26 @@ import Dependencies
 import Testing
 
 
-extension AllTests.PlausibleTests {
+extension AllTests.AnalyticsTests {
 
     @Test func User_identifier() throws {
         #expect(User.api(for: "token") == .init(name: "api", identifier: "3c469e9d"))
     }
 
     @Test func props() throws {
-        #expect(Plausible.props(for: nil) == ["user": "none"])
-        #expect(Plausible.props(for: .init(name: "api", identifier: "foo")) == ["user": "foo"])
+        #expect(Analytics.props(for: nil) == ["user": "none"])
+        #expect(Analytics.props(for: .init(name: "api", identifier: "foo")) == ["user": "foo"])
     }
 
     @Test func postEvent_anonymous() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
-            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
+            $0.environment.analyticsBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
                 let body = try #require(body)
-                #expect(try JSONDecoder().decode(Plausible.Event.self, from: body)
+                #expect(try JSONDecoder().decode(Analytics.Event.self, from: body)
                         == .init(name: .pageview,
                                  url: "https://foo.bar/api/search",
                                  domain: "foo.bar",
@@ -48,7 +48,7 @@ extension AllTests.PlausibleTests {
             }
         } operation: {
             // MUT
-            _ = try await Plausible.postEvent(kind: .pageview, path: .search, user: nil)
+            _ = try await Analytics.postEvent(kind: .pageview, path: .search, user: nil)
 
             await called.withValue { #expect($0) }
         }
@@ -57,12 +57,12 @@ extension AllTests.PlausibleTests {
     @Test func postEvent_package() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
-            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
+            $0.environment.analyticsBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
                 let body = try #require(body)
-                #expect(try JSONDecoder().decode(Plausible.Event.self, from: body)
+                #expect(try JSONDecoder().decode(Analytics.Event.self, from: body)
                         == .init(name: .pageview,
                                  url: "https://foo.bar/api/packages/{owner}/{repository}",
                                  domain: "foo.bar",
@@ -73,7 +73,7 @@ extension AllTests.PlausibleTests {
             let user = User(name: "api", identifier: "3c469e9d")
 
             // MUT
-            _ = try await Plausible.postEvent(kind: .pageview, path: .package, user: user)
+            _ = try await Analytics.postEvent(kind: .pageview, path: .package, user: user)
 
             await called.withValue { #expect($0) }
         }

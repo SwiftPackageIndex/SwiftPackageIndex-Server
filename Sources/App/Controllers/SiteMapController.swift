@@ -25,9 +25,7 @@ enum SiteMapController {
         .home,
         .addAPackage,
         .faq,
-        .supporters,
-        .buildMonitor,
-        .privacy
+        .buildMonitor
     ]
 
     struct Package: Equatable, Decodable {

@@ -8,13 +8,7 @@ The [Swift Package Index](https://swiftpackageindex.com) is the place to find pa
 
 ## Code of Conduct
 
-All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
-
-## Funding and Sponsorship
-
-The Swift Package Index is a community project that would not be possible without the support of its sponsors. Thank you to _everyone_ who supports this project! You can see all of our current corporate, infrastructure, and community sponsors over on our [Supporters page](https://swiftpackageindex.com/supporters).
-
-If you'd like to help keep this project running, the best way through our [GitHub Sponsors](https://github.com/sponsors/SwiftPackageIndex). Your support directly helps keep this project running and moving forward. Thank you!
+All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](https://www.swift.org/code-of-conduct/) before contributing.
 
 ## Contributing
 
@@ -27,7 +21,3 @@ We also have a Discord server. If you'd like to join, please [use this invite](h
 ### Running the Project Locally
 
 The best place to start is our in-depth guide to [setting up the Swift Package Index for local development](LOCAL_DEVELOPMENT_SETUP.md)! If you run into any problems, please [start a discussion](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions) or [join us on Discord](https://discord.gg/vQRb6KkYRw).
-
-### Contributor License Agreements
-
-The Swift Package Index is [licensed under the Apache 2.0 license](LICENSE). Before we can accept your contributions, you'll need to sign a standard Apache 2.0 Contributor License Agreement. We will organise this during your first pull request.

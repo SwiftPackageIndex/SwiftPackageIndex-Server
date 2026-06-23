@@ -15,7 +15,6 @@
 import Plot
 
 enum NavMenuItem {
-    case supporters
     case addPackage
     case blog
     case faq
@@ -24,14 +23,6 @@ enum NavMenuItem {
 
     func listNode() -> Node<HTML.ListContext> {
         switch self {
-            case .supporters:
-                return .li(
-                    .a(
-                        .class("supporters"),
-                        .href(SiteURL.supporters.relativeURL()),
-                        "Supporters"
-                    )
-                )
             case .addPackage:
                 return .li(
                     .a(

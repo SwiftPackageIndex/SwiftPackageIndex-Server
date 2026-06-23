@@ -18,9 +18,8 @@ enum ExternalURL: URLRepresentable {
     case addNewPackage(_ owner: String, _ repository: String)
     case contactMailto
     case mastodon
-    case podcast
+    case privacyPolicy
     case projectGitHub
-    case projectSponsorship
     case raiseNewIssue
 
     var description: String {
@@ -30,13 +29,11 @@ enum ExternalURL: URLRepresentable {
             case .contactMailto:
                 return "mailto:contact@swiftpackageindex.com"
             case .mastodon:
-                return "https://mas.to/@SwiftPackageIndex"
-            case .podcast:
-                return "https://swiftpackageindexing.transistor.fm"
+                return "https://mas.to/@SwiftPackageUpdates"
+            case .privacyPolicy:
+                return "https://www.apple.com/privacy/privacy-policy/"
             case .projectGitHub:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
-            case .projectSponsorship:
-                return "https://github.com/sponsors/SwiftPackageIndex"
             case .raiseNewIssue:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
         }

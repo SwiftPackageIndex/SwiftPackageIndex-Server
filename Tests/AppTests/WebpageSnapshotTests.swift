@@ -44,8 +44,6 @@ extension AllTests {
 extension AllTests.WebpageSnapshotTests {
 
     @Test func HomeIndex_document() throws {
-        Supporters.mock()
-
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
         assertSnapshot(of: page, as: .html)
@@ -56,8 +54,6 @@ extension AllTests.WebpageSnapshotTests {
         withDependencies {
             $0.environment.current = { .development }
         } operation: {
-            Supporters.mock()
-
             let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
             assertSnapshot(of: page, as: .html)
@@ -320,7 +316,7 @@ extension AllTests.WebpageSnapshotTests {
     }
 
     @Test func MarkdownPage_document() throws {
-        let page = { MarkdownPage(path: "", "privacy.md").document() }
+        let page = { MarkdownPage(path: "", "add-a-package.md").document() }
 
         assertSnapshot(of: page, as: .html)
     }
@@ -562,15 +558,6 @@ extension AllTests.WebpageSnapshotTests {
         assertSnapshot(of: processor.processedPage, as: .html)
     }
 
-    @Test func SupportersShow_document() throws {
-        Supporters.mock()
-
-        let model = SupportersShow.Model()
-        let page = { SupportersShow.View(path: "", model: model).document() }
-
-        assertSnapshot(of: page, as: .html)
-    }
-
     @Test func ReadyForSwift6Show_document() throws {
         withDependencies {
             $0.fileManager.contents = { @Sendable path in
@@ -647,7 +634,6 @@ extension AllTests.WebpageSnapshotTests {
     }
 
     @Test func BlogActions_Index_document() {
-        Supporters.mock()
         let model = BlogActions.Model.mock
         let page = { BlogActions.Index.View(path: "", model: model).document() }
 

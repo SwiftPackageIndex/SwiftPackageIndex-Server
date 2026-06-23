@@ -29,7 +29,7 @@ struct HTTPClient {
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var mastodonPost: @Sendable (_ message: String) async throws -> Void
-    var postPlausibleEvent: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void
+    var postAnalyticsEvent: @Sendable (_ kind: Analytics.Event.Kind, _ path: Analytics.Path, _ user: User?) async throws -> Void
 }
 
 extension HTTPClient: DependencyKey {
@@ -61,8 +61,8 @@ extension HTTPClient: DependencyKey {
                 }
             },
             mastodonPost: { message in try await Mastodon.post(message: message) },
-            postPlausibleEvent: { kind, path, user in
-                try await Plausible.postEvent(kind: kind, path: path, user: user)
+            postAnalyticsEvent: { kind, path, user in
+                try await Analytics.postEvent(kind: kind, path: path, user: user)
             }
         )
     }
@@ -115,7 +115,7 @@ extension HTTPClient {
         }
     }
 
-    static var noop: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void {
+    static var noop: @Sendable (_ kind: Analytics.Event.Kind, _ path: Analytics.Path, _ user: User?) async throws -> Void {
         { _, _, _ in }
     }
 }

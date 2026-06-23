@@ -139,7 +139,7 @@ extension AllTests.RSSTests {
     @Test func recentPackages_route() async throws {
         // Test request handler
         try await withDependencies {
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 try await app.testing().test(.GET, "packages.rss", afterResponse: { res async in
@@ -153,7 +153,7 @@ extension AllTests.RSSTests {
     @Test func recentReleases_route_all() async throws {
         // Test request handler - without parameters (all)
         try await withDependencies {
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -194,7 +194,7 @@ extension AllTests.RSSTests {
     @Test func recentReleases_route_major() async throws {
         // Test request handler - major releases only
         try await withDependencies {
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -235,7 +235,7 @@ extension AllTests.RSSTests {
     @Test func recentReleases_route_majorMinor() async throws {
         // Test request handler - major & minor releases only
         try await withDependencies {
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -276,7 +276,7 @@ extension AllTests.RSSTests {
     @Test func recentReleases_route_preRelease() async throws {
         // Test request handler - pre-releases only
         try await withDependencies {
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // setup

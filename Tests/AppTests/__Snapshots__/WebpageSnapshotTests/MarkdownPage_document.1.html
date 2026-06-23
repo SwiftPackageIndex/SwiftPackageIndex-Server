@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta property="og:url" content="http://localhost:8080/"/>
-    <title>Privacy &amp; Cookies &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="Privacy & Cookies &ndash; Swift Package Index"/>
-    <meta property="og:title" content="Privacy & Cookies &ndash; Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index and your privacy"/>
-    <meta name="twitter:description" content="The Swift Package Index and your privacy"/>
-    <meta property="og:description" content="The Swift Package Index and your privacy"/>
+    <title>Add a Package &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Add a Package &ndash; Swift Package Index"/>
+    <meta property="og:title" content="Add a Package &ndash; Swift Package Index"/>
+    <meta name="description" content="Want to add a package to the Swift Package Index? It's easy."/>
+    <meta name="twitter:description" content="Want to add a package to the Swift Package Index? It's easy."/>
+    <meta property="og:description" content="Want to add a package to the Swift Package Index? It's easy."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta property="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -27,8 +27,15 @@
     <link rel="stylesheet" href="/shared.css?test" data-turbo-track="reload"/>
     <link rel="stylesheet" href="/main.css?test" data-turbo-track="reload"/>
     <script src="/shared.js?test" data-turbo-track="reload" defer></script>
-    <script src="/main.js?test" data-turbo-track="reload" defer></script><script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
-<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    <script src="/main.js?test" data-turbo-track="reload" defer></script><script>var s_account = 'awdswiftpackageindexcom'</script>
+<script src="https://developer.apple.com/assets/metrics/scripts/analytics.js"></script>
+<script>
+    s.pageName = AC && AC.Tracking && AC.Tracking.pageName()
+
+    /************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+    var s_code = s.t()
+    if (s_code) document.write(s_code)
+</script>
   </head>
   <body class="markdown">
     <header>
@@ -40,9 +47,6 @@
         </a>
         <nav>
           <ul>
-            <li>
-              <a class="supporters" href="/supporters">Supporters</a>
-            </li>
             <li>
               <a href="/add-a-package">Add a Package</a>
             </li>
@@ -74,26 +78,29 @@
             </a>
           </li>
           <li>
-            <span>Privacy &amp; Cookies</span>
+            <span>Add a Package</span>
           </li>
         </ul>
       </div>
     </nav>
     <main>
-      <div class="inner"><h3>Your Personal Information</h3><p>This site has no user accounts and does not ask you to identify yourself.</p><h3>Data Sources and Storage</h3><p>The source of all data indexed by this site is <a href="https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json">this packages.json</a> file. Any information gathered is from either the repository itself or the repository’s hosting platform. This site gathers information only from publicly accessible source repositories. If you are the owner of a Swift package indexed by this site and would like it removed from this index, please let us know by <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">creating a new GitHub issue</a>.</p><h3>Cookies and Analytics</h3><p>This site uses <a href="https://plausible.io/">Plausible Analytics</a> to gather anonymous usage data. We do not track visitors in any way and do not store a cookie or use local storage. You can read more about how Plausible analytics works in their <a href="https://plausible.io/data-policy">data policy</a>.</p><p>This site routes all traffic through the Cloudflare CDN. For more information, see the <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare privacy policy</a>.</p><h3>Contacting Us</h3><p>If you have any questions about your privacy and this website, please email contact@swiftpackageindex.com.</p></div>
+      <div class="inner"><h2>Add a Package</h2><p>Anyone can add a package to the Swift Package Index. Please feel free to submit any package repository to the index, whether it's a package written by you or someone else. There's also no quality threshold. As long as the packages are valid and meet the requirements below, we will accept them. If you're unsure about any of the requirements, please submit the package(s), and we'll happily provide help.</p><p>There are a few requirements for inclusion in the index, but they aren't onerous:</p><ul><li>The package repositories must all be publicly accessible.</li><li>The packages must all contain a valid <code>Package.swift</code> file in the root folder.</li><li>The packages must be written in Swift 5.0 or later.</li><li>The packages should have at least one release tagged as a <a href="https://semver.org/">semantic version</a>.</li><li>The packages must all output valid JSON when running <code>swift package dump-package</code> with the latest Swift toolchain.</li><li>The package URLs must include the protocol (usually <code>https</code>) and the <code>.git</code> extension.</li><li>The packages must all compile without errors.</li><li>All package content must comply with our <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/CODE_OF_CONDUCT.md">code of conduct</a>.</li></ul><a href="https://github.com/SwiftPackageIndex/PackageList/issues/new/choose" class="big-button green">Add Package(s)</a><div class="note">
+<p><strong>Note:</strong> Our build system can now generate and host DocC documentation and make it available from your package’s page in the index. All we need is a little configuration data so that we know how best to build your docs.</p>
+<p><a href="https://swiftpackageindex.com/swiftpackageindex/spimanifest/documentation/spimanifest/commonusecases#Host-DocC-documentation-in-the-Swift-Package-Index">More information here</a>.</p>
+</div><div class="note">
+<p><strong>Note:</strong> If submitting your own packages, don't forget to add shields.io badges to your package's README to always have up to date swift version and platform compatibility information readily available. Once your package appears in the index, use the "Do you maintain this package?" link in the right-hand sidebar of your package page and use the provided markdown.</p>
+<p>For example:<br/><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdaveverwer%2FLeftPad%2Fbadge%3Ftype%3Dplatforms"> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdaveverwer%2FLeftPad%2Fbadge%3Ftype%3Dswift-versions"></p>
+</div><h3>Removing a Package</h3><p>You can request to have a package removed from the index with <a href="https://github.com/SwiftPackageIndex/PackageList/issues/new/choose">this GitHub workflow</a>.</p></div>
     </main>
     <footer>
       <div class="inner">
         <nav>
           <ul>
             <li>
-              <a href="/blog">Blog</a>
-            </li>
-            <li>
               <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
             </li>
             <li>
-              <a href="/privacy">Privacy</a>
+              <a href="https://www.apple.com/privacy/privacy-policy/">Privacy</a>
             </li>
             <li>
               <a href="https://swiftpackageindex.statuspage.io">System Status</a>
@@ -102,19 +109,16 @@
               <a href="/build-monitor">Build System Monitor</a>
             </li>
             <li>
-              <a href="https://mas.to/@SwiftPackageIndex">Mastodon</a>
-            </li>
-            <li>
-              <a href="https://swiftpackageindexing.transistor.fm">Podcast</a>
+              <a href="https://mas.to/@SwiftPackageUpdates">Mastodon</a>
             </li>
             <li>
               <a href="/ready-for-swift-6">Ready for Swift 6</a>
             </li>
           </ul>
-          <small>The Swift Package Index is entirely funded by community sponsorship. Thank you to 
-            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.
+          <small>Copyright © 2026 SPI Operations Limited. All rights reserved. Swift Package Index and the Swift Package Index logo are trademarks of SPI Operations Limited. Swift and the Swift logo are trademarks of Apple Inc.</small>
+          <small>The Swift Package Index is operated by SPI Operations Limited (
+            <a href="mailto:contact@swiftpackageindex.com">contact@swiftpackageindex.com</a>), a company registered in England and Wales with company number 13466692, with its registered office at 280 Bishopsgate, London, EC2M 4AG.
           </small>
-          <small>The Swift Package Index is operated by SPI Operations Limited, a company registered in the UK with company number 13466692.</small>
           <a rel="me" href="https://mas.to/@SwiftPackageIndex"></a>
           <a rel="me" href="https://mas.to/@SwiftPackageUpdates"></a>
         </nav>

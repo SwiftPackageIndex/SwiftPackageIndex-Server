@@ -16,7 +16,7 @@ import Vapor
 import Dependencies
 
 
-enum Plausible {
+enum Analytics {
     struct Event: Content, Equatable {
         var name: Kind
         var url: String
@@ -44,12 +44,12 @@ enum Plausible {
         var message: String
     }
 
-    static let postEventURL = "https://plausible.io/api/event"
+    static let postEventURL = "https://example.com/api/event"
 
     static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
         @Dependency(\.environment) var environment
-        guard let siteID = environment.plausibleBackendReportingSiteID() else {
-            throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
+        guard let siteID = environment.analyticsBackendReportingSiteID() else {
+            throw Error(message: "ANALYTICS_BACKEND_REPORTING_SITE_ID not set")
         }
         let body = try JSONEncoder().encode(Event(name: .pageview,
                                                   url: "https://\(siteID)\(path.rawValue)",
@@ -85,5 +85,5 @@ private extension HTTPHeaders {
 
 
 private extension Optional<User> {
-    var props: [String: String] { Plausible.props(for: self) }
+    var props: [String: String] { Analytics.props(for: self) }
 }

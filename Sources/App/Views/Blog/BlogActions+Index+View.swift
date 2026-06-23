@@ -68,18 +68,6 @@ extension BlogActions {
                     ),
                     .section(
                         .class("blog-container"),
-                        .section(
-                            .class("sidebar"),
-                            .panelButton(cssClass: "podcast",
-                                         linkUrl: ExternalURL.podcast,
-                                         bodyNode: .podcastPanelBody(includeHeading: true),
-                                         cta: "Listen Now",
-                                         analyticsEvent: "Blog - Podcast CTA"),
-                            .panelButton(cssClass: "scta",
-                                         linkUrl: SiteURL.supporters.relativeURL(),
-                                         bodyNode: .sponsorsCtaBody(),
-                                         analyticsEvent: "Home - Supporters CTA")
-                        ),
                         .ul(
                             .class("blog-posts"),
                             .group(
@@ -108,7 +96,7 @@ extension BlogActions {
             }
 
             override func navMenuItems() -> [NavMenuItem] {
-                [.supporters, .searchLink, .addPackage, .faq]
+                [.searchLink, .addPackage, .faq]
             }
         }
 

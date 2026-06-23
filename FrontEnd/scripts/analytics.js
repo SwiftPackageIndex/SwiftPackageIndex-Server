@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function measurePlausibleEvent(event, options = {}) {
-    if (typeof plausible === 'function') {
-        // eslint-disable-next-line no-undef
-        plausible(event, options)
-    }
+export function measureAnalyticsEvent(event, options = {}) {
+    console.log(`Analytics event: ${event}`, options)
 }

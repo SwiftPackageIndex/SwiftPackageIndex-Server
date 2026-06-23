@@ -54,7 +54,7 @@ extension AllTests.SitemapTests {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.current = { .production }
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp(environment: .production) { app in
                 // MUT
@@ -98,7 +98,7 @@ extension AllTests.SitemapTests {
         // Ensure sitemap routing is configured in prod
         try await withDependencies {
             $0.environment.current = { .production }
-            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp(environment: .production) { app in
                 // MUT

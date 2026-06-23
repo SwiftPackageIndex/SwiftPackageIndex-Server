@@ -34,6 +34,7 @@ extension AllTests.BlogActionsModelTests {
                 - slug: post-2
                   title: Blog post title two
                   summary: Summary of blog post two
+                  written_by: John Appleseed
                   published_at: 2024-01-02
                   published: false
                 """.data(using: .utf8)
@@ -56,9 +57,11 @@ extension AllTests.BlogActionsModelTests {
                     slug: "post-2",
                     title: "Blog post title two",
                     summary: "Summary of blog post two",
+                    writtenBy: "John Appleseed",
                     publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
                     published: false)
                 )
+                #expect(summaries.last?.writtenBy == nil)
             }
 
             try withDependencies {  // Ensure prod shows only published summaries

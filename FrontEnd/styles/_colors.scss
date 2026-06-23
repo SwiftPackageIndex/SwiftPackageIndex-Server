@@ -175,18 +175,6 @@
 
     --package-funding-background: var(--very-light-grey);
 
-    --scta-avatar-gradient: linear-gradient(
-        rgb(241 241 241 / 0%) 0,
-        rgb(241 241 241 / 0%) 50%,
-        rgb(241 241 241 / 100%) 100%
-    );
-    --scta-panel-accent: var(--pink);
-    --ccta-panel-accent: var(--mid-blue);
-    --ghcta-panel-accent: var(--pink);
-    --podcast-panel-background: var(--very-light-blue);
-    --podcast-panel-accent: var(--light-blue);
-
-    --avatar-shadow: 0 2px 2px 3px rgb(0 0 0 / 5%);
 
     --rss-subscribe-color: var(--orange);
 
@@ -234,9 +222,6 @@
         --panel-background-hover: var(--dark-grey);
         --panel-border: var(--dark-grey);
         --panel-underlay-opacity: 0.8;
-
-        --podcast-panel-background: var(--very-dark-blue);
-        --podcast-panel-accent: var(--dark-blue);
 
         --green-text: var(--mid-green);
 
@@ -312,12 +297,6 @@
         --panel-cta-background: var(--dark-grey);
 
         --package-funding-background: var(--very-dark-grey);
-
-        --scta-avatar-gradient: linear-gradient(
-            rgb(25 25 35 / 0%) 0,
-            rgb(25 25 35 / 0%) 50%,
-            rgb(25 25 35 / 100%) 100%
-        );
 
         --debug-console-background: var(--dark-blue);
         --debug-console-border: var(--light-grey);

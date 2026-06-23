@@ -33,6 +33,7 @@ body.blog {
         font-size: 30px;
     }
 
+
     // We use a different style on the blog and import highlight.js directly, so
     // the background for a code snipplet here needs to match the background colour
     // of the theme specified in `FrontEnd/styles/main.css`.
@@ -61,16 +62,6 @@ body.blog {
             background-size: contain;
             background-image: var(--image-rss);
         }
-    }
-
-    .sidebar {
-        float: right;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 320px;
-        padding: 0 0 10px 40px;
-        background-color: var(--page-background);
     }
 
     ul.blog-posts {

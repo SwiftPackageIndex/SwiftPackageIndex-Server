@@ -7,11 +7,7 @@ description: Frequently Asked Questions about the Swift Package Index
 
 - [What is the Swift Package Index?](#what-is-the-spi)
 - [What is the Swift Package Manager?](#what-is-the-spm)
-- [Who built the Swift Package Index?](#creators)
-- [Can I support the Swift Package Index?](#support)
-- [What happened to the SwiftPM Library?](#swiftpm-library)
 - [How does the Swift Package Index work?](#how-does-it-work)
-- [What about the GitHub Package Registry?](#package-registry)
 - [How is the Swift language and platform support calculated?](#language-and-platforms)
 - [Can the Swift Package Index host my package's documentation?](#documentation)
 - [Can I contribute to the Swift Package Index?](#contributing)
@@ -37,35 +33,11 @@ To find out more about the Swift Package Manager, there's [documentation on the 
 
 ---
 
-<h3 id="creators">Who built the Swift Package Index?</h3>
-
-Thanks for asking! It was built by [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/). You can also see a [full list of contributors](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/graphs/contributors).
-
----
-
-<h3 id="support">Can I support the Swift Package Index?</h3>
-
-We'd love to have your support. Thank you! You can read more about [how we are funding this project](https://blog.swiftpackageindex.com/posts/funding-the-future-of-the-swift-package-index/) and [support it via GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
-
----
-
-<h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
-
-This site is a spiritual successor and replacement for [the SwiftPM Library](/images/screenshots/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, and the Swift Package Index is the future of Swift package search.
-
----
-
 <h3 id="how-does-it-work">How does the Swift Package Index work?</h3>
 
 The data in this index originates from [this list of repositories](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json). When someone adds a repository to the package list, this site immediately makes a full clone of the package source. Metadata is extracted from the source code and local git history, as well as from the hosted repository on GitHub.
 
 Packages are also polled for changes every few hours, so the information you see in the index always reflects the latest package releases, without any action required from the package author.
-
----
-
-<h3 id="package-registry">What about the GitHub Package Registry?</h3>
-
-We’re excited to see the GitHub Package Registry gain support for the Swift packages. There’s [a proposal under discussion](https://forums.swift.org/t/swift-package-registry-service/37219) for the Swift Package Manager support to support package registries formally, but a package registry is not a package search engine like this site is. If the Swift project accepts the proposal, this site will support and index the GitHub Package Registry, and any other significant implementation of a package registry as they become available.
 
 ---
 

@@ -56,25 +56,22 @@ enum HomeIndex {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .section(
-                .class("two-column"),
-                .section(
-                    homePageCTA(),
-                    recentPackageLists()
-                ),
-                .section(
-                    supporterSidebar()
-                )
+            .group(
+                homePageCTA(),
+                recentPackageLists()
             )
         }
 
         func homePageCTA() -> Node<HTML.BodyContext> {
             .section(
-                .panelButton(cssClass: "podcast",
-                             linkUrl: ExternalURL.podcast,
-                             bodyNode: .podcastPanelBody(includeHeading: false),
-                             cta: "Listen Now",
-                             analyticsEvent: "Home - Podcast CTA")
+                .panelButton(cssClass: "news",
+                             linkUrl: SiteURL.blogPost(.value("swift-package-index-joins-apple")).relativeURL(),
+                             bodyNode: .group(
+                                .strong("Swift Package Index has joined Apple!"),
+                                .text(" "),
+                                .text("The project remains open source, and of course it's still the best place to find Swift package information, compatibility data, and package documentation.")
+                             ),
+                             cta: "Read the Announcement")
             )
         }
 
@@ -94,64 +91,8 @@ enum HomeIndex {
             )
         }
 
-        func supporterSidebar() -> Node<HTML.BodyContext> {
-            .section(
-                .class("supporter-ctas"),
-                .panelButton(cssClass: "scta",
-                             linkUrl: SiteURL.supporters.relativeURL(),
-                             bodyNode: .sponsorsCtaBody(),
-                             analyticsEvent: "Home - Supporters CTA"),
-                .group(
-                    Supporters.corporate.shuffled().map(\.advertisementNode)
-                ),
-                .if(Supporters.corporate.count < 2, .div(
-                    .class("ccta-availability"),
-                    .p(
-                        .class("support"),
-                        .text("Support the Swift Package Index")
-                    ),
-                    .p(
-                        .text("We have one homepage sponsorship spot available. Support the project while promoting your company.")
-                        ),
-                    .p(
-                        .class("cta"),
-                        .a(
-                            .href(ExternalURL.contactMailto),
-                            .text("Get in touch for details →")
-                        )
-                    )
-                ))
-            )
-        }
-
         override func navMenuItems() -> [NavMenuItem] {
-            [.supporters, .addPackage, .blog, .faq]
+            [.addPackage, .blog, .faq]
         }
-    }
-}
-
-extension Supporters.Corporate {
-    var advertisementNode: Node<HTML.BodyContext> {
-        .panelButton(cssClass: "ccta",
-                     linkUrl: url,
-                     bodyNode: advertisingBodyNode,
-                     cta: "Visit \(name)",
-                     analyticsEvent: "Home - Sponsor CTA (\(name))")
-    }
-
-    var advertisingBodyNode: Node<HTML.AnchorContext> {
-        .group(
-            .picture(
-                .source(
-                    .srcset(logo.darkModeUrl),
-                    .media("(prefers-color-scheme: dark)")
-                ),
-                .img(
-                    .alt("\(name) logo"),
-                    .src(logo.lightModeUrl)
-                )
-            ),
-            .unwrap(advertisingCopy, { .text($0) })
-        )
     }
 }
