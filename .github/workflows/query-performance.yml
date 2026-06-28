@@ -31,7 +31,7 @@ jobs:
       image: registry.gitlab.com/finestructure/spi-base:2.2.1
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with: { 'fetch-depth': 0 }
 
       - name: Install unzip (for tests) and zstd (for faster caching)
@@ -40,7 +40,7 @@ jobs:
       - name: Restore .build
         if: ${{ !(github.run_attempt > 1) }} # Because maybe the cache is causing issues
         id: "restore-cache"
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .build
           key: "spi-query-performance-build-${{ runner.os }}-${{ github.event.after }}"
@@ -51,7 +51,7 @@ jobs:
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .build
           key: "spi-query-performance-build-${{ runner.os }}-${{ github.event.after }}"
