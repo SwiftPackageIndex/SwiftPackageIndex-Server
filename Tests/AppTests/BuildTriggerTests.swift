@@ -360,7 +360,10 @@ extension AllTests.BuildTriggerTests {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
@@ -410,7 +413,10 @@ extension AllTests.BuildTriggerTests {
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
@@ -485,7 +491,10 @@ extension AllTests.BuildTriggerTests {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
@@ -545,8 +554,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
@@ -648,8 +660,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
@@ -724,8 +739,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
@@ -841,8 +859,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
@@ -905,8 +926,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
@@ -967,8 +991,11 @@ extension AllTests.BuildTriggerTests {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [.id0] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in

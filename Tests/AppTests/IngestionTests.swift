@@ -491,6 +491,8 @@ extension AllTests.IngestionTests {
     @Test func S3Store_Key_readme() throws {
         try withDependencies {
             $0.environment.awsReadmeBucket = { "readme-bucket" }
+            $0.environment.awsReadmeBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
         } operation: { () throws in
             #expect(try S3Store.Key.readme(owner: "foo", repository: "bar").path == "foo/bar/readme.html")
             #expect(try S3Store.Key.readme(owner: "FOO", repository: "bar").path == "foo/bar/readme.html")

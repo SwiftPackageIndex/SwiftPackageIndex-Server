@@ -24,8 +24,12 @@ extension AllTests.RoutesTests {
 
     @Test func documentation_images() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -47,8 +51,12 @@ extension AllTests.RoutesTests {
 
     @Test func documentation_img() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok }
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -62,8 +70,12 @@ extension AllTests.RoutesTests {
 
     @Test func documentation_videos() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok }
         } operation: {
             try await withSPIApp { app in
                 // MUT
