@@ -390,48 +390,50 @@ extension AllTests.PackageController_routesTests {
     @Test func awsDocumentationURL() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
         } operation: { () throws in
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("Main"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("Main"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/main/documentation/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .css, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/css/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .css, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/css/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/documentation/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .data, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/data/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .data, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/data/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .images, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/images/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .images, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/images/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .img, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/img/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .img, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/img/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImages, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/images/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImages, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/images/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImg, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/img/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImg, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/img/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .js, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .js, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/js/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: [""])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: [""])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: ["ignored"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: ["ignored"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/path/theme-settings.json"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/path/theme-settings.json"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: [""])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: [""])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/feature-a/documentation/path"
             )
         }
     }
@@ -439,15 +441,17 @@ extension AllTests.PackageController_routesTests {
     @Test func awsDocumentationURL_current() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
         } operation: { () throws in
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/main/documentation/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/1.2.3/documentation/path"
             )
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "feature/a"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
+                try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "feature/a"), fragment: .documentation, pathElements: ["path"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/foo/bar/feature-a/documentation/path"
             )
         }
     }
@@ -457,9 +461,11 @@ extension AllTests.PackageController_routesTests {
         // reference with / needs to be escaped
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
         } operation: { () throws in
             #expect(
-                try PackageController.awsDocumentationURL(route: .init(owner: "linhay", repository: "SectionKit", docVersion: .reference("feature/2.0.0"), fragment: .documentation, pathElements: ["sectionui"])).string == "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
+                try PackageController.awsDocumentationURL(route: .init(owner: "linhay", repository: "SectionKit", docVersion: .reference("feature/2.0.0"), fragment: .documentation, pathElements: ["sectionui"])).string == "http://docs-bucket.s3-website.region.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
             )
         }
     }
@@ -496,7 +502,11 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_routes_contentType() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok }
         } operation: {
             try await withSPIApp { app in
                 try await app.testing().test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
@@ -584,8 +594,12 @@ extension AllTests.PackageController_routesTests {
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -667,8 +681,12 @@ extension AllTests.PackageController_routesTests {
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -741,8 +759,12 @@ extension AllTests.PackageController_routesTests {
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -903,9 +925,13 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_404() async throws {
         // Test conversion of any doc fetching errors into 404s.
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.dbId = { nil }
-            $0.httpClient.fetchDocumentation = { @Sendable uri in .badRequest }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable uri in .badRequest }
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -933,9 +959,13 @@ extension AllTests.PackageController_routesTests {
         // Test behaviour when fetchDocumentation throws
         struct SomeError: Error { }
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.dbId = { nil }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in throw SomeError() }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in throw SomeError() }
         } operation: {
             try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, "1")
@@ -967,8 +997,12 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_current_css() async throws {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -1001,8 +1035,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func documentation_ref_css() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -1026,8 +1064,12 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_current_js() async throws {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -1060,8 +1102,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func documentation_ref_js() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -1085,8 +1131,12 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_current_data() async throws {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -1127,8 +1177,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func documentation_ref_data() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -1161,8 +1215,12 @@ extension AllTests.PackageController_routesTests {
         // The `packageName` property on the `Version` has been set to the lower-cased version so
         // we can be sure the canonical URL is built from the properties on the `Repository` model.
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient.echoURL()
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -1195,8 +1253,12 @@ extension AllTests.PackageController_routesTests {
         // Ensure references are path encoded
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -1259,9 +1321,13 @@ extension AllTests.PackageController_routesTests {
     @Test func documentation_routes_tutorials() async throws {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.dbId = { nil }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
             try await withSPIApp { app in
@@ -1309,8 +1375,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func favicon() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/octet-stream"])
         } operation: {
             try await withSPIApp { app in
@@ -1332,8 +1402,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func themeSettings() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/json"])
         } operation: {
             try await withSPIApp { app in
@@ -1349,8 +1423,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func linkablePaths() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = App.HTTPClient
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = App.HTTPClient
                 .echoURL(headers: ["content-type": "application/json"])
         } operation: {
             try await withSPIApp { app in
@@ -1366,8 +1444,12 @@ extension AllTests.PackageController_routesTests {
 
     @Test func tutorial() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable uri in
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable uri in
                 // embed uri.path in the body as a simple way to test the requested url
                     .ok(body: "<p>\(uri.path)</p>")
             }
@@ -1516,7 +1598,11 @@ extension AllTests.PackageController_routesTests {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         try await withDependencies {
             $0.currentReferenceCache = .disabled
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("Package.resolved") { return false }
@@ -1532,7 +1618,7 @@ extension AllTests.PackageController_routesTests {
                 fatalError("revisionInfo: \(ref)")
             }
             $0.git.shortlog = { @Sendable _ in "2\tauthor" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.shell.run = { @Sendable cmd, _, _ in
                 if cmd.description == "swift package dump-package" { return .mockManifest }
                 return ""

@@ -127,9 +127,13 @@ extension AllTests.SitemapTests {
 
     @Test func linkablePathUrls() async throws {
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.siteURL = { "https://spi.com" }
-            $0.httpClient.fetchDocumentation = { @Sendable url in
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
                 return .ok(body: """
                             [
@@ -172,9 +176,13 @@ extension AllTests.SitemapTests {
         // Ensure branch names with / are properly "path encoded"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2462
         try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
             $0.environment.siteURL = { "https://spi.com" }
-            $0.httpClient.fetchDocumentation = { @Sendable url in
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
                 return .ok(body: """
                             [
