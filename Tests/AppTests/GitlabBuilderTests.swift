@@ -55,6 +55,8 @@ extension AllTests.GitlabBuilderTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.gitlabProjectId = { 19564054 }
             $0.environment.siteURL = { "http://example.com" }
@@ -103,6 +105,8 @@ extension AllTests.GitlabBuilderTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.gitlabProjectId = { 19564054 }
             $0.environment.siteURL = { "http://example.com" }
