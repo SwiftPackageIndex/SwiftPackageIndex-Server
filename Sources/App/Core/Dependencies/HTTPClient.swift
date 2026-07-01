@@ -121,61 +121,55 @@ extension HTTPClient {
             httpClientProvider: .createNew
         )
 
-        defer {
-            Task {
-                try await awsClient.shutdown()
+        return try await run {
+            // Extract region from URL
+            let urlComponents = URLComponents(string: url.string)
+            guard let host = urlComponents?.host else {
+                throw AppError.genericError(nil, "Invalid URL: \(url.string)")
             }
-        }
 
-        // Extract region from URL
-        let urlComponents = URLComponents(string: url.string)
-        guard let host = urlComponents?.host else {
-            throw AppError.genericError(nil, "Invalid URL: \(url.string)")
-        }
+            let region = extractRegionFromHost(host) ?? .useast2
 
-        let region = extractRegionFromHost(host) ?? .useast2
+            // Get credentials from the credential provider
+            let credentials: Credential
+            do {
+                credentials = try await awsClient.credentialProvider.getCredential(
+                    on: awsClient.eventLoopGroup.next(),
+                    logger: Logger(label: "aws-credentials")
+                ).get()
+            } catch {
+                throw AppError.genericError(nil, "Failed to retrieve AWS credentials: \(error)")
+            }
 
-        // Get credentials from the credential provider
-        let credentials: Credential
-        do {
-            credentials = try await awsClient.credentialProvider.getCredential(
-                on: awsClient.eventLoopGroup.next(),
-                logger: Logger(label: "aws-credentials")
-            ).get()
-        } catch {
-            throw AppError.genericError(nil, "Failed to retrieve AWS credentials: \(error)")
-        }
+            // Use Soto's AWSSigner to sign the request headers
+            let signer = AWSSigner(
+                credentials: credentials,
+                name: "execute-api",
+                region: region.rawValue
+            )
 
-        // Use Soto's AWSSigner to sign the request headers
-        let signer = AWSSigner(
-            credentials: credentials,
-            name: "execute-api",
-            region: region.rawValue
-        )
+            // Create the request URL
+            guard let requestURL = URL(string: url.string) else {
+                throw AppError.genericError(nil, "Invalid URL: \(url.string)")
+            }
 
-        // Create the request URL
-        guard let requestURL = URL(string: url.string) else {
-            throw AppError.genericError(nil, "Invalid URL: \(url.string)")
-        }
-
-        // Sign the headers for the request
-        let signedHeaders: HTTPHeaders
-        do {
-            signedHeaders = try await signer.signHeaders(
+            // Sign the headers for the request
+            let signedHeaders: HTTPHeaders
+            signedHeaders = signer.signHeaders(
                 url: requestURL,
                 method: HTTPMethod.GET,
                 headers: HTTPHeaders(),
                 body: nil
             )
-        } catch {
-            throw AppError.genericError(nil, "Failed to sign request: \(error)")
+
+            // Create request with signed headers
+            let request = try Request(url: url.string, method: .GET, headers: signedHeaders)
+
+            // Execute the request
+            return try await shared.execute(request: request).get()
+        } defer: {
+            try await awsClient.shutdown()
         }
-
-        // Create request with signed headers
-        let request = try Request(url: url.string, method: .GET, headers: signedHeaders)
-
-        // Execute the request
-        return try await shared.execute(request: request).get()
     }
 
     private static func extractRegionFromHost(_ host: String) -> Region? {
