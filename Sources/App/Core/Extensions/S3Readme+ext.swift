@@ -29,6 +29,24 @@ extension S3Readme {
 
     static func fetchReadme(owner: String, repository: String) async throws(S3Readme.Error) -> String {
         let key = try S3Store.Key.readme(owner: owner, repository: repository)
+        @Dependency(\.environment) var environment
+
+        // Use direct S3 access if available, otherwise fall back to HTTP
+        if environment.awsDirectS3Access() {
+            @Dependency(\.logger) var logger
+
+            // Use the region of the bucket.
+            let region = environment.awsReadmeBucketRegion() ?? environment.awsRegion()
+            let store = S3Store(region: region)
+            do {
+                return try await store.readString(from: key)
+            } catch {
+                logger.error("Direct S3 access failed for readme, falling back to HTTP: \(error)")
+                // Fall through to HTTP method
+            }
+        }
+
+        // Fallback to HTTP method
         @Dependency(\.httpClient) var httpClient
         let response: HTTPClient.Response
         do {

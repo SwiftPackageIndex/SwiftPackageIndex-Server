@@ -44,7 +44,10 @@ extension Gitlab {
 
     enum Builder {
         /// swiftpackageindex-builder project id
-        static let projectId = 19564054
+        static var projectId: Int {
+            @Dependency(\.environment) var environment
+            return environment.gitlabProjectId()
+        }
         static var projectURL: String { "\(Gitlab.baseURL)/projects/\(projectId)" }
     }
 
@@ -90,25 +93,65 @@ extension Gitlab.Builder {
         }
         let timeout = environment.buildTimeout() + (isDocBuild ? 5 : 0)
 
+        // Prepare base variables
+        var variables: [String: String] = [
+            "API_BASEURL": SiteURL.apiBaseURL,
+            "AWS_DOCS_BUCKET": awsDocsBucket,
+            "BUILD_ID": buildId.uuidString,
+            "BUILD_PLATFORM": platform.rawValue,
+            "BUILDER_TOKEN": builderToken,
+            "CLONE_URL": cloneURL,
+            "REFERENCE": "\(reference)",
+            "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
+            "TIMEOUT": "\(timeout)m",
+            "VERSION_ID": versionID.uuidString
+        ]
+
+        // Conditionally generate pre-signed URL for package upload
+        if environment.enablePackageUploadPreSignedURLs() {
+            if isDocBuild {
+                let packageName = extractPackageName(from: cloneURL)
+                let (owner, repository) = extractOwnerAndRepository(from: cloneURL)
+
+                do {
+                    let preSignedURL = try await S3PackageBuilds.generatePreSignedURL(
+                        buildId: buildId,
+                        packageName: packageName,
+                        owner: owner,
+                        repository: repository,
+                        reference: reference
+                    )
+                    variables["PACKAGE_UPLOAD_URL"] = preSignedURL
+                } catch {
+                    logger.error("Failed to generate documentation pre-signed URL for build \(buildId): \(error)")
+                    throw error
+                }
+            } else {
+                // Provide a dummy URL for non-documentation builds to satisfy builder requirements
+                variables["PACKAGE_UPLOAD_URL"] = "https://no-docs-build"
+            }
+        }
+
+        // Conditionally generate pre-signed URL for build logs upload
+        if environment.enableBuildLogsPreSignedURLs() {
+            do {
+                let logsPreSignedURL = try await S3BuildLogs.generatePreSignedURL(buildId: buildId)
+                variables["BUILD_LOGS_UPLOAD_URL"] = logsPreSignedURL
+            } catch {
+                logger.error("Failed to generate build logs pre-signed URL for build \(buildId): \(error)")
+                throw error
+            }
+        }
+
         let dto = PostDTO(
             token: pipelineToken,
             ref: branch,
-            variables: [
-                "API_BASEURL": SiteURL.apiBaseURL,
-                "AWS_DOCS_BUCKET": awsDocsBucket,
-                "BUILD_ID": buildId.uuidString,
-                "BUILD_PLATFORM": platform.rawValue,
-                "BUILDER_TOKEN": builderToken,
-                "CLONE_URL": cloneURL,
-                "REFERENCE": "\(reference)",
-                "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
-                "TIMEOUT": "\(timeout)m",
-                "VERSION_ID": versionID.uuidString
-            ]
+            variables: variables
         )
         let body = try URLEncodedFormEncoder().encode(dto)
+        let requestURL = "\(projectURL)/trigger/pipeline"
         let response = try await httpClient.post(
-            url: "\(projectURL)/trigger/pipeline",
+            url: requestURL,
             headers: .contentTypeFormURLEncoded,
             body: Data(body.utf8)
         )
@@ -120,8 +163,7 @@ extension Gitlab.Builder {
             logger.info("Triggered build: \(res.webUrl)")
             return res
         } catch {
-            let body = response.body?.asString() ?? "nil"
-            logger.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
+            let responseBody = response.body?.asString() ?? "nil"
             return .init(status: response.status, webUrl: nil)
         }
     }
@@ -130,6 +172,33 @@ extension Gitlab.Builder {
         var token: String
         var ref: String
         var variables: [String: String]
+    }
+
+    private static func extractPackageName(from cloneURL: String) -> String {
+        // Extract package name from clone URL
+        // Examples:
+        // https://github.com/owner/repo.git -> repo
+        // https://github.com/owner/repo -> repo
+        let url = cloneURL.replacingOccurrences(of: ".git", with: "")
+        let components = url.components(separatedBy: "/")
+        return components.last ?? "package"
+    }
+
+    private static func extractOwnerAndRepository(from cloneURL: String) -> (owner: String, repository: String) {
+        // Extract owner and repository from clone URL
+        // Examples:
+        // https://github.com/owner/repo.git -> (owner: "owner", repository: "repo")
+        // https://github.com/owner/repo -> (owner: "owner", repository: "repo")
+        let url = cloneURL.replacingOccurrences(of: ".git", with: "")
+        let components = url.components(separatedBy: "/")
+
+        if components.count >= 2 {
+            let repository = components.last ?? "package"
+            let owner = components[components.count - 2]
+            return (owner: owner, repository: repository)
+        }
+
+        return (owner: "unknown", repository: components.last ?? "package")
     }
 
 }
