@@ -220,7 +220,7 @@ enum PackageController {
                             body: ByteBuffer(data: data)
                         )
                         return response
-                    } catch let fallbackError {
+                    } catch {
                         throw Abort(.notFound)
                     }
                 } else {

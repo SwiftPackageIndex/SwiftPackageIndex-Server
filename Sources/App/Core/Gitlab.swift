@@ -163,7 +163,6 @@ extension Gitlab.Builder {
             logger.info("Triggered build: \(res.webUrl)")
             return res
         } catch {
-            let responseBody = response.body?.asString() ?? "nil"
             return .init(status: response.status, webUrl: nil)
         }
     }

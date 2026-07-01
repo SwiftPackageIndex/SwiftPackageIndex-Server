@@ -69,19 +69,19 @@ public struct S3Store {
             client = AWSClient(credentialProvider: .default,
                               httpClientProvider: .createNew)
         }
-        defer {
-            Task {
-                try await client.shutdown()
-            }
+
+        return try await run {
+            let s3 = S3(client: client, region: self.region)
+
+            // Create the base URL for the S3 object
+            let baseURL = URL(string: "https://\(key.bucket).s3.\(self.region).amazonaws.com/\(key.path)")!
+
+            let url = try await s3.signURL(url: baseURL, httpMethod: .PUT, expires: .seconds(Int64(expiration)))
+
+            return url.absoluteString
+        } defer: {
+            try await client.shutdown()
         }
-
-        let s3 = S3(client: client, region: self.region)
-
-        // Create the base URL for the S3 object
-        let baseURL = URL(string: "https://\(key.bucket).s3.\(self.region).amazonaws.com/\(key.path)")!
-
-        let url = try await s3.signURL(url: baseURL, httpMethod: .PUT, expires: .seconds(Int64(expiration)))
-        return url.absoluteString
     }
 
     public func readString(from key: Key) async throws -> String {
@@ -198,5 +198,20 @@ private extension String {
             result = result.dropFirst()
         }
         return String(result)
+    }
+}
+
+
+// Copied from ErrorHandlingHelpers.swift in the main module
+@discardableResult
+private func run<T>(_ operation: () async throws -> T,
+            defer deferredOperation: () async throws -> Void) async throws -> T {
+    do {
+        let result = try await operation()
+        try await deferredOperation()
+        return result
+    } catch {
+        try await deferredOperation()
+        throw error
     }
 }
