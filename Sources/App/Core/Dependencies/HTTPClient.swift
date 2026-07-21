@@ -16,6 +16,10 @@ import AsyncHTTPClient
 import Dependencies
 import DependenciesMacros
 import Vapor
+import Foundation
+import SotoS3
+import SotoCore
+import SotoSignerV4
 
 
 @DependencyClient
@@ -27,6 +31,7 @@ struct HTTPClient {
     var post: @Sendable (_ url: String, _ headers: HTTPHeaders, _ body: Data?) async throws -> Response
 
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
+    var fetchDocumentationWithIAM: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var mastodonPost: @Sendable (_ message: String) async throws -> Void
     var postAnalyticsEvent: @Sendable (_ kind: Analytics.Event.Kind, _ path: Analytics.Path, _ user: User?) async throws -> Void
@@ -45,6 +50,9 @@ extension HTTPClient: DependencyKey {
             },
             fetchDocumentation: { url in
                 try await Vapor.HTTPClient.shared.get(url: url.string).get()
+            },
+            fetchDocumentationWithIAM: { url in
+                try await Self.fetchWithIAMAuth(url: url)
             },
             fetchHTTPStatusCode: { url in
                 var config = Vapor.HTTPClient.Configuration()
@@ -102,6 +110,84 @@ private let globallySharedHTTPClient: Vapor.HTTPClient = {
     )
     return httpClient
 }()
+
+
+// MARK: - AWS IAM Authentication
+extension HTTPClient {
+    static func fetchWithIAMAuth(url: URI) async throws -> Response {
+        // Create AWS client with default credential provider
+        let awsClient = AWSClient(
+            credentialProvider: .default,
+            httpClientProvider: .createNew
+        )
+
+        defer {
+            Task {
+                try await awsClient.shutdown()
+            }
+        }
+
+        // Extract region from URL
+        let urlComponents = URLComponents(string: url.string)
+        guard let host = urlComponents?.host else {
+            throw AppError.genericError(nil, "Invalid URL: \(url.string)")
+        }
+
+        let region = extractRegionFromHost(host) ?? .useast2
+
+        // Get credentials from the credential provider
+        let credentials: Credential
+        do {
+            credentials = try await awsClient.credentialProvider.getCredential(
+                on: awsClient.eventLoopGroup.next(),
+                logger: Logger(label: "aws-credentials")
+            ).get()
+        } catch {
+            throw AppError.genericError(nil, "Failed to retrieve AWS credentials: \(error)")
+        }
+
+        // Use Soto's AWSSigner to sign the request headers
+        let signer = AWSSigner(
+            credentials: credentials,
+            name: "execute-api",
+            region: region.rawValue
+        )
+
+        // Create the request URL
+        guard let requestURL = URL(string: url.string) else {
+            throw AppError.genericError(nil, "Invalid URL: \(url.string)")
+        }
+
+        // Sign the headers for the request
+        let signedHeaders: HTTPHeaders
+        do {
+            signedHeaders = try await signer.signHeaders(
+                url: requestURL,
+                method: HTTPMethod.GET,
+                headers: HTTPHeaders(),
+                body: nil
+            )
+        } catch {
+            throw AppError.genericError(nil, "Failed to sign request: \(error)")
+        }
+
+        // Create request with signed headers
+        let request = try Request(url: url.string, method: .GET, headers: signedHeaders)
+
+        // Execute the request
+        return try await shared.execute(request: request).get()
+    }
+
+    private static func extractRegionFromHost(_ host: String) -> Region? {
+        // Extract region from API Gateway URL format: {api-id}.execute-api.{region}.amazonaws.com
+        let components = host.split(separator: ".")
+        if components.count >= 4 && components[1] == "execute-api" && components[3] == "amazonaws" {
+            let regionString = String(components[2])
+            return Region(rawValue: regionString)
+        }
+        return nil
+    }
+}
 
 
 #if DEBUG

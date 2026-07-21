@@ -29,10 +29,22 @@ struct EnvironmentClient {
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
+    var awsBuildLogsBucket: @Sendable () -> String?
+    var awsBuildLogsBucketRegion: @Sendable () -> String?
     var awsDocsBucket: @Sendable () -> String?
+    var awsDocsBucketRegion: @Sendable () -> String?
+    var awsDocsInboxBucket: @Sendable () -> String?
+    var awsDocsInboxBucketRegion: @Sendable () -> String?
     var awsReadmeBucket: @Sendable () -> String?
+    var awsReadmeBucketRegion: @Sendable () -> String?
+    var awsRegion: @Sendable () -> String?
     var awsSecretAccessKey: @Sendable () -> String?
+    var awsUseIamRole: @Sendable () -> Bool = { XCTFail("awsUseIamRole"); return false }
+    var awsDirectS3Access: @Sendable () -> Bool = { XCTFail("awsDirectS3Access"); return false }
     var builderToken: @Sendable () -> String?
+    var enableBuildLogsPreSignedURLs: @Sendable () -> Bool = { XCTFail("enableBuildLogsPreSignedURLs"); return false }
+    var enablePackageUploadPreSignedURLs: @Sendable () -> Bool = { XCTFail("enablePackageUploadPreSignedURLs"); return false }
+    var packageUploadPreSignedURLExpiration: @Sendable () -> Int = { XCTFail("packageUploadPreSignedURLExpiration"); return 86400 }
     var buildTimeout: @Sendable () -> Int = { XCTFail("buildTimeout"); return 10 }
     var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail("buildTriggerAllowList"); return [] }
     var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerDownscaling"); return 1 }
@@ -44,6 +56,7 @@ struct EnvironmentClient {
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int = { XCTFail("gitlabPipelineLimit"); return 100 }
     var gitlabPipelineToken: @Sendable () -> String?
+    var gitlabProjectId: @Sendable () -> Int = { XCTFail("gitlabProjectId"); return 19564054 }
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
@@ -82,10 +95,32 @@ extension EnvironmentClient: DependencyKey {
             apiSigningKey: { Environment.get("API_SIGNING_KEY") },
             appVersion: { App.appVersion },
             awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
+            awsBuildLogsBucket: { Environment.get("AWS_BUILD_LOGS_BUCKET") },
+            awsBuildLogsBucketRegion: { Environment.get("AWS_BUILD_LOGS_BUCKET_REGION") },
             awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+            awsDocsBucketRegion: { Environment.get("AWS_DOCS_BUCKET_REGION") },
+            awsDocsInboxBucket: { Environment.get("AWS_DOCS_INBOX_BUCKET") },
+            awsDocsInboxBucketRegion: { Environment.get("AWS_DOCS_INBOX_BUCKET_REGION") },
             awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
+            awsReadmeBucketRegion: { Environment.get("AWS_README_BUCKET_REGION") },
+            awsRegion: { Environment.get("AWS_REGION") },
             awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
+            awsUseIamRole: {
+                Environment.get("AWS_USE_IAM_ROLE").flatMap(\.asBool) ?? false
+            },
+            awsDirectS3Access: {
+                Environment.get("AWS_S3_DIRECT_ACCESS").flatMap(\.asBool) ?? false
+            },
             builderToken: { Environment.get("BUILDER_TOKEN") },
+            enableBuildLogsPreSignedURLs: {
+                Environment.get("ENABLE_BUILD_LOGS_PRESIGNED_URLS").flatMap(\.asBool) ?? false
+            },
+            enablePackageUploadPreSignedURLs: {
+                Environment.get("ENABLE_PACKAGE_UPLOAD_PRESIGNED_URLS").flatMap(\.asBool) ?? false
+            },
+            packageUploadPreSignedURLExpiration: {
+                Environment.get("PACKAGE_UPLOAD_PRESIGNED_URL_EXPIRATION").flatMap(Int.init) ?? 86400
+            },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
             buildTriggerAllowList: {
                 Environment.decode("BUILD_TRIGGER_ALLOW_LIST", as: [Package.Id].self) ?? []
@@ -118,6 +153,7 @@ extension EnvironmentClient: DependencyKey {
                 ?? Constants.defaultGitlabPipelineLimit
             },
             gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
+            gitlabProjectId: { Environment.get("GITLAB_PROJECT_ID").flatMap(Int.init) ?? 19564054 },
             hideStagingBanner: {
                 Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                     ?? Constants.defaultHideStagingBanner

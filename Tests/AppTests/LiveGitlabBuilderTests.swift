@@ -35,8 +35,11 @@ extension AllTests.LiveGitlabBuilderTests {
             }
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = {
-                // This Gitlab token is required in order to trigger the pipeline
-                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
+                // This Gitlab pipeline trigger token is required in order to trigger the pipeline
+                ProcessInfo.processInfo.environment["LIVE_GITLAB_PROJECT_PIPELINE_TRIGGER_TOKEN"]
+            }
+            $0.environment.gitlabProjectId = {
+                ProcessInfo.processInfo.environment["GITLAB_PROJECT_ID"].flatMap(Int.init) ?? 19564054
             }
             $0.environment.siteURL = { "https://staging.swiftpackageindex.com" }
             $0.httpClient = .liveValue
