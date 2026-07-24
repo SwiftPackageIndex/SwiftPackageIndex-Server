@@ -25,5 +25,9 @@
         "stylelint-config-standard-scss": "^17.0.0",
         "stylelint-order": "^8.1.1",
         "stylelint-scss": "^7.2.0"
+    },
+    "allowScripts": {
+        "esbuild@0.28.1": true,
+        "@parcel/watcher@2.6.0": true
     }
 }
