@@ -57,6 +57,7 @@ struct EnvironmentClient {
     var gitlabPipelineLimit: @Sendable () -> Int = { XCTFail("gitlabPipelineLimit"); return 100 }
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabProjectId: @Sendable () -> Int = { XCTFail("gitlabProjectId"); return 19564054 }
+    var hideLatestSwiftVersionBuildData: @Sendable () -> Bool = { XCTFail("hideLatestSwiftVersionBuildData"); return false }
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
@@ -154,6 +155,9 @@ extension EnvironmentClient: DependencyKey {
             },
             gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
             gitlabProjectId: { Environment.get("GITLAB_PROJECT_ID").flatMap(Int.init) ?? 19564054 },
+            hideLatestSwiftVersionBuildData: {
+                Environment.get("HIDE_LATEST_SWIFT_VERSION_BUILD_DATA").flatMap(\.asBool) ?? false
+            },
             hideStagingBanner: {
                 Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                     ?? Constants.defaultHideStagingBanner
