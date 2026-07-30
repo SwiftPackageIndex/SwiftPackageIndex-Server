@@ -219,6 +219,7 @@ extension EnvironmentClient: TestDependencyKey {
         mock.appVersion = { "test" }
         mock.current = { .development }
         mock.deployment = { nil }
+        mock.hideLatestSwiftVersionBuildData = { false }
         mock.hideStagingBanner = { false }
         mock.siteURL = { "http://localhost:8080" }
         mock.shouldFail = { @Sendable _ in false }
