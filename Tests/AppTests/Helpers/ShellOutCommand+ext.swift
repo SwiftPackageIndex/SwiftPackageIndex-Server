@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import ShellOut
 
 
@@ -49,10 +50,15 @@ extension ShellOutCommand {
 private extension String {
     static var docker: Self {
 #if os(macOS)
-        // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore.
-        // Therefore, we have to explicitly set it (or require project users to fiddle with Xcode
-        // to re-introduce it, which is not desirable).
-        "/usr/local/bin/docker"
+        // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore,
+        // so relying on `PATH` resolution (plain "docker") silently fails when running tests
+        // from Xcode. Probe known absolute install locations instead.
+        let knownPaths = [
+            "/opt/homebrew/bin/docker",
+            "/usr/local/bin/docker",
+            "/opt/local/bin/docker"
+        ]
+        return knownPaths.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "docker"
 #else
         "docker"
 #endif
