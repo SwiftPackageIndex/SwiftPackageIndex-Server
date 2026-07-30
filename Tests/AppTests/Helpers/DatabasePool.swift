@@ -206,7 +206,7 @@ extension DatabasePool.Database {
 
     func createSchema(_ environment: Environment) async throws {
         do {
-            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(10)) {  // Connect to `postgres` db in order to reset the test db
+            try await _withDatabase("postgres", details: connectionDetails, timeout: .seconds(20)) {  // Connect to `postgres` db in order to reset the test db
                 let databaseName = Environment.get("DATABASE_NAME")!
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName) STRATEGY = file_copy"))
