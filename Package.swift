@@ -82,10 +82,7 @@ let package = Package(
                     .product(name: "SotoS3", package: "soto"),
                     .product(name: "JWTKit", package: "jwt-kit")
                 ],
-                swiftSettings: swiftSettings,
-                linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
-                                              .when(platforms: [.macOS],
-                                                    configuration: .debug))]),
+                swiftSettings: swiftSettings),
         .target(name: "S3Store",
                 dependencies: [
                     .product(name: "SotoS3", package: "soto"),
