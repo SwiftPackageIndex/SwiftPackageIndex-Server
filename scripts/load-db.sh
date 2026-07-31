@@ -25,9 +25,12 @@ echo "Giving Postgres a moment to launch ..."
 sleep 5
 
 echo "Creating Azure roles"
-psql="docker run --rm -v $PWD:/host -w /host --network=host -e PGPASSWORD=xxx $POSTGRES_IMAGE psql"
-$psql -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev -c 'CREATE ROLE azure_pg_admin; CREATE ROLE azuresu;'
+docker exec spi_dev psql -U spi_dev -d spi_dev -c 'CREATE ROLE azure_pg_admin; CREATE ROLE azuresu;'
 
+# Restore from inside the container (rather than piping over `docker exec -i`)
+# since large tables can be silently truncated mid-COPY when streamed through
+# stdin over the docker exec/network hop.
 echo "Importing"
-pg_restore="docker run --rm -i -v $PWD:/host -w /host --network=host -e PGPASSWORD=xxx $POSTGRES_IMAGE pg_restore"
-$pg_restore --no-owner -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev < "$IMPORT_FILE"
+docker cp "$IMPORT_FILE" spi_dev:/tmp/import.dump
+docker exec spi_dev pg_restore --no-owner -U spi_dev -d spi_dev /tmp/import.dump
+docker exec spi_dev rm -f /tmp/import.dump
