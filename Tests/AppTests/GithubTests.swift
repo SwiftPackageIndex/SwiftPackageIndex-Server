@@ -382,6 +382,7 @@ extension AllTests.GithubTests {
     @Test func extractImagesRequiringCaching() async throws {
         try withDependencies {
             $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
+            $0.environment.awsReadmeBucketRegion = { "region" }
         } operation: {
             var readme = """
         <html>
@@ -401,14 +402,16 @@ extension AllTests.GithubTests {
 
             #expect(images == [
                 .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
-                      s3Key: S3Store.Key.init(bucket: "awsReadmeBucket", path: "owner/repo/with-jwt.jpg"))
+                      s3Key: S3Store.Key.init(bucket: "awsReadmeBucket",
+                                              path: "owner/repo/with-jwt.jpg",
+                                              region: .init(rawValue: "region")))
             ])
 
             let document = try SwiftSoup.parse(readme)
             let imageElements = try document.select("img").array()
 
             #expect(try imageElements.map { try $0.attr("src") } == [
-                "https://awsReadmeBucket.s3.us-east-2.amazonaws.com/owner/repo/with-jwt.jpg",
+                "https://awsReadmeBucket.s3.region.amazonaws.com/owner/repo/with-jwt.jpg",
                 "https://private-user-images.githubusercontent.com/without-jwt.jpg",
                 "https://raw.githubusercontent.com/raw-image.png",
                 "https://github.com/example/repo/branch/assets/example.png",

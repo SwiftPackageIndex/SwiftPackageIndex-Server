@@ -16,6 +16,7 @@ import Foundation
 
 import Dependencies
 import S3Store
+import SotoS3
 
 
 extension S3Store.Key {
@@ -23,14 +24,18 @@ extension S3Store.Key {
         @Dependency(\.environment) var environment
         guard let bucket = environment.awsReadmeBucket() else { throw .envVariableNotSet("AWS_README_BUCKET") }
 
+        // Get the correct region for the readme bucket
+        let regionString = environment.awsReadmeBucketRegion() ?? environment.awsRegion() ?? "us-east-2"
+        let region = SotoS3.Region(rawValue: regionString)
+
         if let imageUrl {
             guard let url = URL(string: imageUrl) else { throw .invalidURL(imageUrl) }
             let filename = url.lastPathComponent
             let path = "\(owner)/\(repository)/\(filename)".lowercased()
-            return .init(bucket: bucket, path: path)
+            return .init(bucket: bucket, path: path, region: region)
         } else {
             let path = "\(owner)/\(repository)/readme.html".lowercased()
-            return .init(bucket: bucket, path: path)
+            return .init(bucket: bucket, path: path, region: region)
         }
     }
 }

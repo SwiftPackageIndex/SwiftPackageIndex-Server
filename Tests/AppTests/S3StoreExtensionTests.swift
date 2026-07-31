@@ -24,13 +24,17 @@ extension AllTests.S3StoreExtensionTests {
     @Test func Key_readme() throws {
         try withDependencies {
             $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
+            $0.environment.awsReadmeBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
         } operation: {
             let imageKey = try S3Store.Key.readme(owner: "owner", repository: "repository",
                                                   imageUrl: "https://example.com/image/example-image.png")
             #expect(imageKey.s3Uri == "s3://awsReadmeBucket/owner/repository/example-image.png")
+            #expect(imageKey.objectUrl == "https://awsReadmeBucket.s3.region.amazonaws.com/owner/repository/example-image.png")
 
             let readmeKey = try S3Store.Key.readme(owner: "owner", repository: "repository")
             #expect(readmeKey.s3Uri == "s3://awsReadmeBucket/owner/repository/readme.html")
+            #expect(readmeKey.objectUrl == "https://awsReadmeBucket.s3.region.amazonaws.com/owner/repository/readme.html")
         }
     }
 

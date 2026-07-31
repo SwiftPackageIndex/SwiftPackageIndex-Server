@@ -55,7 +55,10 @@ extension AllTests.GitlabBuilderTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 19564054 }
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setValue(true)
@@ -102,7 +105,10 @@ extension AllTests.GitlabBuilderTests {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 19564054 }
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setValue(true)
@@ -131,6 +137,7 @@ extension AllTests.GitlabBuilderTests {
         let page = QueueIsolated(1)
         try await withDependencies {
             $0.environment.gitlabApiToken = { "api token" }
+            $0.environment.gitlabProjectId = { 19564054 }
             $0.httpClient.get = { @Sendable url, _ in
                 #expect(
                     url == "https://gitlab.com/api/v4/projects/19564054/jobs?scope=pending&page=\(page.value)&per_page=20"

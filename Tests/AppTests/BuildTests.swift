@@ -146,7 +146,10 @@ extension AllTests.BuildTests {
                 $0.environment.awsDocsBucket = { "awsDocsBucket" }
                 $0.environment.builderToken = { "builder token" }
                 $0.environment.buildTimeout = { 10 }
+                $0.environment.enableBuildLogsPreSignedURLs = { false }
+                $0.environment.enablePackageUploadPreSignedURLs = { false }
                 $0.environment.gitlabPipelineToken = { "pipeline token" }
+                $0.environment.gitlabProjectId = { 123 }
                 $0.environment.siteURL = { "http://example.com" }
                 $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
                 $0.httpClient.post = { @Sendable _, _, body in
@@ -202,7 +205,10 @@ extension AllTests.BuildTests {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
