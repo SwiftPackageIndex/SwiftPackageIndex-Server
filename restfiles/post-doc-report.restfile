@@ -23,21 +23,14 @@ variables:
 requests:
 
     post build:
-        url: ${base_url}/versions/${version_id}/builds
+        url: ${base_url}/builds/${build_id}/doc-report
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                logUrl: http://localhost/logurl
-                jobUrl: http://localhost/joburl
-                platform: ios
                 status: ok
-                swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
 
         validation:
-            status: 200
+            status: 204
         log: json
