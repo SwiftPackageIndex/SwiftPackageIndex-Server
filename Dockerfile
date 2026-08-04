@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:2.2.1 AS build
+FROM registry.gitlab.com/saguaro1/spi-base:d5232fc51c4f53298d72e19f3aa039f8f0c6dd49 AS build
 ARG COMPILATION_MODE="release"
 
 # Set up a build area
@@ -65,7 +65,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:2.2.1
+FROM registry.gitlab.com/saguaro1/spi-base:d5232fc51c4f53298d72e19f3aa039f8f0c6dd49
 
 # NB sas 2022-09-23: We're not using a dedicated `vapor` user to run the executable, because it
 # makes managing the data in the checkouts volume difficult. See
