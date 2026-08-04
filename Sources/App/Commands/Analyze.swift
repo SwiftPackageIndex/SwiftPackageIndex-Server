@@ -199,6 +199,7 @@ extension Analyze {
                     try await applyVersionDelta(on: tx, delta: versionDelta)
 
                     let newVersions = versionDelta.toAdd
+                    logger.debug("newVersions: \(newVersions.map { $0.reference.description + "(" + $0.commit.prefix(6) + ")" })")
 
                     mergeReleaseInfo(package: package, into: newVersions)
 
@@ -206,6 +207,8 @@ extension Analyze {
                     for version in newVersions {
                         if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
                             versionsPkgInfo.append((version, pkgInfo))
+                        } else {
+                            logger.debug("getPackageInfo failed for version \(version.reference)")
                         }
                     }
                     if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
@@ -583,13 +586,19 @@ extension Analyze {
         // check out version in cache directory
         @Dependency(\.fileManager) var fileManager
         @Dependency(\.shell) var shell
+        @Dependency(\.logger) var logger
 
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }
 
-        try await shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
+        do {
+            try await shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
+        } catch {
+            logger.debug("error in getPackageInfo: \(error)")
+            throw error
+        }
 
         do {
             let packageManifest = try await dumpPackage(at: cacheDir)
@@ -599,8 +608,12 @@ extension Analyze {
             return PackageInfo(packageManifest: packageManifest,
                                spiManifest: spiManifest)
         } catch let AppError.invalidRevision(_, msg) {
+            logger.debug("invalidRevision: \(version.reference)")
             // re-package error to attach version.id
             throw AppError.invalidRevision(version.id, msg)
+        } catch {
+            logger.debug("error in getPackageInfo: \(error)")
+            throw error
         }
     }
 
