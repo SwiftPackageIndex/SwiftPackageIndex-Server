@@ -348,6 +348,7 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
     }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
+    app.asyncCommands.use(BuildBacklogStats.Command(), as: "build-backlog-stats")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
     app.asyncCommands.use(DeleteBuildsCommand(), as: "delete-builds")
     app.asyncCommands.use(Ingestion.Command(), as: "ingest")
