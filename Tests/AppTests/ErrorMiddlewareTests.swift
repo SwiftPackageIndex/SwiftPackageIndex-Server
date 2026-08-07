@@ -26,7 +26,10 @@ extension AllTests.ErrorMiddlewareTests {
         app.get("ok") { _ in return "ok" }
         app.get("404") { req async throws -> Response in throw Abort(.notFound) }
         app.get("500") { req async throws -> Response in throw Abort(.internalServerError) }
+        app.get("unknown-error") { req async throws -> Response in throw TestError() }
     }
+
+    struct TestError: Error { }
 
     @Test func custom_routes() async throws {
         try await withSPIApp(setup) { app in
@@ -67,6 +70,22 @@ extension AllTests.ErrorMiddlewareTests {
                 try await app.testing().test(.GET, "500", afterResponse: { response async in
                     #expect(response.status == .internalServerError)
                     #expect(response.content.contentType == .html)
+                })
+            }
+        }
+    }
+
+    @Test func non_abort_error() async throws {
+        // Ensure errors that aren't AbortErrors are also converted to html error pages
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3944
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try await withSPIApp(setup) { app in
+                try await app.testing().test(.GET, "unknown-error", afterResponse: { response async in
+                    #expect(response.status == .internalServerError)
+                    #expect(response.content.contentType == .html)
+                    #expect(response.body.asString().contains("500 - Internal Server Error"))
                 })
             }
         }
