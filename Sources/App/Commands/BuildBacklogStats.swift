@@ -44,7 +44,7 @@ enum BuildBacklogStats {
             if let limit = signature.limit {
                 logger.info("Checking \(limit) of \(packageIds.count) candidates...")
             } else {
-                logger.info("Checkign all \(packageIds.count) candidates")
+                logger.info("Checking all \(packageIds.count) candidates")
             }
 
             var totalBuildCount = 0
