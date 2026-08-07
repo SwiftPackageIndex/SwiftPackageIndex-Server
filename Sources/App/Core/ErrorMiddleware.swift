@@ -25,9 +25,14 @@ final class ErrorMiddleware: AsyncMiddleware {
     func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
         do {
             return try await next.respond(to: req)
-        } catch let error as AbortError where error.status.code >= 400 {
-            let statusCode = error.status.code
-            let isCritical = (statusCode >= 500)
+        } catch let error as AbortError where error.status.code < 400 {
+            throw error
+        } catch {
+            // Errors that aren't `AbortError`s would otherwise escape this middleware and be
+            // turned into an unlogged, raw 500 by Vapor's default error handling.
+            // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3944
+            let abortError = error as? AbortError ?? Abort(.internalServerError)
+            let isCritical = (abortError.status.code >= 500)
 
             @Dependency(\.logger) var logger
 
@@ -37,9 +42,9 @@ final class ErrorMiddleware: AsyncMiddleware {
                 logger.error("\(error): \(req.url)")
             }
 
-            return ErrorPage.View(path: req.url.path, error: error)
+            return ErrorPage.View(path: req.url.path, error: abortError)
                 .document()
-                .encodeResponse(status: error.status)
+                .encodeResponse(status: abortError.status)
         }
     }
 
