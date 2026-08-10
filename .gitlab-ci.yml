@@ -15,8 +15,8 @@
 image: docker:stable
 
 variables:
-  REGISTRY_IMAGE: registry.gitlab.com/finestructure/swiftpackageindex
-  DOCKER_TLS_CERTDIR: '/certs'
+  REGISTRY_IMAGE: registry.gitlab.com/saguaro1/swift-package-index
+  DOCKER_TLS_CERTDIR: "/certs"
 
 services:
   - docker:stable-dind
@@ -27,26 +27,19 @@ before_script:
 stages:
   - build
   - deploy
-  - smoke-test
 
-# We build only on the PROD project's pipeline, because we can read the image
-# for dev deployment. There is no need to build the images twice in parallel.
-# The PROD projects registry already has a build history, so we keep pushing to it.
 build:
-  rules:
-    - if: $ENV == "prod" && $CI_PIPELINE_SOURCE != "schedule"
   stage: build
-  tags:
-    - spi-server-deploy
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
+    echo "VERSION: $VERSION"
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
     make build-front-end
 
     # Login in again in case the previous steps were slow and made the token time out
     docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    docker build -t $REGISTRY_IMAGE:$VERSION .
+    docker build --build-arg COMPILATION_MODE=release -t $REGISTRY_IMAGE:$VERSION .
 
     retries=3
     until docker push $REGISTRY_IMAGE:$VERSION ; do
@@ -56,152 +49,17 @@ build:
       docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       echo $((retries--)) retries left
     done
+  tags:
+    - service-builder
+    - dev
 
-.deploy-common: &deploy-common
+deploy_to_dev:
   stage: deploy
-  image: docker
-  script: |
-    set -eu
-    VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
-
-    discord() {
-      curl -s -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data '{"content": "'"$1"'"}' $DISCORD_WEBHOOK
-    }
-    get_version() {
-        url=$1
-        set +e  # don't fail if curl sends garbage to jq
-        DEPLOYED_VERSION=$(curl -s $url | jq -r '.version' 2> /dev/null)
-        if [ $? -ne 0 ]; then DEPLOYED_VERSION="none"; fi
-        set -e
-        echo "$DEPLOYED_VERSION"
-    }
-    post_annotation() {
-      msg=$1
-      # we create this weird one-off service command in order to post a
-      # notification that our monitoring can pick up for a release annotation
-      # in Grafana
-      docker service rm deploy > /dev/null 2>&1 || true
-      docker service create --quiet --name deploy --mode=replicated-job --replicas=1 busybox sh -c "echo $msg"
-      docker service rm deploy > /dev/null 2>&1 || true
-    }
-
-    # pull image (retry for up to 30 minutes to allow builds on another pipeline to complete)
-    echo Pulling image ...
-    retries=180
-    until docker pull $REGISTRY_IMAGE:$VERSION; do
-      [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
-      sleep 10
-      echo Retrying ...
-      echo $((retries--)) retries left
-    done
-
-    echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
-    discord "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
-
-    retries=3
-    until env VERSION=$VERSION \
-      docker stack deploy --with-registry-auth -c app.yml app ; do
-      sleep 5
-      echo Retrying ...
-      echo $((retries--)) retries left
-    done
-
-    retries=3
-    until docker stack deploy --with-registry-auth -c mon.yml mon ; do
-      sleep 5
-      echo Retrying ...
-      echo $((retries--)) retries left
-    done
-
-    # poll for new version to be available
-    ATTEMPTS=120
-    for i in $(seq 1 $ATTEMPTS); do
-        echo "Waiting for $VERSION to be active ($i)"
-        sleep 2
-        DEPLOYED_VERSION=$(get_version $SITE_URL/api/version)
-        echo "DEPLOYED_VERSION $DEPLOYED_VERSION"
-        if [[ "$DEPLOYED_VERSION" == "$VERSION" ]]; then break; fi
-    done
-
-    # wait for server to be fully available before reporting result
-    SVC=app_server
-    ATTEMPTS=120
-    for i in $(seq 1 $ATTEMPTS); do
-        echo "Waiting for all replicas to be available ($i)"
-        sleep 2
-        DEPLOYED=$(docker service ls -f "Name=${SVC}" --format "{{.Replicas}}")
-        echo "DEPLOYED $DEPLOYED"
-        IFS='/' read -ra COUNT <<< "$DEPLOYED"
-        if [[ "${COUNT[0]}" == "${COUNT[1]}" ]]; then break; fi
-    done
-
-    if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
-      post_annotation "✅ deployed version $VERSION"
-      discord "✅ deployed version $VERSION [↗]($CI_JOB_URL)"
-    else
-      discord "🛑 failed to deploy version $VERSION [↗]($CI_JOB_URL)"
-      exit 1
-    fi
-
-deploy prod: # PROD: auto-deploy tags
-  rules:
-    - if: $ENV == "prod" && $CI_COMMIT_TAG != null
-  tags:
-    - spi-p1
-  <<: *deploy-common
-
-deploy dev: # DEV: auto-deploy main
-  rules:
-    - if: $ENV == "dev" && $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"
-    - if: $ENV == "dev" && $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_TAG != null
-  tags:
-    - spi-d1
-  <<: *deploy-common
-
-deploy dev (ad hoc): # DEV: deploy any revision manually
-  rules:
-    - if: $ENV == "dev" && $CI_PIPELINE_SOURCE != "schedule"
-      when: manual
-  tags:
-    - spi-d1
-  <<: *deploy-common
-
-smoke-test:
-  rules:
-    - if: $ENV == "prod" && $CI_COMMIT_TAG != null
-    - if: $ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"
-    - if: $ENV == "dev"
-  stage: smoke-test
-  tags:
-    - spi-server-deploy
-  script: |
-    rester() {
-      docker run --rm -t \
-        -e base_url="$SITE_URL" \
-        -e api_token="$api_token" \
-        -e smoke_test_token="$SMOKE_TEST_TOKEN" \
-        -v $PWD:/host \
-        -w /host \
-        finestructure/rester:0.8.1 "$1"
-    }
-    echo Testing with SITE_URL: ${SITE_URL}
-    rester restfiles/smoke-test.restfile
-
-doc-test:
-  rules:
-    - if: $ENV == "prod" && $CI_COMMIT_TAG != null
-    - if: $ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"
-  stage: smoke-test
-  tags:
-    - spi-server-deploy
-  script: |
-    rester() {
-      docker run --rm -t \
-        -e base_url="$SITE_URL" \
-        -e smoke_test_token="$SMOKE_TEST_TOKEN" \
-        -v $PWD:/host \
-        -w /host \
-        finestructure/rester:0.8.1 "$1"
-    }
-    echo Testing with SITE_URL: ${SITE_URL}
-    rester restfiles/doc-test.restfile
+  trigger:
+    project: saguaro1/dev
+    branch: main
+    strategy: depend
+  variables:
+    DEPLOY_ENV: "dev"
+    SPI_COMMIT_TAG: $CI_COMMIT_TAG
+    SPI_COMMIT_SHA: $CI_COMMIT_SHA
