@@ -153,29 +153,70 @@ extension Gitlab.Builder {
             ref: branch,
             variables: variables
         )
-        let body = try URLEncodedFormEncoder().encode(dto)
-        let requestURL = "\(projectURL)/trigger/pipeline"
-        let response = try await httpClient.post(
-            url: requestURL,
-            headers: .contentTypeFormURLEncoded,
-            body: Data(body.utf8)
-        )
-
-        do {
-            guard let body = response.body else { throw Gitlab.Error.noBody }
-            let webUrl = try JSONDecoder().decode(Response.self, from: body).webUrl
-            let res = Build.TriggerResponse(status: response.status, webUrl: webUrl)
-            logger.info("Triggered build: \(res.webUrl)")
-            return res
-        } catch {
-            return .init(status: response.status, webUrl: nil)
-        }
+        let request = try TriggerRequest(dto)
+        let response = try await request.post()
+        return await validate(response: response, retry: request)
     }
 
     struct PostDTO: Codable, Equatable {
         var token: String
         var ref: String
         var variables: [String: String]
+    }
+
+    struct TriggerRequest {
+        let requestURL = "\(projectURL)/trigger/pipeline"
+        let body: Data
+
+        init(_ dto: PostDTO) throws {
+            let encoded = try URLEncodedFormEncoder().encode(dto)
+            body = Data(encoded.utf8)
+        }
+
+        func post() async throws -> HTTPClient.Response {
+            @Dependency(\.httpClient) var httpClient
+            return try await httpClient.post(
+                url: requestURL,
+                headers: .contentTypeFormURLEncoded,
+                body: body
+            )
+        }
+    }
+
+    static func validate(response: HTTPClient.Response,
+                         retry request: TriggerRequest? = .none) async -> Build.TriggerResponse {
+        @Dependency(\.logger) var logger
+        @Dependency(\.httpClient) var httpClient
+        do {
+            guard let responseBody = response.body else { throw Gitlab.Error.noBody }
+            switch response.status {
+                case .ok, .accepted, .created:
+                    let webUrl = try JSONDecoder().decode(Response.self, from: responseBody).webUrl
+                    let res = Build.TriggerResponse(status: response.status, webUrl: webUrl)
+                    logger.info("Triggered build: \(res.webUrl)")
+                    return res
+                case .badRequest:
+                    struct ErrorResponse: Content { var message: String }
+                    let message = try JSONDecoder().decode(ErrorResponse.self, from: responseBody).message
+                    if message.lowercased().contains("too many pipelines created"),
+                       let request {
+                        // retry once
+                        let response = try await httpClient.post(
+                            url: request.requestURL,
+                            headers: .contentTypeFormURLEncoded,
+                            body: request.body
+                        )
+                        return await validate(response: response)
+                    } else {
+                        return .init(status: response.status, webUrl: nil)
+                    }
+                default:
+                    return .init(status: response.status, webUrl: nil)
+            }
+        } catch {
+            logger.warning("triggerBuild failed: \(error)")
+            return .init(status: response.status, webUrl: nil)
+        }
     }
 
     private static func extractPackageName(from cloneURL: String) -> String {

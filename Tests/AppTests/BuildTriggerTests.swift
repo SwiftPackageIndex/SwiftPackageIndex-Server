@@ -729,7 +729,7 @@ extension AllTests.BuildTriggerTests {
         }
     }
 
-    @Test func TriggerBuilds_triggerBuilds_error() async throws {
+    @Test func TriggerBuilds_triggerBuilds_error_429_rate_limit() async throws {
         let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
@@ -772,6 +772,59 @@ extension AllTests.BuildTriggerTests {
 
                 // Ensure all triggers were attempted
                 #expect(triggerCount.value == 34)
+
+                // validate that one build record is saved, for the successful trigger
+                let count = try await Build.query(on: app.db).count()
+                #expect(count == 1)
+            }
+        }
+    }
+
+    @Test func TriggerBuilds_triggerBuilds_error_400_rate_limit() async throws {
+        // Gitlab is often responding with a `message: "Too many pipelines created in the last minute. Try again later."` with a 400 Bad Request instead of a 429 Too Many Requests.
+        // These API calls seem to succeed on first retry, so that's what this test simulates: a 400 with the above message, which we will retry.
+        let triggerCount = QueueIsolated(0)
+        try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
+            $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
+            $0.environment.builderToken = { "builder token" }
+            $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
+            $0.environment.gitlabPipelineLimit = { 300 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
+            $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                return try triggerCount.withValue { triggerCount -> HTTPClient.Response in
+                    defer { triggerCount += 1 }
+                    // Let one trigger not fail
+                    if triggerCount == 0 {
+                        struct Response: Content { var message: String }
+                        return try .badRequest(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                    } else {
+                        return .created(webUrl: "http://web_url")
+                    }
+                }
+            }
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                let p = Package(id: .id0, url: "1")
+                try await p.save(on: app.db)
+                let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
+                try await v.save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db, mode: .triggerInfo(.id1, .init(.iOS, .v4), isDocBuild: false))
+
+                // Ensure two calls were attempted
+                #expect(triggerCount.value == 2)
 
                 // validate that one build record is saved, for the successful trigger
                 let count = try await Build.query(on: app.db).count()
@@ -1367,5 +1420,10 @@ private extension HTTPClient.Response {
     static func tooManyRequests<T: Encodable>(jsonEncode value: T) throws -> Self {
         let data = try JSONEncoder().encode(value)
         return .init(status: .tooManyRequests, body: .init(data: data))
+    }
+
+    static func badRequest<T: Encodable>(jsonEncode value: T) throws -> Self {
+        let data = try JSONEncoder().encode(value)
+        return .init(status: .badRequest, body: .init(data: data))
     }
 }
