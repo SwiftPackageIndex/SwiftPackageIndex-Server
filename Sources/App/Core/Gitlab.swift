@@ -208,9 +208,13 @@ extension Gitlab.Builder {
                         )
                         return await validate(response: response)
                     } else {
+                        logger.warning("triggerBuild failed: \(response.status) \(message)")
                         return .init(status: response.status, webUrl: nil)
                     }
                 default:
+                    struct ErrorResponse: Content { var message: String }
+                    let message = (try? JSONDecoder().decode(ErrorResponse.self, from: responseBody))?.message ?? "(no error message)"
+                    logger.warning("triggerBuild failed: \(response.status) \(message)")
                     return .init(status: response.status, webUrl: nil)
             }
         } catch {
