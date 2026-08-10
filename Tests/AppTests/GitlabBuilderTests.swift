@@ -99,6 +99,43 @@ extension AllTests.GitlabBuilderTests {
         }
     }
 
+    @Test func triggerBuild_deployment() async throws {
+        let buildId = UUID.id0
+        let versionId = UUID.id1
+        let called = QueueIsolated(false)
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.builderToken = { "builder token" }
+            $0.environment.buildTimeout = { 10 }
+            $0.environment.deployment = { "production" }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 19564054 }
+            $0.environment.siteURL = { "http://example.com" }
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setValue(true)
+                let body = try #require(body)
+                // validate
+                let deployment = (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
+                    .flatMap { $0.variables["DEPLOYMENT"] }
+                #expect(deployment == "production")
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+            }
+            $0.logger = .noop
+        } operation: {
+            // MUT
+            _ = try await Gitlab.Builder.triggerBuild(buildId: buildId,
+                                                      cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                                      isDocBuild: false,
+                                                      platform: .macosSpm,
+                                                      reference: .tag(.init(1, 2, 3)),
+                                                      swiftVersion: .init(5, 2, 4),
+                                                      versionID: versionId)
+            #expect(called.value)
+        }
+    }
+
     @Test func issue_588() async throws {
         let called = QueueIsolated(false)
         try await withDependencies {

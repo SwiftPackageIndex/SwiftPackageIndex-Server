@@ -107,6 +107,11 @@ extension Gitlab.Builder {
             "VERSION_ID": versionID.uuidString
         ]
 
+        // Add deployment environment if available
+        if let deployment = environment.deployment() {
+            variables["DEPLOYMENT"] = deployment
+        }
+
         // Conditionally generate pre-signed URL for package upload
         if environment.enablePackageUploadPreSignedURLs() {
             if isDocBuild {
