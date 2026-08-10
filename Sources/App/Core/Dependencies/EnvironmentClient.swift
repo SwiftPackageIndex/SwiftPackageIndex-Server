@@ -53,6 +53,7 @@ struct EnvironmentClient {
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var dbId: @Sendable () -> String?
+    var deployment: @Sendable () -> String?
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int = { XCTFail("gitlabPipelineLimit"); return 100 }
     var gitlabPipelineToken: @Sendable () -> String?
@@ -147,6 +148,7 @@ extension EnvironmentClient: DependencyKey {
             },
             current: { (try? Environment.detect()) ?? .development },
             dbId: { Environment.get("DATABASE_ID") },
+            deployment: { Environment.get("DEPLOYMENT") },
             gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
             gitlabPipelineLimit: {
                 Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
