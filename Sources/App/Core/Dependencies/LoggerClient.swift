@@ -26,9 +26,7 @@ private enum LoggerClient: DependencyKey {
 
 
 extension LoggerClient: TestDependencyKey {
-    static var testValue: Logger {
-        unimplemented("testValue"); return .init(label: "test")
-    }
+    static var testValue: Logger { .noop }
 }
 
 
