@@ -34,7 +34,6 @@ struct HTTPClient {
     var fetchDocumentationWithIAM: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var mastodonPost: @Sendable (_ message: String) async throws -> Void
-    var postAnalyticsEvent: @Sendable (_ kind: Analytics.Event.Kind, _ path: Analytics.Path, _ user: User?) async throws -> Void
 }
 
 extension HTTPClient: DependencyKey {
@@ -68,10 +67,7 @@ extension HTTPClient: DependencyKey {
                     try await client.shutdown()
                 }
             },
-            mastodonPost: { message in try await Mastodon.post(message: message) },
-            postAnalyticsEvent: { kind, path, user in
-                try await Analytics.postEvent(kind: kind, path: path, user: user)
-            }
+            mastodonPost: { message in try await Mastodon.post(message: message) }
         )
     }
 
@@ -193,10 +189,6 @@ extension HTTPClient {
             // echo url.path in the body as a simple way to test the requested url
                 .init(status: .ok, headers: headers, body: .init(string: url.path))
         }
-    }
-
-    static var noop: @Sendable (_ kind: Analytics.Event.Kind, _ path: Analytics.Path, _ user: User?) async throws -> Void {
-        { _, _, _ in }
     }
 }
 

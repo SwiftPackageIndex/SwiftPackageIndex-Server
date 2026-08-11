@@ -70,11 +70,8 @@ func routes(_ app: Application) throws {
         // Only serve sitemaps in production.
         if environment.current() == .production {
             // Package specific site map, including all documentation URLs if available.
-            // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
-            app.group(BackendReportingMiddleware(path: .sitemapPackage, isActive: false)) {
-                $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
-                       use: PackageController.siteMap)
-            }
+            app.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
+                    use: PackageController.siteMap)
         }
     }
 
@@ -137,31 +134,20 @@ func routes(_ app: Application) throws {
         }
 
         app.group(User.APITierAuthenticator(tier: .tier1), User.guardMiddleware()) { protected in
-            protected.group(BackendReportingMiddleware(path: .search)) {
-                $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
-            }
+            protected.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
         }
 
-        // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
-        app.group(BackendReportingMiddleware(path: .badge, isActive: false)) {
-            $0.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
-                   use: API.PackageController.badge)
-        }
+        app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
+                use: API.PackageController.badge)
 
         // api token protected routes
         app.group(User.APITierAuthenticator(tier: .tier3), User.guardMiddleware()) { protected in
-            protected.group(BackendReportingMiddleware(path: .package)) {
-                $0.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
-            }
+            protected.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
 
-            protected.group(BackendReportingMiddleware(path: .packageCollections)) {
-                $0.post(SiteURL.api(.packageCollections).pathComponents,
-                        use: API.PackageCollectionController.generate)
-            }
+            protected.post(SiteURL.api(.packageCollections).pathComponents,
+                           use: API.PackageCollectionController.generate)
 
-            protected.group(BackendReportingMiddleware(path: .dependencies)) {
-                $0.get(SiteURL.api(.dependencies).pathComponents, use: API.DependencyController.get)
-            }
+            protected.get(SiteURL.api(.dependencies).pathComponents, use: API.DependencyController.get)
         }
 
         // builder token protected routes
@@ -178,22 +164,16 @@ func routes(_ app: Application) throws {
     }
 
     do { // RSS
-        app.group(BackendReportingMiddleware(path: .rss)) {
-            $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
-            $0.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
-        }
+        app.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
+        app.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
     }
 
     // Only serve sitemaps in production.
     if environment.current() == .production {
         do { // Site map index and static page site map
-            app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
-                $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
-            }
+            app.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
 
-            app.group(BackendReportingMiddleware(path: .sitemapStaticPages)) {
-                $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
-            }
+            app.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
         }
     }
 
