@@ -223,6 +223,11 @@ extension HTTPClient.Response {
         return .init(status: .ok, headers: headers, body: .init(data: data))
     }
 
+    static func accepted<T: Encodable>(jsonEncode value: T, headers: HTTPHeaders = .init()) throws -> Self {
+        let data = try JSONEncoder().encode(value)
+        return .init(status: .accepted, headers: headers, body: .init(data: data))
+    }
+
     static func created<T: Encodable>(jsonEncode value: T, headers: HTTPHeaders = .init()) throws -> Self {
         let data = try JSONEncoder().encode(value)
         return .init(status: .created, headers: headers, body: .init(data: data))
