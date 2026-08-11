@@ -44,22 +44,8 @@ enum Analytics {
         var message: String
     }
 
-    static let postEventURL = "https://example.com/api/event"
-
     static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
-        @Dependency(\.environment) var environment
-        guard let siteID = environment.analyticsBackendReportingSiteID() else {
-            throw Error(message: "ANALYTICS_BACKEND_REPORTING_SITE_ID not set")
-        }
-        let body = try JSONEncoder().encode(Event(name: .pageview,
-                                                  url: "https://\(siteID)\(path.rawValue)",
-                                                  domain: siteID,
-                                                  props: user.props))
-        @Dependency(\.httpClient) var httpClient
-        let res = try await httpClient.post(url: postEventURL, headers: .applicationJSON, body: body)
-        guard res.status.succeeded else {
-            throw Error(message: "Request failed with status code: \(res.status)")
-        }
+        // sas 2026-08-11: This function is a no-op on purpose. We are currently not reporting any analytics events but want to keep the instrumentation in place for future use.
     }
 
     static func props(for user: User?) -> [String: String] {
