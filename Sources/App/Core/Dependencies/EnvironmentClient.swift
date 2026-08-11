@@ -63,6 +63,7 @@ struct EnvironmentClient {
     var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var metricsPushGatewayUrl: @Sendable () -> String?
+    var analyticsBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
@@ -168,6 +169,7 @@ extension EnvironmentClient: DependencyKey {
                     .map(Mastodon.Credentials.init(accessToken:))
             },
             metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
+            analyticsBackendReportingSiteID: { Environment.get("ANALYTICS_BACKEND_REPORTING_SITE_ID") },
             processingBuildBacklog: {
                 Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
             },

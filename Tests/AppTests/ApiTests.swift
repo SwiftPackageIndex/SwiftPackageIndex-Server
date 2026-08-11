@@ -35,6 +35,7 @@ extension AllTests.ApiTests {
     @Test func search_noQuery() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // MUT
@@ -52,8 +53,12 @@ extension AllTests.ApiTests {
     }
 
     @Test func search_basic_param() async throws {
+        let event = App.ActorIsolated<TestEvent?>(nil)
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postAnalyticsEvent = { @Sendable kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
         } operation: {
             try await withSPIApp { app in
                 let p1 = Package(id: .id0, url: "1")
@@ -100,6 +105,11 @@ extension AllTests.ApiTests {
                                                                               ])
                     )
                 })
+
+                // ensure API event has been reported
+                await event.withValue {
+                    #expect($0 == .some(.init(kind: .pageview, path: .search)))
+                }
             }
         }
     }
@@ -844,11 +854,15 @@ extension AllTests.ApiTests {
         .disabled(if: isRunningInDevContainer(), "Skip test when running in dev container.")
     )
     func package_collections_owner() async throws {
+        let event = App.ActorIsolated<TestEvent?>(nil)
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+            $0.httpClient.postAnalyticsEvent = { @Sendable kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -899,6 +913,11 @@ extension AllTests.ApiTests {
                         #expect(container.collection.name == "my collection")
                     })
                 }
+
+                // ensure API event has been reported
+                await event.withValue {
+                    #expect($0 == .some(.init(kind: .pageview, path: .packageCollections)))
+                }
             }
         }
     }
@@ -918,6 +937,7 @@ extension AllTests.ApiTests {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 // setup
@@ -1066,6 +1086,7 @@ extension AllTests.ApiTests {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.dbId = { nil }
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 let owner = "owner"
@@ -1131,6 +1152,7 @@ extension AllTests.ApiTests {
     @Test func dependencies_get() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postAnalyticsEvent = App.HTTPClient.noop
         } operation: {
             try await withSPIApp { app in
                 let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
@@ -1167,6 +1189,14 @@ private extension HTTPHeaders {
 
     static func bearerApplicationJSON(_ token: String) -> Self {
         .init([("Content-Type", "application/json"), ("Authorization", "Bearer \(token)")])
+    }
+}
+
+
+extension AllTests.ApiTests {
+    struct TestEvent: Equatable {
+        var kind: Analytics.Event.Kind
+        var path: Analytics.Path
     }
 }
 
