@@ -30,6 +30,7 @@ import Testing
 
 extension AllTests {
     @Suite struct AlertingTests { }
+    @Suite struct AllMigrationsTests { }
     @Suite struct AnalyzerTests { }
     @Suite struct AnalyzerVersionThrottlingTests { }
     @Suite struct API_DependencyControllerTests { }
@@ -123,6 +124,7 @@ extension AllTests {
     @Suite struct StringExtTests { }
     @Suite struct SwiftVersionTests { }
     @Suite struct TargetTests { }
+    @Suite struct TransactionalMigrationTests { }
     @Suite struct ValidateSPIManifestControllerTests { }
     @Suite struct VersionDiffTests { }
     @Suite struct VersionTests { }
