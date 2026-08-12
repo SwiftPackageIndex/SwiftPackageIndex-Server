@@ -12,7 +12,7 @@ Most language ecosystems have a registry. JavaScript has [npm](https://www.npmjs
 
 ### Depending on a Git-based package
 
-Like most package managers, SwiftPM supports using Git-based packages and registry-based packages. You will probably be familiar with how that appears in a `Package.swift` file:
+You will probably be familiar with how that appears in a `Package.swift` file:
 
 ```swift
 dependencies: [
@@ -60,7 +60,7 @@ swift package-registry set https://tuist.dev/api/registry/swift
 
 *Note: This command sets a default package registry for the current project, not [globally](https://github.com/swiftlang/swift-package-manager/blob/main/Documentation/PackageRegistry/PackageRegistryUsage.md#configuring-a-registry).*
 
-**Step 3:** Switch the dependency. Open the `Package.swift` file and change the `dependencies` section to use [`package(id:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(id:from:)) instead of [`package(url:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(url:from:)):
+**Step 3:** Switch the dependency. Open the `Package.swift` file and make two changes. Switch the `dependencies` section to use [`package(id:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(id:from:)) instead of [`package(url:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(url:from:)):
 
 ```swift
 dependencies: [
@@ -68,7 +68,7 @@ dependencies: [
 ]
 ```
 
-**Step 4:** Switch the dependency’s reference in the `executableTarget`:
+Then switch the dependency’s reference in the `executableTarget`:
 
 ```swift
 .executableTarget(
@@ -79,7 +79,7 @@ dependencies: [
 )
 ```
 
-**Step 5:** Run the tool:
+**Step 4:** Run the tool:
 
 ```shell
 swift run
