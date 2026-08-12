@@ -46,19 +46,19 @@ It’s worth noting that package registries also don’t create a walled garden.
 
 In this follow-along example, we will build a trivial SwiftPM-based command-line tool and switch the Swift Argument Parser dependency from git-based to registry-based. We’ll use the Tuist registry here as a publicly available registry that has archived every package in the [Swift Package Index Package List](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json).
 
-**Step 1:** Add a registry to SwiftPM:
+**Step 1:** Create a “Hello, world!” package. Make a new directory and run:
+
+```shell
+swift package init --type tool --name TestPackage
+```
+
+**Step 2:** Add a registry to SwiftPM:
 
 ```shell
 swift package-registry set https://tuist.dev/api/registry/swift
 ```
 
 *Note: This command sets a default package registry for the current project, not [globally](https://github.com/swiftlang/swift-package-manager/blob/main/Documentation/PackageRegistry/PackageRegistryUsage.md#configuring-a-registry).*
-
-**Step 2:** Create a “Hello, world!” package. Make a new directory and run:
-
-```shell
-swift package init --type tool --name TestPackage
-```
 
 **Step 3:** Switch the dependency. Open the `Package.swift` file and change the `dependencies` section to use [`package(id:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(id:from:)) instead of [`package(url:from:)`](https://developer.apple.com/documentation/packagedescription/package/dependency/package(url:from:)):
 
