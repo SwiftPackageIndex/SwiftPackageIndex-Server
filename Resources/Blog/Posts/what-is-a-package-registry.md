@@ -87,4 +87,8 @@ swift run
 
 You’ll see SwiftPM resolve the package dependency using the registry, build the tool, and output “Hello, world!”. Congratulations, you just used a package registry!
 
+### Why build a package registry?
+
+Given that you just used a community package registry, you might wonder why we are building a new one. The Tuist registry is a valuable resource for the community as a read-only cache implemented on a registry, and we think there's more value to be had with a full implementation. The key difference is that a fully implemented registry allows packages to be published from SwiftPM using `swift package publish`. It's much more than that, though, involving thinking about developer identity, supply chain security, package scope ownership, release management, and more.
+
 If you’d like to learn more about how package registries work under the hood, the [SwiftPM documentation](https://docs.swift.org/swiftpm/documentation/packagemanagerdocs/usingswiftpackageregistry/) and the [Artifactory documentation](https://docs.jfrog.com/artifactory/docs/swift-repositories) are both good starting points.
