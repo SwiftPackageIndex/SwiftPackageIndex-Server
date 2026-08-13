@@ -189,3 +189,9 @@
   written_by: Ted Kremenek, Dave Verwer, and Sven A. Schmidt
   published_at: 2026-06-23
   published: true
+- slug: what-is-a-package-registry
+  title: What is a package registry?
+  summary: SwiftPM tooling has three main components – SwiftPM resolves dependencies for the compiler, a package index helps you discover packages, and a package registry hosts and serves verified, immutable source archives. Even better, you can try a registry today.
+  written_by: Dave Verwer
+  published_at: 2026-08-12
+  published: true
