@@ -55,7 +55,7 @@ class PublicPage {
             .description(description()),
             .twitterCardType(.summary),
             .socialImageLink(SiteURL.images("logo.png").absoluteURL()),
-            .favicon(SiteURL.images("logo-tiny.png").relativeURL()),
+            favicons(),
             rssFeeds(),
             .link(
                 .rel(.stylesheet),
@@ -90,6 +90,36 @@ class PublicPage {
     /// Any additional tags that should be inserted as the *last* tags in the `<head>`.
     func postHead() -> Node<HTML.HeadContext> {
         return .empty
+    }
+
+    /// Declare a favicon and all "Apple Touch" icons.
+    /// - Returns: A collection of icon and theme helper tags.
+    final func favicons() -> Node<HTML.HeadContext> {
+        .group(
+            .link(
+                .rel(.icon),
+                .href("/favicon.ico"),
+                .sizes("any")
+            ),
+            .link(
+                .rel(.icon),
+                .href(SiteURL.images("favicon-32x32.png").relativeURL()),
+                .type("image/png"),
+                .sizes("32x32")
+            ),
+            .link(
+                .rel(.icon),
+                .href(SiteURL.images("favicon-16x16.png").relativeURL()),
+                .type("image/png"),
+                .sizes("16x16")
+            ),
+            .link(
+                .rel(.appleTouchIcon),
+                .href(SiteURL.images("apple-touch-icon.png").relativeURL()),
+                .sizes("180x180")
+            ),
+            .meta(.name("theme-color"), .content("#038c33"))
+        )
     }
 
     /// if a search engine requests the page, we can tell it not to index it by including this meta tag.
