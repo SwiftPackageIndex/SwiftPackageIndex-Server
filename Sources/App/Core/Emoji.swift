@@ -64,7 +64,7 @@ struct EmojiStorage {
             return string
         }
 
-        let nsRange = NSRange(location: 0, length: string.count)
+        let nsRange = NSRange(location: 0, length: string.utf16.count)
         let results = regEx.matches(in: string, options: [], range: nsRange)
 
         var mutableString = string
