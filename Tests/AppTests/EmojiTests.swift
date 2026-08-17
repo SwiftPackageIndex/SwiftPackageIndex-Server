@@ -16,7 +16,6 @@
 
 import Testing
 
-
 extension AllTests.EmojiTests {
 
     @Test func emojiReplacement() throws {
@@ -40,4 +39,11 @@ extension AllTests.EmojiTests {
         #expect(emojis[":grinning:"] == "😀")
     }
 
+    // Regression: `replace(inString:)` built its `NSRange` from `string.count`,
+    // but Foundation regex ranges are UTF-16 offsets.
+    @Test func emojiReplacementAfterUnicodePrefix() throws {
+        // Non-BMP characters contain two UTF-16 code units per Character
+        let questionableText = "𝐇𝐞𝐥𝐥𝐨, 𝐰𝐨𝐫𝐥𝐝 "
+        #expect((questionableText + ":smile:").replaceShorthandEmojis() == questionableText + "😄")
+    }
 }
