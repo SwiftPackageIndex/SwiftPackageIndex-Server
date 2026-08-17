@@ -16,7 +16,7 @@ You will probably be familiar with how that appears in a `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swiftlang/swift-testing.git", from: "6.3.2")
+    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.8.2")
 ]
 ```
 
@@ -28,7 +28,7 @@ Here’s the same dependency import from a registry:
 
 ```swift
 dependencies: [
-    .package(id: "swiftlang.swift-testing", from: "6.3.2")
+    .package(id: "apple.swift-argument-parser", from: "1.8.2")
 ]
 ```
 
@@ -64,7 +64,7 @@ swift package-registry set https://tuist.dev/api/registry/swift
 
 ```swift
 dependencies: [
-    .package(id: "apple.swift-argument-parser", from: "1.2.0")
+    .package(id: "apple.swift-argument-parser", from: "1.8.2")
 ]
 ```
 
