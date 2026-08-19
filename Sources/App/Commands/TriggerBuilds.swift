@@ -190,12 +190,13 @@ func triggerBuilds(on database: Database,
     }
 
     guard !force else {
-        return await withThrowingTaskGroup(of: Void.self) { group in
+        return try await withThrowingTaskGroup(of: Void.self) { group in
             for package in packages {
                 group.addTask {
                     let triggerInfo = try await findMissingBuilds(database, packageId: package)
                     try await triggerBuildsUnchecked(on: database, triggers: triggerInfo)
                 }
+                try await group.waitForAll()
             }
         }
     }
@@ -222,7 +223,7 @@ func triggerBuilds(on database: Database,
     let newJobs = ActorIsolated(0)
     let gitlabPipelineLimit = environment.gitlabPipelineLimit
 
-    await withThrowingTaskGroup(of: Void.self) { group in
+    try await withThrowingTaskGroup(of: Void.self) { group in
         for pkgId in packages {
             let allowListed = environment.buildTriggerAllowList().contains(pkgId)
             guard allowListed || environment.buildTriggerDownscalingAccepted else {
@@ -258,6 +259,7 @@ func triggerBuilds(on database: Database,
                 }
             }
         }
+        try await group.waitForAll()
     }
     let deleted = try await trimBuilds(on: database)
 
@@ -273,7 +275,7 @@ func triggerBuilds(on database: Database,
 ///   - triggers: trigger information for builds to trigger
 func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo]) async throws {
     @Dependency(\.logger) var logger
-    await withThrowingTaskGroup(of: Void.self) { group in
+    try await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
                 logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
@@ -325,8 +327,9 @@ func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo])
                         }
                     }
                 }
-            }
-        }
+            } // for pair in trigger.buildPairs
+        } // for trigger in triggers
+        try await group.waitForAll()
     }
 }
 

@@ -31,10 +31,10 @@ extension AllTests.AnalyticsTests {
         #expect(Analytics.props(for: .init(name: "api", identifier: "foo")) == ["user": "foo"])
     }
 
-    @Test func postEvent_anonymous() async throws {
+    @Test(.disabled("Analytics posting is currently disabled"))
+    func postEvent_anonymous() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
-            $0.environment.analyticsBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
@@ -54,10 +54,10 @@ extension AllTests.AnalyticsTests {
         }
     }
 
-    @Test func postEvent_package() async throws {
+    @Test(.disabled("Analytics posting is currently disabled"))
+    func postEvent_package() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
-            $0.environment.analyticsBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate

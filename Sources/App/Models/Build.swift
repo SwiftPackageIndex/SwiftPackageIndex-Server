@@ -170,7 +170,7 @@ extension Build {
 
 extension Build {
 
-    struct TriggerResponse: Content {
+    struct TriggerResponse: Content, Equatable {
         var status: HTTPStatus
         var webUrl: String?
     }
