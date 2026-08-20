@@ -62,9 +62,15 @@ extension S3Readme {
         @Dependency(\.environment) var environment
         @Dependency(\.logger) var logger
 
-        guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
-        guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
-        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        let store: S3Store
+        if environment.awsUseIamRole() {
+            let region = environment.awsReadmeBucketRegion() ?? environment.awsRegion()
+            store = S3Store(region: region)
+        } else {
+            guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
+            guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY") }
+            store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        }
         let key = try S3Store.Key.readme(owner: owner, repository: repository)
 
         logger.debug("Copying readme to \(key.s3Uri) ...")
@@ -82,10 +88,15 @@ extension S3Readme {
         @Dependency(\.httpClient) var httpClient
         @Dependency(\.logger) var logger
 
-        guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
-        guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
-
-        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        let store: S3Store
+        if environment.awsUseIamRole() {
+            let region = environment.awsReadmeBucketRegion() ?? environment.awsRegion()
+            store = S3Store(region: region)
+        } else {
+            guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
+            guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY") }
+            store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        }
         for imageToCache in imagesToCache {
             logger.debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
             do {
