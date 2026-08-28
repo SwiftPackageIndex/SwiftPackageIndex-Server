@@ -153,7 +153,7 @@ extension AllTests.GitlabBuilderTests {
                 // validate
                 let swiftVersion = (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
                     .flatMap { $0.variables["SWIFT_VERSION"] }
-                #expect(swiftVersion == "6.0")
+                #expect(swiftVersion == "6.4")
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
             $0.logger = .noop
@@ -164,7 +164,7 @@ extension AllTests.GitlabBuilderTests {
                                                       isDocBuild: false,
                                                       platform: .macosSpm,
                                                       reference: .tag(.init(1, 2, 3)),
-                                                      swiftVersion: .v6_0,
+                                                      swiftVersion: .v6_4,
                                                       versionID: .id1)
             #expect(called.value)
         }
