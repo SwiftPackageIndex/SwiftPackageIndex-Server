@@ -1,5 +1,5 @@
 {
-  "originHash" : "ac298734530f5dec7a413f190af43c5e1f770691ee23e83b1a97f5c580bc6a6d",
+  "originHash" : "34329a2ccdfa7926885fbcb553a70a25616e78f73c117fbf44d77a2be017ccc5",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -607,10 +607,9 @@
     {
       "identity" : "vapor",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vapor/vapor.git",
+      "location" : "https://github.com/SwiftPackageIndex/vapor.git",
       "state" : {
-        "revision" : "a69c0eabde9fd757e04b2d2db3fc41fbbea97ab5",
-        "version" : "4.118.0"
+        "revision" : "f9a76d81a836ed49d75103d3462901c29826fcea"
       }
     },
     {
