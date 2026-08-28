@@ -18,7 +18,7 @@ extension SwiftVersion: BuildResultPresentable {
     var note: String? {
         switch self {
                 // Use this to add a "beta" note to a Swift version
-                // case .v6_3: return "beta"
+            case .v6_4: return "beta"
             default: return nil
         }
     }
