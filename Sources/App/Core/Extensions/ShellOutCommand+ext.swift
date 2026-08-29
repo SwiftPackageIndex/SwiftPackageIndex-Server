@@ -85,12 +85,48 @@ extension ShellOutCommand {
 //MARK: Other commands
 
 extension ShellOutCommand {
-    static var swiftDumpPackage: Self {
-        .init(command: "swift", arguments: ["package", "dump-package"])
+    static func docker(_ arguments: String...) -> Self {
+        .init(command: .docker, arguments: arguments)
+    }
+}
+
+
+extension ShellOutCommand {
+    static func swiftDumpPackage(at path: String) -> Self {
+        .docker(
+            "run",
+            "--rm",
+            "--volume=\(path):/host",
+            "--workdir=/host",
+            "--network=none",
+            SwiftVersion.analysisDockerImage,
+            "swift",
+            "package",
+            "dump-package"
+        )
     }
 }
 
 
 extension Reference {
     var quoted: ShellArgument { description.quoted }
+}
+
+
+private extension String {
+    static var docker: Self {
+#if os(macOS)
+        // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore,
+        // so relying on `PATH` resolution (plain "docker") silently fails when running tests
+        // from Xcode. Probe known absolute install locations instead.
+        let knownPaths = [
+            "/opt/homebrew/bin/docker",
+            "/usr/local/bin/docker",
+            "/opt/local/bin/docker"
+        ]
+        return knownPaths.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "docker"
+#else
+        "docker"
+#endif
+    }
 }

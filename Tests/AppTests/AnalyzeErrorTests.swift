@@ -223,16 +223,15 @@ extension AllTests.AnalyzeErrorTests {
 
 
 private func defaultShellRun(command: ShellOutCommand, path: String, environment: [String: String]? = nil) throws -> String {
-    switch command {
-        case .swiftDumpPackage where path.hasSuffix("foo-1"):
+    if command.isSwiftPackageDump {
+        if path.hasSuffix("foo-1") {
             return packageSwift1
-
-        case .swiftDumpPackage where path.hasSuffix("foo-2"):
+        }
+        if path.hasSuffix("foo-2") {
             return packageSwift2
-
-        default:
-            return ""
+        }
     }
+    return ""
 }
 
 

@@ -566,7 +566,7 @@ extension Analyze {
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")
         }
-        let json = try await shell.run(command: .swiftDumpPackage, at: path)
+        let json = try await shell.run(command: .swiftDumpPackage(at: path), at: path)
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 

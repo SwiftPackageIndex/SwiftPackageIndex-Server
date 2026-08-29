@@ -73,7 +73,7 @@ extension AllTests.AnalyzerTests {
                     if cmd == .gitListTags && path.hasSuffix("foo-2") {
                         return ["2.0.0", "2.1.0"].joined(separator: "\n")
                     }
-                    if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
+                    if cmd.isSwiftPackageDump && path.hasSuffix("foo-1") {
                         return #"""
                         {
                           "name": "foo-1",
@@ -90,7 +90,7 @@ extension AllTests.AnalyzerTests {
                         }
                         """#
                     }
-                    if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
+                    if cmd.isSwiftPackageDump && path.hasSuffix("foo-2") {
                         return #"""
                         {
                           "name": "foo-2",
@@ -447,7 +447,7 @@ extension AllTests.AnalyzerTests {
                     if let result = mockResults[cmd] { return result }
 
                     // simulate error in first package
-                    if cmd == .swiftDumpPackage {
+                    if cmd.isSwiftPackageDump {
                         if path.hasSuffix("foo-1") {
                             // Simulate error when reading the manifest
                             struct Error: Swift.Error { }
@@ -781,7 +781,7 @@ extension AllTests.AnalyzerTests {
                     commands.withValue {
                         $0.append(cmd.description)
                     }
-                    if cmd == .swiftDumpPackage {
+                    if cmd.isSwiftPackageDump {
                         return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
                     }
                     return ""
@@ -798,10 +798,9 @@ extension AllTests.AnalyzerTests {
                 let info = try await Analyze.getPackageInfo(package: jpr, version: version)
 
                 // validation
-                #expect(commands.value == [
-                    "git checkout 0.4.2 --quiet",
-                    "swift package dump-package"
-                ])
+                #expect(commands.value.count == 2)
+                #expect(commands.value.first == "git checkout 0.4.2 --quiet")
+                #expect(commands.value.last?.hasSuffix("swift package dump-package") ?? false)
                 #expect(info.packageManifest.name == "SPI-Server")
             }
         }
@@ -1137,7 +1136,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage, at: tempDir)
+                var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage(at: tempDir), at: tempDir)
                 do {  // "root" references tempDir's absolute path - replace it to make the test stable
                     if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                        var packageKind = obj["packageKind"] as? [String: Any] {
@@ -1581,7 +1580,7 @@ extension AllTests.AnalyzerTests {
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
                 $0.git.shortlog = { @Sendable _ in "10\tPerson 1" }
                 $0.shell.run = { @Sendable cmd, path, _ in
-                    if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
+                    if cmd.isSwiftPackageDump { return .packageDump(name: "foo1") }
                     return ""
                 }
             } operation: {
@@ -1703,7 +1702,7 @@ private struct Command: CustomStringConvertible {
                 let ref = String(trimmed.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
-            case .swiftDumpPackage:
+            case _ where command.isSwiftPackageDump:
                 self.kind = .dumpPackage
             default:
                 print("unmatched command: \(command.description)")

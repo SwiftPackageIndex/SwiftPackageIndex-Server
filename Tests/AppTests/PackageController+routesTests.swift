@@ -1620,7 +1620,7 @@ extension AllTests.PackageController_routesTests {
             $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.shell.run = { @Sendable cmd, _, _ in
-                if cmd.description == "swift package dump-package" { return .mockManifest }
+                if cmd.isSwiftPackageDump { return .mockManifest }
                 return ""
             }
             $0.timeZone = .utc

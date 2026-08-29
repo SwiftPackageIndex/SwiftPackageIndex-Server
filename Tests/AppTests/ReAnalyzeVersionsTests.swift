@@ -205,7 +205,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 """
             }
             $0.shell.run = { @Sendable cmd, path, _ in
-                if cmd == .swiftDumpPackage {
+                if cmd.isSwiftPackageDump {
                     return #"""
                         {
                           "name": "foo-1",
@@ -235,7 +235,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 
                 try await withDependencies {
                     $0.shell.run = { @Sendable cmd, path, _ in
-                        if cmd == .swiftDumpPackage {
+                        if cmd.isSwiftPackageDump {
                             // simulate error during package dump
                             struct Error: Swift.Error { }
                             throw Error()

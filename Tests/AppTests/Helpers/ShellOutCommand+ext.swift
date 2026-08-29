@@ -13,12 +13,15 @@
 // limitations under the License.
 
 import Foundation
+
+@testable import App
+
 import ShellOut
 
 
 extension ShellOutCommand {
     static func launchDB(port: Int) -> ShellOutCommand {
-        .init(command: .docker, arguments: [
+        .docker(
             "run", "--name", "spi_test_\(port)",
             "-e", "POSTGRES_DB=spi_test",
             "-e", "POSTGRES_USER=spi_test",
@@ -30,37 +33,21 @@ extension ShellOutCommand {
             "-p", "\(port):5432",
             "-d",
             "postgres:16-alpine"
-        ])
+        )
     }
 
     static func removeDB(port: Int) -> ShellOutCommand {
-        .init(command: .docker, arguments: [
-            "rm", "-f", "spi_test_\(port)"
-        ])
+        .docker("rm", "-f", "spi_test_\(port)")
     }
 
     static var getContainerNames: ShellOutCommand {
-        .init(command: .docker, arguments: [
-            "ps", "--format", "{{.Names}}"
-        ])
+        .docker("ps", "--format", "{{.Names}}")
     }
 }
 
 
-private extension String {
-    static var docker: Self {
-#if os(macOS)
-        // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore,
-        // so relying on `PATH` resolution (plain "docker") silently fails when running tests
-        // from Xcode. Probe known absolute install locations instead.
-        let knownPaths = [
-            "/opt/homebrew/bin/docker",
-            "/usr/local/bin/docker",
-            "/opt/local/bin/docker"
-        ]
-        return knownPaths.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "docker"
-#else
-        "docker"
-#endif
+extension ShellOutCommand {
+    var isSwiftPackageDump: Bool {
+        description.contains("swift package dump-package")
     }
 }
