@@ -89,7 +89,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/saguaro1/spi-base:27688b20334f10a3528183f6eca12adf8baea508 \
+	  registry.gitlab.com/saguaro1/spi-base:2.4.0 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
