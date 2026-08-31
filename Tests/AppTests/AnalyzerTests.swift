@@ -1150,6 +1150,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                #warning("This should actually also use the analysis image, because the Swift version might differ")
                 var json = try await ShellClient.liveValue.run(
                     // 2026-08-30 sas: We're testing the decoding *format* here, not the decoding *mechanism*, so for sake of simplicity, we use "dump-package" directly. This is safe, because we are using this with a known fixture.
                     command: .init(command: "swift", arguments: ["package", "dump-package"]),
