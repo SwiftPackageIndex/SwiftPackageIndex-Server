@@ -86,24 +86,7 @@ extension ShellOutCommand {
 
 extension ShellOutCommand {
     static func docker(_ arguments: String...) -> Self {
-        .init(command: .docker, arguments: arguments)
-    }
-}
-
-
-extension ShellOutCommand {
-    static func swiftDumpPackage(at path: String) -> Self {
-        .docker(
-            "run",
-            "--rm",
-            "--volume=\(path):/host",
-            "--workdir=/host",
-            "--network=none",
-            SwiftVersion.analysisDockerImage,
-            "swift",
-            "package",
-            "dump-package"
-        )
+        .init(command: .dockerPath, arguments: arguments)
     }
 }
 
@@ -113,8 +96,8 @@ extension Reference {
 }
 
 
-private extension String {
-    static var docker: Self {
+extension String {
+    static var dockerPath: Self {
 #if os(macOS)
         // Starting from macOS 15.4.1 Xcode does not have `/usr/local/bin` in its path anymore,
         // so relying on `PATH` resolution (plain "docker") silently fails when running tests

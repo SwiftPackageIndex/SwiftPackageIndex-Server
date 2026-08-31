@@ -1624,6 +1624,7 @@ extension AllTests.PackageController_routesTests {
                 return ""
             }
             $0.timeZone = .utc
+            $0.uuid = .liveValue
         } operation: {
             try await withSPIApp { app in
                 // setup

@@ -479,6 +479,7 @@ extension AllTests.IngestionTests {
                     }
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: { [db = app.db] in
                 try await Analyze.analyze(client: app.client, database: db, mode: .id(.id0))
                 try await Analyze.analyze(client: app.client, database: db, mode: .id(.id1))

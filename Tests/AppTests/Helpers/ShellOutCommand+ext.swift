@@ -47,7 +47,27 @@ extension ShellOutCommand {
 
 
 extension ShellOutCommand {
+    var isDockerCopy: Bool {
+        description.contains("docker cp")
+    }
+
     var isSwiftPackageDump: Bool {
         description.contains("swift package dump-package")
+    }
+
+    var isCreateScratchVolume: Bool {
+        description.contains("docker volume create scratch")
+    }
+
+    var isRemoveScratchVolume: Bool {
+        description.contains("docker volume rm --force scratch")
+    }
+
+    var isStartBusyboxContainer: Bool {
+        description.contains("busybox /bin/sleep")
+    }
+
+    var isRemoveBusyboxContainer: Bool {
+        description.contains("docker rm --force temp")
     }
 }

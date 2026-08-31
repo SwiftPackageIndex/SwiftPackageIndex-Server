@@ -79,6 +79,7 @@ extension AllTests.AnalyzeErrorTests {
                             return try defaultShellRun(command: cmd, path: path)
                     }
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
@@ -101,6 +102,7 @@ extension AllTests.AnalyzeErrorTests {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -140,6 +142,7 @@ extension AllTests.AnalyzeErrorTests {
                             return try defaultShellRun(command: cmd, path: path)
                     }
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
@@ -167,6 +170,7 @@ extension AllTests.AnalyzeErrorTests {
                     return true
                 }
                 $0.logger = .testLogger(capturingLogger)
+                $0.uuid = .liveValue
             } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,

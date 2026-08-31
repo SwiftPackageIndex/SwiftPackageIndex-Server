@@ -555,19 +555,53 @@ extension Analyze {
 
     /// Run `swift package dump-package` for a package at the given path.
     /// - Parameters:
-    ///   - path: path to the pacakge
+    ///   - path: path to the package
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
     static func dumpPackage(at path: String) async throws -> Manifest {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
+        @Dependency(\.uuid) var uuid
         guard fileManager.fileExists(atPath: path + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")
         }
-        let json = try await shell.run(command: .swiftDumpPackage(at: path), at: path)
-        return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+
+        do {
+            let scratchVolume = "scratch-\(uuid())"
+            let tempContainer = "temp-\(uuid())"
+            let packageDir = "package-dir"
+            let json = try await run {
+                try await shell.run(command: .docker("volume", "create", scratchVolume), at: path)
+                try await shell.run(command: .docker(
+                    "run", "--rm", "-v", "\(scratchVolume):/scratch", "--name", tempContainer, "-d", "busybox", "/bin/sleep", "20"
+                ), at: path)
+                try await shell.run(command: .docker(
+                    "cp", path, "\(tempContainer):/scratch/\(packageDir)"
+                ), at: path)
+                let json = try await shell.run(command: .docker(
+                    "run",
+                    "--rm",
+                    "--volume=\(scratchVolume):/scratch",
+                    "--workdir=/scratch/\(packageDir)",
+                    "--network=none",
+                    SwiftVersion.analysisDockerImage,
+                    "swift",
+                    "package",
+                    "dump-package"
+                ), at: path)
+                return json
+            } defer: {
+                _ = try? await shell.run(command: .docker("rm", "--force", tempContainer), at: path)
+                _ = try? await shell.run(command: .docker("volume", "rm", "--force", scratchVolume), at: path)
+            }
+            return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+        } catch {
+            logger.warning("Failed to run dump-package: \(error)")
+            throw error
+        }
     }
 
 

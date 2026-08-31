@@ -61,6 +61,7 @@ extension AllTests.MastodonTests {
                 }
                 return ""
             }
+            $0.uuid = .liveValue
         } operation: {
             try await withSPIApp { app in
                 // setup

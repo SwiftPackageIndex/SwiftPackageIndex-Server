@@ -204,6 +204,7 @@ extension AllTests.PipelineTests {
                 }
                 return ""
             }
+            $0.uuid = .liveValue
         } operation: {
             try await withSPIApp { app in
                 // MUT - first stage

@@ -129,6 +129,7 @@ extension AllTests.AnalyzerTests {
 
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -155,7 +156,7 @@ extension AllTests.AnalyzerTests {
                 // validation
                 let outDir = try checkoutDir.value.unwrap()
                 #expect(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-                #expect(commands.value.count == 36)
+                #expect(commands.value.count == 66)
 
                 // Snapshot for each package individually to avoid ordering issues when
                 // concurrent processing causes commands to interleave between packages.
@@ -269,6 +270,7 @@ extension AllTests.AnalyzerTests {
                     }
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let pkgId = UUID()
@@ -385,6 +387,7 @@ extension AllTests.AnalyzerTests {
                     }
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -473,6 +476,7 @@ extension AllTests.AnalyzerTests {
 
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -487,7 +491,7 @@ extension AllTests.AnalyzerTests {
                                           mode: .limit(10))
 
                 // validation (not in detail, this is just to ensure command count is as expected)
-                #expect(commands.value.count == 40, "was: \(dump(commands.value))")
+                #expect(commands.value.count == 70, "was: \(dump(commands.value))")
                 // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
                 let versionCount = try await Version.query(on: app.db).count()
                 #expect(versionCount == 3)
@@ -786,6 +790,7 @@ extension AllTests.AnalyzerTests {
                     }
                     return ""
                 }
+                $0.uuid = .incrementing
             } operation: {
                 // setup
                 let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
@@ -798,9 +803,14 @@ extension AllTests.AnalyzerTests {
                 let info = try await Analyze.getPackageInfo(package: jpr, version: version)
 
                 // validation
-                #expect(commands.value.count == 2)
-                #expect(commands.value.first == "git checkout 0.4.2 --quiet")
-                #expect(commands.value.last?.hasSuffix("swift package dump-package") ?? false)
+                #expect(commands.value.count == 7)
+                #expect(commands.value[0] == "git checkout 0.4.2 --quiet")
+                #expect(commands.value[1] == "\(String.dockerPath) volume create scratch-00000000-0000-0000-0000-000000000000")
+                #expect(commands.value[2] == "\(String.dockerPath) run --rm -v scratch-00000000-0000-0000-0000-000000000000:/scratch --name temp-00000000-0000-0000-0000-000000000001 -d busybox /bin/sleep 20")
+                #expect(commands.value[3] == "\(String.dockerPath) cp SPI-checkouts/github.com-foo-1 temp-00000000-0000-0000-0000-000000000001:/scratch/package-dir")
+                #expect(commands.value[4] == "\(String.dockerPath) run --rm --volume=scratch-00000000-0000-0000-0000-000000000000:/scratch --workdir=/scratch/package-dir --network=none \(SwiftVersion.analysisDockerImage) swift package dump-package")
+                #expect(commands.value[5] == "\(String.dockerPath) rm --force temp-00000000-0000-0000-0000-000000000001")
+                #expect(commands.value[6] == "\(String.dockerPath) volume rm --force scratch-00000000-0000-0000-0000-000000000000")
                 #expect(info.packageManifest.name == "SPI-Server")
             }
         }
@@ -964,6 +974,7 @@ extension AllTests.AnalyzerTests {
                     }
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let pkgs = try await savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
@@ -1060,6 +1071,7 @@ extension AllTests.AnalyzerTests {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
+            $0.uuid = .liveValue
         } operation: {
             // setup
             try await withTempDir { tempDir in
@@ -1082,6 +1094,7 @@ extension AllTests.AnalyzerTests {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
+            $0.uuid = .liveValue
         } operation: {
             // setup
             try await withTempDir { tempDir in
@@ -1103,6 +1116,7 @@ extension AllTests.AnalyzerTests {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
+            $0.uuid = .liveValue
         } operation: {
             // setup
             try await withTempDir { tempDir in
@@ -1136,7 +1150,11 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage(at: tempDir), at: tempDir)
+                var json = try await ShellClient.liveValue.run(
+                    // 2026-08-30 sas: We're testing the decoding *format* here, not the decoding *mechanism*, so for sake of simplicity, we use "dump-package" directly. This is safe, because we are using this with a known fixture.
+                    command: .init(command: "swift", arguments: ["package", "dump-package"]),
+                    at: tempDir
+                )
                 do {  // "root" references tempDir's absolute path - replace it to make the test stable
                     if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                        var packageKind = obj["packageKind"] as? [String: Any] {
@@ -1583,6 +1601,7 @@ extension AllTests.AnalyzerTests {
                     if cmd.isSwiftPackageDump { return .packageDump(name: "foo1") }
                     return ""
                 }
+                $0.uuid = .liveValue
             } operation: {
                 // setup
                 let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
@@ -1645,14 +1664,19 @@ private struct Command: CustomStringConvertible {
         case clean
         case clone(String)
         case commitCount
+        case createScratchVolume
+        case dockerCopy
         case dumpPackage
         case fetch
         case firstCommitDate
         case lastCommitDate
         case getTags
         case hasBranch(String)
+        case removeScratchVolume
         case reset
         case resetToBranch(String)
+        case startBusyboxContainer
+        case removeBusyboxContainer
         case shortlog
         case showDate
         case revisionInfo(String)
@@ -1702,8 +1726,18 @@ private struct Command: CustomStringConvertible {
                 let ref = String(trimmed.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
+            case _ where command.isDockerCopy:
+                self.kind = .dockerCopy
             case _ where command.isSwiftPackageDump:
                 self.kind = .dumpPackage
+            case _ where command.isCreateScratchVolume:
+                self.kind = .createScratchVolume
+            case _ where command.isRemoveScratchVolume:
+                self.kind = .removeScratchVolume
+            case _ where command.isStartBusyboxContainer:
+                self.kind = .startBusyboxContainer
+            case _ where command.isRemoveBusyboxContainer:
+                self.kind = .removeBusyboxContainer
             default:
                 print("unmatched command: \(command.description)")
                 return nil
@@ -1712,7 +1746,7 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .shortlog, .showDate, .reset:
+            case .clean, .commitCount, .createScratchVolume, .dockerCopy, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .removeBusyboxContainer, .removeScratchVolume, .reset, .shortlog, .showDate, .startBusyboxContainer:
                 return "\(path): \(kind)"
             case .checkout(let ref):
                 return "\(path): checkout \(ref)"
@@ -1764,4 +1798,3 @@ private func assertEquals<Root, Value: Equatable>(_ values: [Root],
     #expect(values.map { $0[keyPath: keyPath] } == expectations,
             "\(values.map { $0[keyPath: keyPath] }) not equal to \(expectations)")
 }
-
