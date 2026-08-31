@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/saguaro1/spi-base:2.2.2 AS build
+FROM registry.gitlab.com/saguaro1/spi-base:e7382892eaa60763f723b362aa0b414a0a1bf52a AS build
 ARG COMPILATION_MODE="release"
 
 # Set up a build area
@@ -65,7 +65,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/saguaro1/spi-base:2.2.2
+FROM registry.gitlab.com/saguaro1/spi-base:e7382892eaa60763f723b362aa0b414a0a1bf52a
 
 # NB sas 2022-09-23: We're not using a dedicated `vapor` user to run the executable, because it
 # makes managing the data in the checkouts volume difficult. See
