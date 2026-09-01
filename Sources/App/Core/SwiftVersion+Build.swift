@@ -44,6 +44,13 @@ extension SwiftVersion {
         }
     }
 
+    /// This is the docker image we are using to run package dump in the analysis stage. It should always be the same as the docker image we use in the PackageList validation action.
+    /// https://github.com/SwiftPackageIndex/PackageList/blob/04a0d49d7747979f9a08cb86a3ab187fd019227b/.github/workflows/ci.yml#L13
+    static var analysisDockerImage: String {
+        // swift-6.4.x-DEVELOPMENT-SNAPSHOT-2026-07-23-a swiftlang/swift:nightly-6.4.x-jammy
+        "swiftlang/swift@sha256:805c5f57d2cb73adfee6821813afbc411d414e885122dd13a741c5192e74ce57"
+    }
+
     var compatibility: SwiftVersion? {
        for version in SwiftVersion.allActive {
             if self.isCompatible(with: version) { return version }

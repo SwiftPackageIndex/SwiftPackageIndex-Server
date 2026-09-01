@@ -319,6 +319,7 @@ extension AllTests.PackageTests {
         let url = "1".asGithubUrl
         try await withDependencies {
             $0.date.now = .now
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -344,6 +345,7 @@ extension AllTests.PackageTests {
                 }
                 return ""
             }
+            $0.uuid = .liveValue
         } operation: {
             try await withSPIApp { app in
                 // setup

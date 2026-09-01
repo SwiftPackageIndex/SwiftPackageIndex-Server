@@ -14,8 +14,8 @@
 
 
 @discardableResult
-func run<T>(_ operation: () async throws -> T,
-            defer deferredOperation: () async throws -> Void) async throws -> T {
+func run<T, E: Error>(_ operation: () async throws(E) -> T,
+            defer deferredOperation: () async throws(E) -> Void) async throws(E) -> T {
     do {
         let result = try await operation()
         try await deferredOperation()

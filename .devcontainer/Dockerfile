@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/finestructure/spi-base:2.2.1
+FROM registry.gitlab.com/saguaro1/spi-base:2.4.0
 
 # Install SPM build dependencies
 RUN apt-get update && apt-get install -y curl git make unzip \
@@ -10,7 +10,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs
 
 # Install shells
-RUN apt-get update && apt-get install -y fish zsh
+RUN apt-get install -y fish zsh
 
 # Install zsh customisation
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended

@@ -31,6 +31,7 @@ extension AllTests.MastodonTests {
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -56,11 +57,12 @@ extension AllTests.MastodonTests {
                 }
             }
             $0.shell.run = { @Sendable cmd, path, _ in
-                if cmd.description.hasSuffix("swift package dump-package") {
+                if cmd.isStartSwiftDumpPackageContainer {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""
             }
+            $0.uuid = .liveValue
         } operation: {
             try await withSPIApp { app in
                 // setup
