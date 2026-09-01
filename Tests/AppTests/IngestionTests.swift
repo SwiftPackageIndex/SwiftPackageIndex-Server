@@ -465,6 +465,7 @@ extension AllTests.IngestionTests {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { false }
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 1 }
                 $0.git.firstCommitDate = { @Sendable _ in .t0 }

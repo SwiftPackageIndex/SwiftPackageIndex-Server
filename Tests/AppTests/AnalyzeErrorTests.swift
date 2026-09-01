@@ -65,6 +65,7 @@ extension AllTests.AnalyzeErrorTests {
         try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path, _ in
@@ -87,7 +88,7 @@ extension AllTests.AnalyzeErrorTests {
                 // validate
                 try await defaultValidation(app)
                 try capturingLogger.logs.withValue { logs in
-                    #expect(logs.count == 2)
+                    #expect(logs.count == 2, "was: \(logs)")
                     let error = try logs.last.unwrap()
                     #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
                 }
@@ -100,6 +101,7 @@ extension AllTests.AnalyzeErrorTests {
         try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
                 $0.uuid = .liveValue
@@ -131,6 +133,7 @@ extension AllTests.AnalyzeErrorTests {
         try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.logger = .testLogger(capturingLogger)
                 $0.shell.run = { @Sendable cmd, path, _ in
@@ -163,12 +166,14 @@ extension AllTests.AnalyzeErrorTests {
         try await withSPIApp(setup, defaultDependencies) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
-                $0.fileManager.fileExists = { @Sendable path in
-                    if path.hasSuffix("github.com-foo-1/Package.swift") {
-                        return false
+                $0.fileManager.contentsOfDirectory = { path in
+                    if path.hasSuffix("github.com-foo-1") {
+                        return []
+                    } else {
+                        return ["Package.swift"]
                     }
-                    return true
                 }
+                $0.fileManager.fileExists = { _ in true }
                 $0.logger = .testLogger(capturingLogger)
                 $0.uuid = .liveValue
             } operation: {
@@ -180,7 +185,7 @@ extension AllTests.AnalyzeErrorTests {
                 // validate
                 try await defaultValidation(app)
                 try capturingLogger.logs.withValue { logs in
-                    #expect(logs.count == 2)
+                    #expect(logs.count == 2, "was: \(logs)")
                     let error = try logs.last.unwrap()
                     #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
                 }
@@ -227,7 +232,7 @@ extension AllTests.AnalyzeErrorTests {
 
 
 private func defaultShellRun(command: ShellOutCommand, path: String, environment: [String: String]? = nil) throws -> String {
-    if command.isSwiftPackageDump {
+    if command.isStartSwiftDumpPackageContainer {
         if path.hasSuffix("foo-1") {
             return packageSwift1
         }

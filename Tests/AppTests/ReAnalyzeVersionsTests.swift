@@ -29,6 +29,7 @@ extension AllTests.ReAnalyzeVersionsTests {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -66,7 +67,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 try await withDependencies {
                     $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
                     $0.shell.run = { @Sendable cmd, path, _ in
-                        if cmd.description.hasSuffix("swift package dump-package") {
+                        if cmd.isStartSwiftDumpPackageContainer {
                             return #"""
                             {
                               "name": "SPI-Server",
@@ -94,7 +95,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                     try await withDependencies {
                         // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
                         $0.shell.run = { @Sendable cmd, path, _ in
-                            if cmd.description.hasSuffix("swift package dump-package") {
+                            if cmd.isStartSwiftDumpPackageContainer {
                                 return #"""
                         {
                           "name": "SPI-Server",
@@ -192,6 +193,7 @@ extension AllTests.ReAnalyzeVersionsTests {
         try await withDependencies {
             $0.date.now = .t2
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -206,7 +208,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 """
             }
             $0.shell.run = { @Sendable cmd, path, _ in
-                if cmd.isSwiftPackageDump {
+                if cmd.isStartSwiftDumpPackageContainer {
                     return #"""
                         {
                           "name": "foo-1",
@@ -237,7 +239,7 @@ extension AllTests.ReAnalyzeVersionsTests {
                 
                 try await withDependencies {
                     $0.shell.run = { @Sendable cmd, path, _ in
-                        if cmd.isSwiftPackageDump {
+                        if cmd.isStartSwiftDumpPackageContainer {
                             // simulate error during package dump
                             struct Error: Swift.Error { }
                             throw Error()

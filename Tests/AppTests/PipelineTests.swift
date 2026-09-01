@@ -178,6 +178,7 @@ extension AllTests.PipelineTests {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -199,7 +200,7 @@ extension AllTests.PipelineTests {
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
             $0.shell.run = { @Sendable cmd, path, _ in
-                if cmd.description.hasSuffix("swift package dump-package") {
+                if cmd.isStartSwiftDumpPackageContainer {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""

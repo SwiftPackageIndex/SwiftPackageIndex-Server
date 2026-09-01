@@ -1604,6 +1604,7 @@ extension AllTests.PackageController_routesTests {
             $0.environment.awsRegion = { "region" }
             $0.environment.awsUseIamRole = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
             $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("Package.resolved") { return false }
                 return true
@@ -1620,7 +1621,7 @@ extension AllTests.PackageController_routesTests {
             $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.shell.run = { @Sendable cmd, _, _ in
-                if cmd.isSwiftPackageDump { return .mockManifest }
+                if cmd.isStartSwiftDumpPackageContainer { return .mockManifest }
                 return ""
             }
             $0.timeZone = .utc

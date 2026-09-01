@@ -563,39 +563,42 @@ extension Analyze {
         @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
         @Dependency(\.uuid) var uuid
-        guard fileManager.fileExists(atPath: path + "/Package.swift") else {
-            // It's important to check for Package.swift - otherwise `dump-package` will go
-            // up the tree through parent directories to find one
+
+        let manifests = (try? fileManager.contentsOfDirectory(atPath: path)
+            .filter { $0.hasPrefix("Package") }
+            .filter { $0.hasSuffix(".swift") }
+            .sorted()) ?? []
+
+        guard manifests.count > 0 else {
             throw AppError.invalidRevision(nil, "no Package.swift")
         }
 
         do {
-            let scratchVolume = "scratch-\(uuid())"
-            let tempContainer = "temp-\(uuid())"
+            let containerName = "swift-dump-package-\(uuid())"
             let packageDir = "package-dir"
             let json = try await run {
-                try await shell.run(command: .docker("volume", "create", scratchVolume), at: path)
                 try await shell.run(command: .docker(
-                    "run", "--rm", "-v", "\(scratchVolume):/scratch", "--name", tempContainer, "-d", "busybox", "/bin/sleep", "20"
-                ), at: path)
-                try await shell.run(command: .docker(
-                    "cp", path, "\(tempContainer):/scratch/\(packageDir)"
-                ), at: path)
-                let json = try await shell.run(command: .docker(
-                    "run",
-                    "--rm",
-                    "--volume=\(scratchVolume):/scratch",
-                    "--workdir=/scratch/\(packageDir)",
+                    "create",
+                    "--name=\(containerName)",
+                    "--workdir=/\(packageDir)",
                     "--network=none",
                     SwiftVersion.analysisDockerImage,
                     "swift",
                     "package",
                     "dump-package"
                 ), at: path)
+                for manifest in manifests {
+                    try await shell.run(command: .docker(
+                        "cp", "\(path)/\(manifest)", "\(containerName):/\(packageDir)"
+                    ), at: path)
+                }
+                let json = try await shell.run(command: .docker(
+                    "start",
+                    "--attach", containerName
+                ), at: path)
                 return json
             } defer: {
-                _ = try? await shell.run(command: .docker("rm", "--force", tempContainer), at: path)
-                _ = try? await shell.run(command: .docker("volume", "rm", "--force", scratchVolume), at: path)
+                _ = try? await shell.run(command: .docker("rm", "--force", containerName), at: path)
             }
             return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
         } catch {

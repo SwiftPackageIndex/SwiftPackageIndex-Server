@@ -47,6 +47,9 @@ extension AllTests.AnalyzerTests {
                     }
                 }
                 $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
+                $0.fileManager.contentsOfDirectory = { path in
+                    ["Package.swift"]
+                }
                 $0.fileManager.fileExists = { @Sendable path in
                     if let outDir = checkoutDir.value,
                        path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
@@ -73,7 +76,7 @@ extension AllTests.AnalyzerTests {
                     if cmd == .gitListTags && path.hasSuffix("foo-2") {
                         return ["2.0.0", "2.1.0"].joined(separator: "\n")
                     }
-                    if cmd.isSwiftPackageDump && path.hasSuffix("foo-1") {
+                    if cmd.isStartSwiftDumpPackageContainer && path.hasSuffix("foo-1") {
                         return #"""
                         {
                           "name": "foo-1",
@@ -90,7 +93,7 @@ extension AllTests.AnalyzerTests {
                         }
                         """#
                     }
-                    if cmd.isSwiftPackageDump && path.hasSuffix("foo-2") {
+                    if cmd.isStartSwiftDumpPackageContainer && path.hasSuffix("foo-2") {
                         return #"""
                         {
                           "name": "foo-2",
@@ -156,7 +159,7 @@ extension AllTests.AnalyzerTests {
                 // validation
                 let outDir = try checkoutDir.value.unwrap()
                 #expect(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-                #expect(commands.value.count == 66)
+                #expect(commands.value.count == 54)
 
                 // Snapshot for each package individually to avoid ordering issues when
                 // concurrent processing causes commands to interleave between packages.
@@ -221,6 +224,7 @@ extension AllTests.AnalyzerTests {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 12 }
                 $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -251,7 +255,7 @@ extension AllTests.AnalyzerTests {
                 }
                 $0.httpClient.mastodonPost = { @Sendable _ in }
                 $0.shell.run = { @Sendable cmd, path, _ in
-                    if cmd.description.hasSuffix("package dump-package") {
+                    if cmd.isStartSwiftDumpPackageContainer {
                         return #"""
                         {
                           "name": "foo-1",
@@ -363,6 +367,7 @@ extension AllTests.AnalyzerTests {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 12 }
                 $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -378,11 +383,11 @@ extension AllTests.AnalyzerTests {
                 }
                 $0.shell.run = { @Sendable cmd, path, _ in
                     // first package fails
-                    if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
+                    if cmd.isStartSwiftDumpPackageContainer && path.hasSuffix("foo-1") {
                         return "bad data"
                     }
                     // second package succeeds
-                    if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
+                    if cmd.isStartSwiftDumpPackageContainer && path.hasSuffix("foo-2") {
                         return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
                     }
                     return ""
@@ -434,13 +439,14 @@ extension AllTests.AnalyzerTests {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
                 $0.fileManager.fileExists = { @Sendable path in
                     if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
                     if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
-                    if path.hasSuffix("Package.swift") { return true }
                     return false
                 }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.git = .liveValue
                 $0.shell.run = { @Sendable cmd, path, _ in
                     commands.withValue {
@@ -450,7 +456,7 @@ extension AllTests.AnalyzerTests {
                     if let result = mockResults[cmd] { return result }
 
                     // simulate error in first package
-                    if cmd.isSwiftPackageDump {
+                    if cmd.isStartSwiftDumpPackageContainer {
                         if path.hasSuffix("foo-1") {
                             // Simulate error when reading the manifest
                             struct Error: Swift.Error { }
@@ -491,7 +497,7 @@ extension AllTests.AnalyzerTests {
                                           mode: .limit(10))
 
                 // validation (not in detail, this is just to ensure command count is as expected)
-                #expect(commands.value.count == 70, "was: \(dump(commands.value))")
+                #expect(commands.value.count == 58, "was: \(dump(commands.value))")
                 // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
                 let versionCount = try await Version.query(on: app.db).count()
                 #expect(versionCount == 3)
@@ -780,12 +786,13 @@ extension AllTests.AnalyzerTests {
             let commands = QueueIsolated<[String]>([])
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
-                $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
+//                $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.shell.run = { @Sendable cmd, _, _ in
                     commands.withValue {
                         $0.append(cmd.description)
                     }
-                    if cmd.isSwiftPackageDump {
+                    if cmd.isStartSwiftDumpPackageContainer {
                         return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
                     }
                     return ""
@@ -803,14 +810,16 @@ extension AllTests.AnalyzerTests {
                 let info = try await Analyze.getPackageInfo(package: jpr, version: version)
 
                 // validation
-                #expect(commands.value.count == 7)
-                #expect(commands.value[0] == "git checkout 0.4.2 --quiet")
-                #expect(commands.value[1] == "\(String.dockerPath) volume create scratch-00000000-0000-0000-0000-000000000000")
-                #expect(commands.value[2] == "\(String.dockerPath) run --rm -v scratch-00000000-0000-0000-0000-000000000000:/scratch --name temp-00000000-0000-0000-0000-000000000001 -d busybox /bin/sleep 20")
-                #expect(commands.value[3] == "\(String.dockerPath) cp SPI-checkouts/github.com-foo-1 temp-00000000-0000-0000-0000-000000000001:/scratch/package-dir")
-                #expect(commands.value[4] == "\(String.dockerPath) run --rm --volume=scratch-00000000-0000-0000-0000-000000000000:/scratch --workdir=/scratch/package-dir --network=none \(SwiftVersion.analysisDockerImage) swift package dump-package")
-                #expect(commands.value[5] == "\(String.dockerPath) rm --force temp-00000000-0000-0000-0000-000000000001")
-                #expect(commands.value[6] == "\(String.dockerPath) volume rm --force scratch-00000000-0000-0000-0000-000000000000")
+                #expect(commands.value.count == 5)
+                #expect(
+                    commands.value == [
+                        "git checkout 0.4.2 --quiet",
+                        "\(String.dockerPath) create --name=swift-dump-package-00000000-0000-0000-0000-000000000000 --workdir=/package-dir --network=none \(SwiftVersion.analysisDockerImage) swift package dump-package",
+                        "\(String.dockerPath) cp SPI-checkouts/github.com-foo-1/Package.swift swift-dump-package-00000000-0000-0000-0000-000000000000:/package-dir",
+                        "\(String.dockerPath) start --attach swift-dump-package-00000000-0000-0000-0000-000000000000",
+                        "\(String.dockerPath) rm --force swift-dump-package-00000000-0000-0000-0000-000000000000"
+                    ]
+                )
                 #expect(info.packageManifest.name == "SPI-Server")
             }
         }
@@ -934,6 +943,7 @@ extension AllTests.AnalyzerTests {
                 $0.date.now = .now
                 $0.environment.allowSocialPosts = { true }
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 12 }
                 $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -948,7 +958,7 @@ extension AllTests.AnalyzerTests {
                 """
                 }
                 $0.shell.run = { @Sendable cmd, path, _ in
-                    if cmd.description.hasSuffix("swift package dump-package") {
+                    if cmd.isStartSwiftDumpPackageContainer {
                         return #"""
                         {
                           "name": "foo",
@@ -1068,7 +1078,7 @@ extension AllTests.AnalyzerTests {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         try await withDependencies {
-            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
             $0.uuid = .liveValue
@@ -1091,7 +1101,7 @@ extension AllTests.AnalyzerTests {
         // points to the correct version of Xcode!
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
         try await withDependencies {
-            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
             $0.uuid = .liveValue
@@ -1113,7 +1123,7 @@ extension AllTests.AnalyzerTests {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         try await withDependencies {
-            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory(atPath:)
             $0.logger = .noop
             $0.shell = .liveValue
             $0.uuid = .liveValue
@@ -1590,6 +1600,7 @@ extension AllTests.AnalyzerTests {
             try await withDependencies {
                 $0.date.now = .now
                 $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.contentsOfDirectory = { _ in ["Package.swift", "Package.resolved"] }
                 $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.git.commitCount = { @Sendable _ in 12 }
                 $0.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -1599,7 +1610,7 @@ extension AllTests.AnalyzerTests {
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
                 $0.git.shortlog = { @Sendable _ in "10\tPerson 1" }
                 $0.shell.run = { @Sendable cmd, path, _ in
-                    if cmd.isSwiftPackageDump { return .packageDump(name: "foo1") }
+                    if cmd.isStartSwiftDumpPackageContainer { return .packageDump(name: "foo1") }
                     return ""
                 }
                 $0.uuid = .liveValue
@@ -1665,19 +1676,17 @@ private struct Command: CustomStringConvertible {
         case clean
         case clone(String)
         case commitCount
-        case createScratchVolume
+        case createSwiftDumpPackageContainer
         case dockerCopy
-        case dumpPackage
         case fetch
         case firstCommitDate
         case lastCommitDate
         case getTags
         case hasBranch(String)
-        case removeScratchVolume
+        case removeSwiftDumpPackageContainer
         case reset
         case resetToBranch(String)
-        case startBusyboxContainer
-        case removeBusyboxContainer
+        case startSwiftDumpPackageContainer
         case shortlog
         case showDate
         case revisionInfo(String)
@@ -1729,16 +1738,12 @@ private struct Command: CustomStringConvertible {
                 self.kind = .revisionInfo(ref)
             case _ where command.isDockerCopy:
                 self.kind = .dockerCopy
-            case _ where command.isSwiftPackageDump:
-                self.kind = .dumpPackage
-            case _ where command.isCreateScratchVolume:
-                self.kind = .createScratchVolume
-            case _ where command.isRemoveScratchVolume:
-                self.kind = .removeScratchVolume
-            case _ where command.isStartBusyboxContainer:
-                self.kind = .startBusyboxContainer
-            case _ where command.isRemoveBusyboxContainer:
-                self.kind = .removeBusyboxContainer
+            case _ where command.isCreateSwiftDumpPackageContainer:
+                self.kind = .createSwiftDumpPackageContainer
+            case _ where command.isStartSwiftDumpPackageContainer:
+                self.kind = .startSwiftDumpPackageContainer
+            case _ where command.isRemoveSwiftDumpPackageContainer:
+                self.kind = .removeSwiftDumpPackageContainer
             default:
                 print("unmatched command: \(command.description)")
                 return nil
@@ -1747,7 +1752,7 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .clean, .commitCount, .createScratchVolume, .dockerCopy, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .removeBusyboxContainer, .removeScratchVolume, .reset, .shortlog, .showDate, .startBusyboxContainer:
+            case .clean, .commitCount, .createSwiftDumpPackageContainer, .dockerCopy, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .removeSwiftDumpPackageContainer, .reset, .shortlog, .showDate, .startSwiftDumpPackageContainer:
                 return "\(path): \(kind)"
             case .checkout(let ref):
                 return "\(path): checkout \(ref)"
