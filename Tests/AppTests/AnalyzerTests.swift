@@ -1089,7 +1089,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.4-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                let m = try await Analyze.dumpPackage(at: tempDir)
+                let m = try await Analyze.parseManifest(at: tempDir)
                 #expect(m.name == "VisualEffects")
             }
         }
@@ -1112,7 +1112,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.5-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                let m = try await Analyze.dumpPackage(at: tempDir)
+                let m = try await Analyze.parseManifest(at: tempDir)
                 #expect(m.name == "Firestarter")
             }
         }
@@ -1134,7 +1134,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                let m = try await Analyze.dumpPackage(at: tempDir)
+                let m = try await Analyze.parseManifest(at: tempDir)
                 #expect(m.name == "StaticMemberIterable")
             }
         }
@@ -1163,7 +1163,7 @@ extension AllTests.AnalyzerTests {
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                var json = try await Analyze._dumpPackage(at: tempDir)
+                var json = try await Analyze.dumpPackage(at: tempDir)
                 do {  // "root" references tempDir's absolute path - replace it to make the test stable
                     if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                        var packageKind = obj["packageKind"] as? [String: Any] {

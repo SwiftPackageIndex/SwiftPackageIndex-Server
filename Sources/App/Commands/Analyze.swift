@@ -553,17 +553,22 @@ extension Analyze {
     }
 
 
+    /// Parse the manifest for a package at the given path.
+    /// - Parameters:
+    ///   - path: path to the package
+    /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
+    /// - Returns: `Manifest` data
+    static func parseManifest(at path: String) async throws -> Manifest {
+        let json = try await dumpPackage(at: path)
+        return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+    }
+
     /// Run `swift package dump-package` for a package at the given path.
     /// - Parameters:
     ///   - path: path to the package
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
-    static func dumpPackage(at path: String) async throws -> Manifest {
-        let json = try await _dumpPackage(at: path)
-        return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
-    }
-
-    static func _dumpPackage(at path: String) async throws -> String {
+    static func dumpPackage(at path: String) async throws -> String {
         @Dependency(\.fileManager) var fileManager
         @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
@@ -644,7 +649,7 @@ extension Analyze {
         }
 
         do {
-            let packageManifest = try await dumpPackage(at: cacheDir)
+            let packageManifest = try await parseManifest(at: cacheDir)
             @Dependency(\.environment) var environment
             let spiManifest = environment.loadSPIManifest(cacheDir)
 
