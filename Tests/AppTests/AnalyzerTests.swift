@@ -1662,6 +1662,67 @@ extension AllTests.AnalyzerTests {
         }
 
     }
+
+    @Test func exfiltration() async throws {
+        defer { unsetenv("SECRET") }
+        setenv("SECRET", "secret", 1)
+        let env = ["SECRET": "secret"]
+        try await withDependencies {
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory(atPath:)
+            $0.logger = .noop
+            $0.shell = .liveValue
+            $0.uuid = .liveValue
+        } operation: {
+            // Check that our test mechanism works by showing that a plain dump-package leaks the secret. This _only_ works if we specifically pass the environment `env` to shell.run via its `environment:` parameter (see also the following test).
+            try await withTempDir { tempDir in
+                // Setup
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("Exfiltration-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                @Dependency(\.shell) var shell
+
+                // MUT
+                let json = try await shell.run(command: .init(command: "swift", arguments: ["package", "dump-package"]), at: tempDir, environment: env)
+                let m = try JSONDecoder().decode(App.Manifest.self, from: Data(json.utf8))
+
+                // Validation
+                #expect(m.name == "secret")
+            }
+
+            // This is a variant of the test above that shows that existing environment variables are not available in the default shell.run configuration.
+            try await withTempDir { tempDir in
+                // Setup
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("Exfiltration-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                @Dependency(\.shell) var shell
+
+                // MUT
+                let json = try await shell.run(command: .init(command: "swift", arguments: ["package", "dump-package"]), at: tempDir)
+                let m = try JSONDecoder().decode(App.Manifest.self, from: Data(json.utf8))
+
+                // Validation
+                #expect(m.name == "nil")
+            }
+
+            // Finally, also confirm that Analyze.parseManifest is safe.
+            try await withTempDir { tempDir in
+                // Setup
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("Exfiltration-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+
+                // MUT
+                let m = try await Analyze.parseManifest(at: tempDir)
+
+                // Validation
+                #expect(m.name == "nil")
+            }
+        }
+    }
 }
 
 
