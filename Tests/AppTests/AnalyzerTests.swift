@@ -1153,19 +1153,17 @@ extension AllTests.AnalyzerTests {
         // points to the correct version of Xcode!
         // setup
         try await withDependencies {
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory
             $0.logger = .noop
+            $0.shell = .liveValue
+            $0.uuid = .liveValue
         } operation: {
             try await withTempDir { @Sendable tempDir in
                 let fixture = fixturesDirectory()
                     .appendingPathComponent("5.9-Package-swift").path
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-                #warning("This should actually also use the analysis image, because the Swift version might differ")
-                var json = try await ShellClient.liveValue.run(
-                    // 2026-08-30 sas: We're testing the decoding *format* here, not the decoding *mechanism*, so for sake of simplicity, we use "dump-package" directly. This is safe, because we are using this with a known fixture.
-                    command: .init(command: "swift", arguments: ["package", "dump-package"]),
-                    at: tempDir
-                )
+                var json = try await Analyze._dumpPackage(at: tempDir)
                 do {  // "root" references tempDir's absolute path - replace it to make the test stable
                     if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                        var packageKind = obj["packageKind"] as? [String: Any] {

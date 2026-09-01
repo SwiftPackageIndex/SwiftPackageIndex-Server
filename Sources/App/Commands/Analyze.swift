@@ -559,10 +559,17 @@ extension Analyze {
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
     static func dumpPackage(at path: String) async throws -> Manifest {
+        let json = try await _dumpPackage(at: path)
+        return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+    }
+
+    static func _dumpPackage(at path: String) async throws -> String {
         @Dependency(\.fileManager) var fileManager
         @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
         @Dependency(\.uuid) var uuid
+
+#warning("review error handling")
 
         let manifests = (try? fileManager.contentsOfDirectory(atPath: path)
             .filter { $0.hasPrefix("Package") }
@@ -592,15 +599,14 @@ extension Analyze {
                         "cp", "\(path)/\(manifest)", "\(containerName):/\(packageDir)"
                     ), at: path)
                 }
-                let json = try await shell.run(command: .docker(
+                return try await shell.run(command: .docker(
                     "start",
                     "--attach", containerName
                 ), at: path)
-                return json
             } defer: {
                 _ = try? await shell.run(command: .docker("rm", "--force", containerName), at: path)
             }
-            return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+            return json
         } catch {
             logger.warning("Failed to run dump-package: \(error)")
             throw error
