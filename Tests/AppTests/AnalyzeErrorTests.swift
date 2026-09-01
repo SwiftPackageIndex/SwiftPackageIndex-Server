@@ -193,6 +193,35 @@ extension AllTests.AnalyzeErrorTests {
         }
     }
 
+    @Test func analyze_dumpPackage_docker_error() async throws {
+        // Ensure a docker command failure will not raise AppError.invalidRevision
+        // and therefore be interpreted as a package failure.
+        try await withDependencies {
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory
+            $0.logger = .noop
+            $0.shell.run = { _, _, _ async throws -> String in
+                enum E: Error { case failed }
+                throw E.failed
+            }
+            $0.uuid = .liveValue
+        } operation: {
+            try await withTempDir { @Sendable tempDir in
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("5.9-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                do throws(Analyze.ManifestError) {
+                    _ = try await Analyze.dumpPackage(at: tempDir)
+                    Issue.record("dumpPackage must not succeed")
+                } catch .dockerFailure {
+                    // OK - expected failure
+                } catch {
+                    Issue.record("dumpPackage threw unexpected error: \(error)")
+                }
+            }
+        }
+    }
+
 }
 
 

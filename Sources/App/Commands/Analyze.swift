@@ -559,8 +559,19 @@ extension Analyze {
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
     static func parseManifest(at path: String) async throws -> Manifest {
-        let json = try await dumpPackage(at: path)
+        let json: String
+        do {
+            json = try await dumpPackage(at: path)
+        } catch .noManifestFound, .packageDumpError {
+            throw AppError.invalidRevision(nil, "no Package.swift")
+        }
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+    }
+
+    enum ManifestError: Swift.Error {
+        case dockerFailure(String)
+        case noManifestFound
+        case packageDumpError(String)
     }
 
     /// Run `swift package dump-package` for a package at the given path.
@@ -568,47 +579,27 @@ extension Analyze {
     ///   - path: path to the package
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
-    static func dumpPackage(at path: String) async throws -> String {
+    static func dumpPackage(at path: String) async throws(ManifestError) -> String {
         @Dependency(\.fileManager) var fileManager
         @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
         @Dependency(\.uuid) var uuid
-
-#warning("review error handling")
 
         let manifests = (try? fileManager.contentsOfDirectory(atPath: path)
             .filter { $0.hasPrefix("Package") }
             .filter { $0.hasSuffix(".swift") }
             .sorted()) ?? []
 
-        guard manifests.count > 0 else {
-            throw AppError.invalidRevision(nil, "no Package.swift")
-        }
+        guard manifests.count > 0 else { throw .noManifestFound }
 
         do {
             let containerName = "swift-dump-package-\(uuid())"
             let packageDir = "package-dir"
-            let json = try await run {
-                try await shell.run(command: .docker(
-                    "create",
-                    "--name=\(containerName)",
-                    "--workdir=/\(packageDir)",
-                    "--network=none",
-                    SwiftVersion.analysisDockerImage,
-                    "swift",
-                    "package",
-                    "dump-package"
-                ), at: path)
-                for manifest in manifests {
-                    try await shell.run(command: .docker(
-                        "cp", "\(path)/\(manifest)", "\(containerName):/\(packageDir)"
-                    ), at: path)
-                }
-                return try await shell.run(command: .docker(
-                    "start",
-                    "--attach", containerName
-                ), at: path)
-            } defer: {
+            let json = try await run { () async throws(ManifestError) -> String in
+                try await createPackageDumpContainer(at: path, containerName: containerName, packageDir: packageDir)
+                try await copyManifests(at: path, manifests: manifests, containerName: containerName, packageDir: packageDir)
+                return try await startPackageDumpContainer(at: path, containerName: containerName)
+            } defer: { () async throws(ManifestError) -> Void in
                 _ = try? await shell.run(command: .docker("rm", "--force", containerName), at: path)
             }
             return json
@@ -618,6 +609,49 @@ extension Analyze {
         }
     }
 
+    static func createPackageDumpContainer(at path: String, containerName: String, packageDir: String) async throws(ManifestError) {
+        @Dependency(\.shell) var shell
+        @Dependency(\.uuid) var uuid
+        do {
+            try await shell.run(command: .docker(
+                "create",
+                "--name=\(containerName)",
+                "--workdir=/\(packageDir)",
+                "--network=none",
+                SwiftVersion.analysisDockerImage,
+                "swift",
+                "package",
+                "dump-package"
+            ), at: path)
+        } catch {
+            throw .dockerFailure("\(error)")
+        }
+    }
+
+    static func copyManifests(at path: String, manifests: [String], containerName: String, packageDir: String) async throws(ManifestError) {
+        @Dependency(\.shell) var shell
+        do {
+            for manifest in manifests {
+                try await shell.run(command: .docker(
+                    "cp", "\(path)/\(manifest)", "\(containerName):/\(packageDir)"
+                ), at: path)
+            }
+        } catch {
+            throw .dockerFailure("\(error)")
+        }
+    }
+
+    static func startPackageDumpContainer(at path: String, containerName: String) async throws(ManifestError) -> String {
+        @Dependency(\.shell) var shell
+        do {
+            return try await shell.run(command: .docker(
+                "start",
+                "--attach", containerName
+            ), at: path)
+        } catch {
+            throw .packageDumpError("\(error)")
+        }
+    }
 
     struct PackageInfo: Equatable {
         var packageManifest: Manifest
