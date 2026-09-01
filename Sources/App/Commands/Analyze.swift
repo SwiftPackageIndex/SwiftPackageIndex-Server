@@ -587,10 +587,12 @@ extension Analyze {
         @Dependency(\.shell) var shell
         @Dependency(\.uuid) var uuid
 
-        let manifests = (try? fileManager.contentsOfDirectory(atPath: path)
-            .filter { $0.hasPrefix("Package") }
-            .filter { $0.hasSuffix(".swift") }
-            .sorted()) ?? []
+        let toplevelContents = (try? fileManager.contentsOfDirectory(atPath: path)) ?? []
+        let versionSpecificPackageManifestPattern = /#"^Package@swift-(\d+)(?:\.(\d+))?(?:\.(\d+))?.swift$"#/
+        let manifests = toplevelContents.filter {
+            $0 == "Package.swift"
+            || $0.contains(versionSpecificPackageManifestPattern)
+        }
 
         guard manifests.count > 0 else { throw .noManifestFound }
 
