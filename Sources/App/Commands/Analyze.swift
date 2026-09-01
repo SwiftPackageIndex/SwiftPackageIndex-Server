@@ -562,8 +562,10 @@ extension Analyze {
         let json: String
         do {
             json = try await dumpPackage(at: path)
-        } catch .noManifestFound, .packageDumpError {
+        } catch .noManifestFound {
             throw AppError.invalidRevision(nil, "no Package.swift")
+        } catch .packageDumpError {
+            throw AppError.invalidRevision(nil, "dump-package error")
         }
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
