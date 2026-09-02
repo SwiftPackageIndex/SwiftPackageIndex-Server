@@ -48,7 +48,7 @@ extension Analyze {
             switch errorRate {
                 case 0:
                     logger.info("Updating \(total) packages for stage 'analysis'")
-                case 0..<20:
+                case 0..<25:
                     logger.info("Updating \(total) packages for stage 'analysis' (errors: \(errors))")
                 default:
                     logger.critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
