@@ -146,6 +146,8 @@ services:
         max_attempts: 5
     networks:
       - backend
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 
   trigger_builds:
