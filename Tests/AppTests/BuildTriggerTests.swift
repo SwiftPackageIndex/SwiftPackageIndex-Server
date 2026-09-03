@@ -648,10 +648,12 @@ extension AllTests.BuildTriggerTests {
 
     @Test func TriggerBuilds_triggerBuilds_multiplePackages() async throws {
         // Ensure we respect the pipeline limit when triggering builds for multiple package ids
-        let triggerCount = QueueIsolated(0)
+        let triggerCount = ActorIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in
-                299 + triggerCount.value
+                await triggerCount.withValue {
+                    $0 + 299
+                }
             }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -669,7 +671,7 @@ extension AllTests.BuildTriggerTests {
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
-                triggerCount.increment()
+                await triggerCount.increment()
                 return .created(webUrl: "http://web_url")
             }
         } operation: {
@@ -687,7 +689,7 @@ extension AllTests.BuildTriggerTests {
                 try await triggerBuilds(on: app.db, mode: .limit(4))
 
                 // validate - only the first batch must be allowed to trigger
-                #expect(triggerCount.value == 36)
+                #expect(await triggerCount.value == 36)
             }
         }
     }
