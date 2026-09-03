@@ -148,6 +148,57 @@ extension AllTests.RecentViewsTests {
         }
     }
 
+    @Test func recentReleases_excludes_future_releases() async throws {
+        // Ensure releases with commit dates in the future don't sit at the top of the list
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4152
+        try await withSPIApp { app in
+            // setup
+            do {  // 1st package has a future release and should be represented by its latest past release
+                let pkg = Package(id: UUID(), url: "1")
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     defaultBranch: "default",
+                                     name: "1",
+                                     owner: "foo",
+                                     summary: "pkg 1").create(on: app.db)
+                try await Version(package: pkg,
+                                  commitDate: Date(timeIntervalSince1970: 0),
+                                  packageName: "1",
+                                  reference: .tag(.init(1, 2, 3)),
+                                  url: "1/release/1.2.3").save(on: app.db)
+                try await Version(package: pkg,
+                                  commitDate: .now.addingTimeInterval(.days(1)),
+                                  packageName: "1",
+                                  reference: .tag(.init(2, 0, 0)),
+                                  url: "1/release/2.0.0").save(on: app.db)
+            }
+            do {  // 2nd package is ineligible, because its only release is in the future
+                let pkg = Package(id: UUID(), url: "2")
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     defaultBranch: "default",
+                                     name: "2",
+                                     owner: "foo",
+                                     summary: "pkg 2").create(on: app.db)
+                try await Version(package: pkg,
+                                  commitDate: .now.addingTimeInterval(.days(1)),
+                                  packageName: "2",
+                                  reference: .tag(.init(1, 0, 0)),
+                                  url: "2/release/1.0.0").save(on: app.db)
+            }
+
+            // make sure to refresh the materialized view
+            try await RecentRelease.refresh(on: app.db)
+
+            // MUT
+            let res = try await RecentRelease.fetch(on: app.db)
+
+            // validate
+            #expect(res.map(\.packageName) == ["1"])
+            #expect(res.map(\.version) == ["1.2.3"])
+        }
+    }
+
     @Test func Array_RecentReleases_filter() throws {
         // List only major releases
         // setup
