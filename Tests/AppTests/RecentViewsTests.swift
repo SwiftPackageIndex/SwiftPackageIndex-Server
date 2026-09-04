@@ -162,7 +162,7 @@ extension AllTests.RecentViewsTests {
                                      owner: "foo",
                                      summary: "pkg 1").create(on: app.db)
                 try await Version(package: pkg,
-                                  commitDate: Date(timeIntervalSince1970: 0),
+                                  commitDate: .t0,
                                   packageName: "1",
                                   reference: .tag(.init(1, 2, 3)),
                                   url: "1/release/1.2.3").save(on: app.db)
