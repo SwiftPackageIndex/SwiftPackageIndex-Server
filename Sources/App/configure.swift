@@ -346,6 +346,9 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
     do { // Migration 084 - Update licenses with `other` -> `unknown` and `compatible`/`incompatible` -> `known`
         app.migrations.add(UpdateRepositoriesLicenseAndScoreDetails())
     }
+    do { // Migration 085 - Exclude releases with commit dates in the future from `recent_releases`
+        app.migrations.add(UpdateRecentReleases9())
+    }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(BuildBacklogStats.Command(), as: "build-backlog-stats")
