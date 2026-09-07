@@ -36,6 +36,12 @@
     padding: 20px 0;
     list-style: none;
 
+    &.hide-latest-swift-version {
+        .results .result:first-child {
+            display: none;
+        }
+    }
+
     .version {
         display: flex;
         flex-direction: column;

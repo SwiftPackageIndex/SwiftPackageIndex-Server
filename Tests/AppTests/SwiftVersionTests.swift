@@ -55,4 +55,10 @@ extension AllTests.SwiftVersionTests {
         #expect(SwiftVersion.latest.major == 6)
     }
 
+    @Test func compatibilityMatrixOrdersLatestVersionFirst() throws {
+        // _matrix.scss sometimes hides the latest Swift version via `:first-child`, so it must render first.
+        let compatibility = CompatibilityMatrix.SwiftVersionCompatibility()
+        #expect(compatibility.all.first?.parameter == SwiftVersion.latest)
+    }
+
 }

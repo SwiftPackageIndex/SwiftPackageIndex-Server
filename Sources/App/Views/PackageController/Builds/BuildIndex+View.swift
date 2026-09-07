@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Plot
 
 
@@ -49,7 +50,13 @@ enum BuildIndex {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .div(
+            @Dependency(\.environment) var environment
+
+            let swiftVersions = environment.hideLatestSwiftVersionBuildData()
+                ? SwiftVersion.allActive.reversed().filter { $0 != .latest }
+                : SwiftVersion.allActive.reversed()
+
+            return .div(
                 .h2("Build Results"),
                 .p(
                     .strong("\(model.completedBuildCount)"),
@@ -73,7 +80,7 @@ enum BuildIndex {
                     ),
                     "."
                 ),
-                .forEach(SwiftVersion.allActive.reversed()) { swiftVersion in
+                .forEach(swiftVersions) { swiftVersion in
                         .group(
                             .hr(),
                             .h3(

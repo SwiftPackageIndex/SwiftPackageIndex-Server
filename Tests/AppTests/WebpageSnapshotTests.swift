@@ -242,6 +242,29 @@ extension AllTests.WebpageSnapshotTests {
         assertSnapshot(of: page, as: .html)
     }
 
+    @Test func PackageShow_document_hideLatestSwiftVersion() throws {
+        // Test that the latest Swift version's cell is hidden via CSS (not removed from the HTML)
+        // in the compatibility matrix when HIDE_LATEST_SWIFT_VERSION_BUILD_DATA is set.
+        var model = API.PackageController.GetRoute.Model.mock
+        let compatible = CompatibilityMatrix.SwiftVersionCompatibility(results: [.v1: .compatible,
+                                                                                 .v2: .compatible,
+                                                                                 .v3: .compatible,
+                                                                                 .v4: .compatible])
+        model.swiftVersionBuildInfo = .init(
+            stable: .init(referenceName: "5.2.5", results: compatible),
+            beta: .init(referenceName: "6.0.0-b1", results: compatible),
+            latest: .init(referenceName: "main", results: compatible)
+        )
+
+        withDependencies {
+            $0.environment.hideLatestSwiftVersionBuildData = { true }
+        } operation: {
+            let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
+
+            assertSnapshot(of: page, as: .html)
+        }
+    }
+
     @Test func PackageShow_document_canonicalURL_noImageSnapshots() throws {
         // In production, the owner and repository name in the view model are fetched from
         // the database and have canonical capitalisation.
@@ -334,6 +357,18 @@ extension AllTests.WebpageSnapshotTests {
         let page = { BuildIndex.View(path: "", model: .mock).document() }
 
         assertSnapshot(of: page, as: .html)
+    }
+
+    @Test func BuildIndex_document_hideLatestSwiftVersion() throws {
+        // Test that the latest Swift version's whole section is skipped from rendering
+        // when HIDE_LATEST_SWIFT_VERSION_BUILD_DATA is set.
+        withDependencies {
+            $0.environment.hideLatestSwiftVersionBuildData = { true }
+        } operation: {
+            let page = { BuildIndex.View(path: "", model: .mock).document() }
+
+            assertSnapshot(of: page, as: .html)
+        }
     }
 
     @Test func BuildShow_document() throws {

@@ -543,11 +543,14 @@ extension API.PackageController.GetRoute.Model {
 
     func swiftVersionCompatibilityList() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
+        @Dependency(\.environment) var environment
+
         let rows = Self.groupBuildInfo(buildInfo)
+        let matrixClass = environment.hideLatestSwiftVersionBuildData() ? "matrix hide-latest-swift-version" : "matrix"
         return .a(
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
-                .class("matrix"),
+                .class(matrixClass),
                 .forEach(rows) { compatibilityListItem($0.labelNode, cells: $0.results.all) }
             )
         )
