@@ -49,8 +49,10 @@ enum KeywordController {
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            self.page = try container.decodeIfPresent(Int.self, forKey: CodingKeys.page) ?? Self.defaultPage
-            self.pageSize = try container.decodeIfPresent(Int.self, forKey: CodingKeys.pageSize) ?? Self.defaultPageSize
+            self.page = (try container.decodeIfPresent(Int.self, forKey: CodingKeys.page) ?? Self.defaultPage)
+                .clamped(to: Pagination.pageRange)
+            self.pageSize = (try container.decodeIfPresent(Int.self, forKey: CodingKeys.pageSize) ?? Self.defaultPageSize)
+                .clamped(to: Pagination.pageSizeRange)
         }
     }
 

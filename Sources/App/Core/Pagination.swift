@@ -13,12 +13,9 @@
 // limitations under the License.
 
 
-extension Comparable {
-    func clamped(to limit: PartialRangeFrom<Self>) -> Self {
-        max(self, limit.lowerBound)
-    }
-
-    func clamped(to limit: ClosedRange<Self>) -> Self {
-        min(max(self, limit.lowerBound), limit.upperBound)
-    }
+enum Pagination {
+    /// Bounds for user supplied pagination parameters. Clamping to these ranges caps query cost and
+    /// keeps the `offset`/`limit` arithmetic derived from them from overflowing.
+    static let pageRange = 1...1_000
+    static let pageSizeRange = 1...1_024
 }
