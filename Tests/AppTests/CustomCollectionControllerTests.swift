@@ -94,6 +94,30 @@ extension AllTests.CustomCollectionControllerTests {
         }
     }
 
+    @Test func Query_pagination_clamping() throws {
+        let decoder = URLEncodedFormDecoder()
+
+        do {  // below range
+            let query = try decoder.decode(CustomCollectionsController.Query.self, from: "page=0&pageSize=-1")
+            #expect(query.page == Pagination.pageRange.lowerBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.lowerBound)
+        }
+
+        do {  // Int.max
+            let query = try decoder.decode(CustomCollectionsController.Query.self,
+                                           from: "page=9223372036854775807&pageSize=9223372036854775807")
+            #expect(query.page == Pagination.pageRange.upperBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.upperBound)
+        }
+
+        do {  // Int.max + 1
+            #expect(throws: DecodingError.self) {
+                try decoder.decode(CustomCollectionsController.Query.self,
+                                   from: "page=9223372036854775808&pageSize=9223372036854775808")
+            }
+        }
+    }
+
     @Test func show_collection() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }

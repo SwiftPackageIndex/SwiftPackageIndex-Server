@@ -30,7 +30,8 @@ extension QueryBuilder {
     /// - Returns: a `QueryBuilder`
     func page(_ page: Int, size pageSize: Int) async throws -> Page<Model> {
         // page is one-based, clamp it to ensure we get a >=0 offset
-        let page = page.clamped(to: 1...)
+        let page = page.clamped(to: Pagination.pageRange)
+        let pageSize = pageSize.clamped(to: Pagination.pageSizeRange)
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
         let results = try await self.offset(offset)

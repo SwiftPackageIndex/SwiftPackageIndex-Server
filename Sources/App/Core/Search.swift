@@ -334,7 +334,8 @@ enum Search {
         }
 
         // page is one-based, clamp it to ensure we get a >=0 offset
-        let page = page.clamped(to: 1...)
+        let page = page.clamped(to: Pagination.pageRange)
+        let pageSize = pageSize.clamped(to: Pagination.pageSizeRange)
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
@@ -370,7 +371,8 @@ enum Search {
                       _ terms: [String],
                       page: Int,
                       pageSize: Int) async throws -> Search.Response {
-        let page = page.clamped(to: 1...)
+        let page = page.clamped(to: Pagination.pageRange)
+        let pageSize = pageSize.clamped(to: Pagination.pageSizeRange)
         let (sanitizedTerms, filters) = SearchFilter.split(terms: sanitize(terms))
 
         // Metrics

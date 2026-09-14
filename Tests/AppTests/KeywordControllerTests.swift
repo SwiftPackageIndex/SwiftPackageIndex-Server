@@ -107,6 +107,44 @@ extension AllTests.KeywordControllerTests {
         }
     }
 
+    @Test func query_pagination_extreme_input() async throws {
+        try await withSPIApp { app in
+            // MUT
+            let page = try await KeywordController.query(on: app.db,
+                                                         keyword: "foo",
+                                                         page: .max,
+                                                         pageSize: .max)
+
+            // validate
+            #expect(page.results.isEmpty)
+            #expect(page.hasMoreResults == false)
+        }
+    }
+
+    @Test func Query_pagination_clamping() throws {
+        let decoder = URLEncodedFormDecoder()
+
+        do {  // below range
+            let query = try decoder.decode(KeywordController.Query.self, from: "page=0&pageSize=-1")
+            #expect(query.page == Pagination.pageRange.lowerBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.lowerBound)
+        }
+
+        do {  // Int.max
+            let query = try decoder.decode(KeywordController.Query.self,
+                                           from: "page=9223372036854775807&pageSize=9223372036854775807")
+            #expect(query.page == Pagination.pageRange.upperBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.upperBound)
+        }
+
+        do {  // Int.max + 1
+            #expect(throws: DecodingError.self) {
+                try decoder.decode(KeywordController.Query.self,
+                                   from: "page=9223372036854775808&pageSize=9223372036854775808")
+            }
+        }
+    }
+
     @Test func show_keyword() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }

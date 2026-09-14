@@ -19,6 +19,7 @@ import Foundation
 import SQLKit
 import SnapshotTesting
 import Testing
+import Vapor
 
 
 extension AllTests.SearchTests {
@@ -500,6 +501,70 @@ extension AllTests.SearchTests {
                 #expect(res.hasMoreResults)
                 #expect(res.results.map(\.testDescription) == ["a:foobar", "p:0", "p:1", "p:2"])
             }
+        }
+    }
+
+    @Test func search_pagination_extreme_input() async throws {
+        try await withSPIApp { app in
+            // setup
+            let packages = (0..<9).map { idx in
+                Package(url: "\(idx)".url, score: 15 - idx)
+            }
+            try await packages.save(on: app.db)
+            try await packages.map { try Repository(package: $0, defaultBranch: "default",
+                                                    keywords: ["foo"], name: $0.url, owner: "foobar") }
+            .save(on: app.db)
+            try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+                .save(on: app.db)
+            try await Search.refresh(on: app.db)
+
+            do {  // first page, which prepends author and keyword results
+                  // MUT
+                let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: .max)
+
+                // validate
+                #expect(res.hasMoreResults == false)
+                #expect(res.results.filter(\.isPackage).count == 9)
+            }
+
+            do {  // page beyond the last one
+                  // MUT
+                let res = try await Search.fetch(app.db, ["foo"], page: .max, pageSize: .max)
+
+                // validate
+                #expect(res.hasMoreResults == false)
+                #expect(res.results.isEmpty)
+            }
+        }
+    }
+
+    @Test func Query_pagination_clamping() throws {
+        let decoder = URLEncodedFormDecoder()
+
+        do {  // below range
+            let query = try decoder.decode(API.SearchController.Query.self, from: "query=a&page=0&pageSize=-1")
+            #expect(query.page == Pagination.pageRange.lowerBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.lowerBound)
+        }
+
+        do {  // Int.max
+            let query = try decoder.decode(API.SearchController.Query.self,
+                                           from: "query=a&page=9223372036854775807&pageSize=9223372036854775807")
+            #expect(query.page == Pagination.pageRange.upperBound)
+            #expect(query.pageSize == Pagination.pageSizeRange.upperBound)
+        }
+
+        do {  // Int.max + 1
+            #expect(throws: DecodingError.self) {
+                try decoder.decode(API.SearchController.Query.self,
+                                   from: "query=a&page=9223372036854775808&pageSize=9223372036854775808")
+            }
+        }
+
+        do {  // within range
+            let query = try decoder.decode(API.SearchController.Query.self, from: "query=a&page=2&pageSize=50")
+            #expect(query.page == 2)
+            #expect(query.pageSize == 50)
         }
     }
 
