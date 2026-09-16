@@ -814,7 +814,7 @@ extension AllTests.AnalyzerTests {
                 #expect(
                     commands.value == [
                         "git checkout 0.4.2 --quiet",
-                        "\(String.dockerPath) create --name=swift-dump-package-00000000-0000-0000-0000-000000000000 --workdir=/package-dir --network=none \(SwiftVersion.analysisDockerImage) swift package dump-package",
+                        "\(String.dockerPath) create --name=swift-dump-package-00000000-0000-0000-0000-000000000000 --workdir=/package-dir --network=none --env SPI_PROCESSING=1 \(SwiftVersion.analysisDockerImage) swift package dump-package",
                         "\(String.dockerPath) cp SPI-checkouts/github.com-foo-1/Package.swift swift-dump-package-00000000-0000-0000-0000-000000000000:/package-dir",
                         "\(String.dockerPath) start --attach swift-dump-package-00000000-0000-0000-0000-000000000000",
                         "\(String.dockerPath) rm --force swift-dump-package-00000000-0000-0000-0000-000000000000"
@@ -1723,6 +1723,38 @@ extension AllTests.AnalyzerTests {
             }
         }
     }
+
+    @Test func issue_4162() async throws {
+        // Ensure we set SPI_PROCESSING when running dump-package
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/4162
+        try await withDependencies {
+            $0.fileManager.contentsOfDirectory = FileManagerClient.liveValue.contentsOfDirectory(atPath:)
+            $0.logger = .noop
+            $0.shell = .liveValue
+            $0.uuid = .liveValue
+        } operation: {
+            // setup
+            try await withTempDir { tempDir in
+                let manifest = """
+                    // swift-tools-version: 6.4
+                    import PackageDescription
+
+                    if Context.environment["SPI_PROCESSING"] == nil {
+                        fatalError("SPI_PROCESSING is not set")
+                    }
+
+                    let package = Package(name: "test", targets: [.target(name: "test")])
+                    """
+                try Data(manifest.utf8)
+                    .write(to: URL(filePath: tempDir.appending("/Package.swift")))
+                await #expect(throws: Never.self) {
+                    _ = try await Analyze.dumpPackage(at: tempDir)
+                }
+            }
+        }
+
+    }
+
 }
 
 
