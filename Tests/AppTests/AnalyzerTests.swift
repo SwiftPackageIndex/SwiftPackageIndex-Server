@@ -787,7 +787,6 @@ extension AllTests.AnalyzerTests {
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.contentsOfDirectory = { _ in ["Package.swift"] }
-//                $0.fileManager.fileExists = { @Sendable _ in true }
                 $0.shell.run = { @Sendable cmd, _, _ in
                     commands.withValue {
                         $0.append(cmd.description)
@@ -814,7 +813,7 @@ extension AllTests.AnalyzerTests {
                 #expect(
                     commands.value == [
                         "git checkout 0.4.2 --quiet",
-                        "\(String.dockerPath) create --name=swift-dump-package-00000000-0000-0000-0000-000000000000 --workdir=/package-dir --network=none --env SPI_PROCESSING=1 \(SwiftVersion.analysisDockerImage) swift package dump-package",
+                        "\(String.dockerPath) create --name=swift-dump-package-00000000-0000-0000-0000-000000000000 --workdir=/package-dir --network=none --env SPI_PROCESSING=1 --rm \(SwiftVersion.analysisDockerImage) swift package dump-package",
                         "\(String.dockerPath) cp SPI-checkouts/github.com-foo-1/Package.swift swift-dump-package-00000000-0000-0000-0000-000000000000:/package-dir",
                         "\(String.dockerPath) start --attach swift-dump-package-00000000-0000-0000-0000-000000000000",
                         "\(String.dockerPath) rm --force swift-dump-package-00000000-0000-0000-0000-000000000000"

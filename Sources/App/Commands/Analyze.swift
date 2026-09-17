@@ -623,6 +623,7 @@ extension Analyze {
                 "--workdir=/\(packageDir)",
                 "--network=none",
                 "--env", "SPI_PROCESSING=1",
+                "--rm",
                 SwiftVersion.analysisDockerImage,
                 "swift",
                 "package",
