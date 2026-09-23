@@ -25,16 +25,6 @@ extension AllTests.PackageReleasesModelTests {
     @Test func initialise() async throws {
         // Setup
 
-        // Work-around to set the local time zone for time sensitive
-        // tests. Sets the explicit default time zone to UTC for the duration
-        // of this test.
-        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
-        let oldDefault = NSTimeZone.default
-        NSTimeZone.default = explicitGMTTimeZone
-        defer {
-            NSTimeZone.default = oldDefault
-        }
-
         try await withDependencies {
             $0.date.now = .spiBirthday
         } operation: {
@@ -63,32 +53,30 @@ extension AllTests.PackageReleasesModelTests {
                         .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
                               html: nil, link: "some url"),
                 ])
-                // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
-                // resolves as `31 December 1969`
             }
         }
     }
 
     @Test func dateFormatting() throws {
 
-        // Work-around to set the local time zone for time sensitive
-        // tests. Sets the explicit default time zone to UTC for the duration
-        // of this test.
-        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
-        let oldDefault = NSTimeZone.default
-        NSTimeZone.default = explicitGMTTimeZone
-        defer {
-            NSTimeZone.default = oldDefault
-        }
-
         let currentDate = Date(timeIntervalSince1970: 500)
         let targetDate = Date(timeIntervalSince1970: 0)
 
         #expect(PackageReleases.Model.formatDate(targetDate, currentDate: currentDate) == "Released 8 minutes ago on 1 January 1970")
-        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
-        // resolves as `31 December 1969`
 
         #expect(PackageReleases.Model.formatDate(nil, currentDate: currentDate) == nil)
+    }
+
+    @Test func dateFormatting_usesTheTimeZoneDependency() throws {
+        // 20:00 UTC is already the next day in Tokyo, and still the same day anywhere west of UTC+4.
+        let eveningUTC = Date(timeIntervalSince1970: 20 * 60 * 60)
+
+        withDependencies {
+            $0.timeZone = TimeZone(identifier: "Asia/Tokyo")!
+        } operation: {
+            #expect(PackageReleases.Model.formatDate(eveningUTC, currentDate: eveningUTC.addingTimeInterval(60))
+                    == "Released 1 minute ago on 2 January 1970")
+        }
     }
 
     @Test func removeDuplicateHeader() throws {
