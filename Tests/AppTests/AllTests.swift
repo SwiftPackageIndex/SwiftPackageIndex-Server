@@ -94,7 +94,7 @@ extension AllTests {
     @Suite struct PackageController_routesTests { }
     @Suite struct PackageInfoTests { }
     @Suite struct PackageReadmeModelTests { }
-    @Suite struct PackageReleasesModelTests { }
+    @Suite(.dependency(\.timeZone, .utc)) struct PackageReleasesModelTests { }
     @Suite struct PackageResultTests { }
     @Suite struct PackageTests { }
     @Suite struct PipelineTests { }
