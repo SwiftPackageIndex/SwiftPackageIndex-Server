@@ -35,3 +35,4 @@ Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*
 xcbeautify
 test.log
 .collection-signing-key.pem
+/sbom/

@@ -187,7 +187,14 @@ jobs:
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
+          rm -rf sbom
           swift build -c release --static-swift-stdlib -Xlinker -ljemalloc --enable-experimental-prebuilts
+          # SwiftPM names the file with a timestamp, osv-scanner needs a *.cdx.json name to detect it.
+          mv sbom/*.json sbom/swiftpackageindex-server.cdx.json
+        env:
+          SWIFTPM_BUILD_SBOM_SPEC: cyclonedx
+          SWIFTPM_BUILD_SBOM_FILTER: package
+          SWIFTPM_BUILD_SBOM_OUTPUT_DIR: sbom
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
@@ -202,6 +209,24 @@ jobs:
           sleep 10
           echo Probing api/version...
           bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom
+          path: sbom/swiftpackageindex-server.cdx.json
+          if-no-files-found: error
+
+      - name: Scan SBOM for vulnerabilities
+        uses: docker://ghcr.io/google/osv-scanner:v2.6.0
+        with:
+          args: scan source --config osv-scanner.toml --format markdown --output-file sbom/osv-scanner-report.md -L sbom/swiftpackageindex-server.cdx.json
+
+      - name: Add SBOM scan report to job summary
+        if: ${{ always() && hashFiles('sbom/osv-scanner-report.md') != '' }}
+        run: |
+          echo "## SBOM vulnerability scan" >> "$GITHUB_STEP_SUMMARY"
+          cat sbom/osv-scanner-report.md >> "$GITHUB_STEP_SUMMARY"
 
   # test-macos:
   #   name: Test macOS
