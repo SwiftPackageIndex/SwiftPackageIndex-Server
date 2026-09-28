@@ -174,7 +174,7 @@ extension URL {
 
     func rewriteRelative(to repoTriple: PackageReadme.RepoTriple, fileType: BaseReadmeUrlFileType) -> String? {
         // If this is not a relative URL return nil so that no link replacement happens.
-        guard host == nil, path.isEmpty == false else { return nil }
+        guard scheme == nil, host == nil, path.isEmpty == false else { return nil }
 
         // Assume all links are relative to GitHub as that's the only current source for README data.
         let baseUrl = "https://github.com/"
