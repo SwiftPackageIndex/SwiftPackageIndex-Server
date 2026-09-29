@@ -38,6 +38,8 @@ extension AllTests.PackageReadmeModelTests {
         let triple = ("owner", "repo", "main")
         #expect(URL(string: "https://example.com")?.rewriteRelative(to: triple, fileType: .raw) == nil)
         #expect(URL(string: "https://example.com/foo")?.rewriteRelative(to: triple, fileType: .raw) == nil)
+        #expect(URL(string: "mailto:hello@example.com")?.rewriteRelative(to: triple, fileType: .blob) == nil)
+        #expect(URL(string: "data:image/png;base64,iVBORw0KGgo=")?.rewriteRelative(to: triple, fileType: .raw) == nil)
         #expect(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .raw) == "https://github.com/owner/repo/raw/main/foo")
         #expect(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .blob) == "https://github.com/owner/repo/blob/main/foo")
         #expect(URL(string: "/foo/bar?query")?.rewriteRelative(to: triple, fileType: .raw) == "https://github.com/owner/repo/raw/main/foo/bar?query")
