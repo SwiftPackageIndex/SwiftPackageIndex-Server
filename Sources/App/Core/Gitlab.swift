@@ -197,7 +197,7 @@ extension Gitlab.Builder {
                     return res
                 case .badRequest:
                     struct ErrorResponse: Content { var message: String }
-                    let message = try JSONDecoder().decode(ErrorResponse.self, from: responseBody).message
+                    let message = (try? JSONDecoder().decode(ErrorResponse.self, from: responseBody))?.message ?? responseBody.asString()
                     if message.lowercased().contains("too many pipelines created"),
                        let request {
                         // retry once
