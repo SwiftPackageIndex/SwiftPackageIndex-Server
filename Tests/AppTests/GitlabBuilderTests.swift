@@ -303,6 +303,40 @@ extension AllTests.GitlabBuilderTests {
         }
     }
 
+    @Test func validate_log_unstructured_error_badRequest() async throws {
+        // Ensure we log errors that can't be parsed (when the status code is badRequest)
+        let capturingLogger = CapturingLogger()
+        await withDependencies {
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            _ = await Gitlab.Builder.validate(
+                response: .init(status: .badRequest, body: .init(string: "unstructured error"))
+            )
+            capturingLogger.logs.withValue { logs in
+                #expect(logs == [
+                    .init(level: .warning, message: "triggerBuild failed: 400 Bad Request 'unstructured error'")
+                ])
+            }
+        }
+    }
+
+    @Test func validate_log_unstructured_error_default() async throws {
+        // Ensure we log errors that can't be parsed (when the status code is some other code that ends up in our default handler)
+        let capturingLogger = CapturingLogger()
+        await withDependencies {
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            _ = await Gitlab.Builder.validate(
+                response: .init(status: .internalServerError, body: .init(string: "unstructured error"))
+            )
+            capturingLogger.logs.withValue { logs in
+                #expect(logs == [
+                    .init(level: .warning, message: "triggerBuild failed: 500 Internal Server Error 'unstructured error'")
+                ])
+            }
+        }
+    }
+
 }
 
 
