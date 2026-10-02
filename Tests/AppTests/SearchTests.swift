@@ -261,6 +261,23 @@ extension AllTests.SearchTests {
         }
     }
 
+    @Test func fetch_statementTimeout() async throws {
+        try await withSPIApp { app in
+            // setup
+            try await app.db.transaction { tx in
+                // holds an ACCESS EXCLUSIVE lock on the view until the transaction ends
+                try await Search.refresh(on: tx)
+
+                // MUT
+                await #expect {
+                    try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20, statementTimeoutMilliseconds: 50)
+                } throws: {
+                    ($0 as? Abort)?.status == .serviceUnavailable
+                }
+            }
+        }
+    }
+
     @Test func fetch_multiple() async throws {
         // Test search with multiple terms ("and")
         try await withSPIApp { app in
