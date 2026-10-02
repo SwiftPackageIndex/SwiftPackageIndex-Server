@@ -23,8 +23,10 @@ extension PackageReleases {
 
     struct Model: Equatable {
         private static var dateFormatter: DateFormatter {
+            @Dependency(\.timeZone) var timeZone
             let formatter = DateFormatter()
             formatter.dateFormat = "d MMMM yyyy"
+            formatter.timeZone = timeZone
             return formatter
         }
 
