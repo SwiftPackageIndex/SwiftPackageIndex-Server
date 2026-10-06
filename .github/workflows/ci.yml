@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/saguaro1/spi-base:94567a5e1687eef61eb06c8dedd929c5e5cfa530
+      image: registry.gitlab.com/saguaro1/spi-base:2.4.1
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -160,7 +160,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/saguaro1/spi-base:94567a5e1687eef61eb06c8dedd929c5e5cfa530
+      image: registry.gitlab.com/saguaro1/spi-base:2.4.1
       options: --privileged
     steps:
       - name: GH Runner bug workaround
