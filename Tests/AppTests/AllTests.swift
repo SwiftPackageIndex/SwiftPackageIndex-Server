@@ -19,7 +19,6 @@ import SnapshotTesting
 import Testing
 
 
-#warning("pre-run cleanup of temp-UUID() containers and scratch-UUID() volumes")
 @Suite(
     .setupDatabasePool,
     .dependency(\.date.now, .t0),
