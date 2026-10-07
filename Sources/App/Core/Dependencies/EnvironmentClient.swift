@@ -24,8 +24,8 @@ struct EnvironmentClient {
     // regarding the use of XCTFail here.
     // Closures that are throwing or return Void don't need this, because they automatically get the default failing
     // mechanism when they're not set up in a test.
-    var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
-    var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
+    var allowBuildTriggers: @Sendable () -> Bool = { unimplemented("allowBuildTriggers"); return true }
+    var allowSocialPosts: @Sendable () -> Bool = { unimplemented("allowSocialPosts"); return true }
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
@@ -39,33 +39,33 @@ struct EnvironmentClient {
     var awsReadmeBucketRegion: @Sendable () -> String?
     var awsRegion: @Sendable () -> String?
     var awsSecretAccessKey: @Sendable () -> String?
-    var awsUseIamRole: @Sendable () -> Bool = { XCTFail("awsUseIamRole"); return false }
-    var awsDirectS3Access: @Sendable () -> Bool = { XCTFail("awsDirectS3Access"); return false }
+    var awsUseIamRole: @Sendable () -> Bool = { unimplemented("awsUseIamRole"); return false }
+    var awsDirectS3Access: @Sendable () -> Bool = { unimplemented("awsDirectS3Access"); return false }
     var builderToken: @Sendable () -> String?
-    var enableBuildLogsPreSignedURLs: @Sendable () -> Bool = { XCTFail("enableBuildLogsPreSignedURLs"); return false }
-    var enablePackageUploadPreSignedURLs: @Sendable () -> Bool = { XCTFail("enablePackageUploadPreSignedURLs"); return false }
-    var packageUploadPreSignedURLExpiration: @Sendable () -> Int = { XCTFail("packageUploadPreSignedURLExpiration"); return 86400 }
-    var buildTimeout: @Sendable () -> Int = { XCTFail("buildTimeout"); return 10 }
-    var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail("buildTriggerAllowList"); return [] }
-    var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerDownscaling"); return 1 }
-    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerLatestSwiftVersionDownscaling"); return 1 }
-    var collectionSigningCertificateChain: @Sendable () -> [URL] = { XCTFail("collectionSigningCertificateChain"); return [] }
+    var enableBuildLogsPreSignedURLs: @Sendable () -> Bool = { unimplemented("enableBuildLogsPreSignedURLs"); return false }
+    var enablePackageUploadPreSignedURLs: @Sendable () -> Bool = { unimplemented("enablePackageUploadPreSignedURLs"); return false }
+    var packageUploadPreSignedURLExpiration: @Sendable () -> Int = { unimplemented("packageUploadPreSignedURLExpiration"); return 86400 }
+    var buildTimeout: @Sendable () -> Int = { unimplemented("buildTimeout"); return 10 }
+    var buildTriggerAllowList: @Sendable () -> [Package.Id] = { unimplemented("buildTriggerAllowList"); return [] }
+    var buildTriggerDownscaling: @Sendable () -> Double = { unimplemented("buildTriggerDownscaling"); return 1 }
+    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { unimplemented("buildTriggerLatestSwiftVersionDownscaling"); return 1 }
+    var collectionSigningCertificateChain: @Sendable () -> [URL] = { unimplemented("collectionSigningCertificateChain"); return [] }
     var collectionSigningPrivateKey: @Sendable () -> Data?
-    var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
+    var current: @Sendable () -> Environment = { unimplemented("current"); return .development }
     var dbId: @Sendable () -> String?
     var deployment: @Sendable () -> String?
     var gitlabApiToken: @Sendable () -> String?
-    var gitlabPipelineLimit: @Sendable () -> Int = { XCTFail("gitlabPipelineLimit"); return 100 }
+    var gitlabPipelineLimit: @Sendable () -> Int = { unimplemented("gitlabPipelineLimit"); return 100 }
     var gitlabPipelineToken: @Sendable () -> String?
-    var gitlabProjectId: @Sendable () -> Int = { XCTFail("gitlabProjectId"); return 19564054 }
-    var hideLatestSwiftVersionBuildData: @Sendable () -> Bool = { XCTFail("hideLatestSwiftVersionBuildData"); return false }
-    var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
+    var gitlabProjectId: @Sendable () -> Int = { unimplemented("gitlabProjectId"); return 19564054 }
+    var hideLatestSwiftVersionBuildData: @Sendable () -> Bool = { unimplemented("hideLatestSwiftVersionBuildData"); return false }
+    var hideStagingBanner: @Sendable () -> Bool = { unimplemented("hideStagingBanner"); return Constants.defaultHideStagingBanner }
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var metricsPushGatewayUrl: @Sendable () -> String?
-    var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
-    var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
+    var processingBuildBacklog: @Sendable () -> Bool = { unimplemented("processingBuildBacklog"); return false }
+    var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { unimplemented("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {
         case fetchMetadataFailed
@@ -76,9 +76,9 @@ struct EnvironmentClient {
         case repositorySaveUniqueViolation
     }
     var redisHostname: @Sendable () -> String = { "redis" }
-    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
-    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in XCTFail("shouldFail"); return false }
-    var siteURL: @Sendable () -> String = { XCTFail("siteURL"); return "" }
+    var runnerIds: @Sendable () -> [String] = { unimplemented("runnerIds"); return [] }
+    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in unimplemented("shouldFail"); return false }
+    var siteURL: @Sendable () -> String = { unimplemented("siteURL"); return "" }
 }
 
 

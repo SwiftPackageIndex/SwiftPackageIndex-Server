@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/saguaro1/spi-base:2.4.0
+      image: registry.gitlab.com/saguaro1/spi-base:2.4.1
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -160,7 +160,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/saguaro1/spi-base:2.4.0
+      image: registry.gitlab.com/saguaro1/spi-base:2.4.1
       options: --privileged
     steps:
       - name: GH Runner bug workaround
@@ -187,7 +187,7 @@ jobs:
           # Since we're only pinging the version api endpoint, no database is needed and
           # we can just copy the development template to ensure the db env variables are set.
           cp .env.development.template .env.development
-          swift build -c release --static-swift-stdlib -Xlinker -ljemalloc --enable-experimental-prebuilts
+          swift build -c release -Xlinker -ljemalloc --enable-experimental-prebuilts
 
       - name: Cache .build
         if: steps.restore-cache.outputs.cache-hit != 'true'
