@@ -42,7 +42,6 @@ RUN mkdir /staging
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
 RUN swift build -c ${COMPILATION_MODE} \
         --enable-experimental-prebuilts \
-        --static-swift-stdlib \
         -Xlinker -ljemalloc
 
 # Switch to the staging area
