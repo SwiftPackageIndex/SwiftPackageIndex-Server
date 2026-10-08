@@ -41,12 +41,6 @@ enum BuildShow {
             "Compatibility information for \(model.packageName). Check compatibility with \(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName) with full build logs."
         }
 
-        override func frontEndDebugPanelData() -> [PublicPage.FrontEndDebugPanelDataItem] {
-            [
-                .init(title: "Version ID", value: model.versionId.uuidString)
-            ]
-        }
-
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
