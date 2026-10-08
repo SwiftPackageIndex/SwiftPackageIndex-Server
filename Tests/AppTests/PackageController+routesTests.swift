@@ -839,6 +839,46 @@ extension AllTests.PackageController_routesTests {
         }
     }
 
+    @Test func documentation_routes_cacheControl() async throws {
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                let pkg = try await savePackage(on: app.db, "1")
+                try await Repository(package: pkg, name: "package", owner: "owner")
+                    .save(on: app.db)
+                try await Version(package: pkg,
+                                  commit: "9876543210",
+                                  commitDate: .t0,
+                                  docArchives: [.init(name: "target", title: "Target")],
+                                  latest: .release,
+                                  packageName: "pkg",
+                                  reference: .tag(1, 2, 3))
+                .save(on: app.db)
+
+                // MUT
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/target") { res async in
+                    #expect(res.status == .ok)
+                    #expect(res.headers.first(name: .cacheControl) == "public, max-age=0, s-maxage=600")
+                }
+
+                // A client supplied Cache-Control must not be echoed back
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/target",
+                                             headers: [HTTPHeaders.Name.cacheControl.description: "no-cache"]) { res async in
+                    #expect(res.status == .ok)
+                    #expect(res.headers[.cacheControl] == ["public, max-age=0, s-maxage=600"])
+                }
+            }
+        }
+    }
+
     @Test func documentation_routes_no_archive() async throws {
         // Test documentation routes when no archive is in the path
         try await withDependencies {
@@ -1021,6 +1061,7 @@ extension AllTests.PackageController_routesTests {
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/main/css/a")
+                    #expect(res.headers.first(name: .cacheControl) == "public, max-age=300, s-maxage=300, no-transform")
                 }
 
                 // test path a/b
@@ -1049,6 +1090,7 @@ extension AllTests.PackageController_routesTests {
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/css")
                     #expect(res.body.asString() == "/owner/package/1.2.3/css/a")
+                    #expect(res.headers.first(name: .cacheControl) == "public, max-age=86400, s-maxage=86400, no-transform")
                 }
 
                 // test path a/b
