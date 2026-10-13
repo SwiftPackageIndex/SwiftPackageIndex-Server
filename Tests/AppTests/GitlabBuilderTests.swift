@@ -361,7 +361,7 @@ private extension HTTPClient.Response {
 }
 
 
-extension Gitlab.Builder.ErrorMessage {
+private extension Gitlab.Builder.ErrorMessage {
     init(_ message: String) {
         self = .init(message: .init(base: [message]))
     }
