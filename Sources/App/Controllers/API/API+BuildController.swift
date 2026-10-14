@@ -37,6 +37,9 @@ extension API {
                          platform: dto.platform,
                          status: dto.status,
                          swiftVersion: dto.swiftVersion)
+                guard build.$version.id == (try version.requireID()) else {
+                    throw Abort(.badRequest, reason: "build \(dto.buildId) does not belong to version")
+                }
                 build.buildCommand = dto.buildCommand
                 build.buildDate = dto.buildDate
                 build.buildDuration = dto.buildDuration

@@ -314,6 +314,52 @@ extension AllTests.ApiTests {
         }
     }
 
+    @Test func post_buildReport_buildOfOtherVersion() async throws {
+        try await withDependencies {
+            $0.environment.builderToken = { "secr3t" }
+            $0.environment.dbId = { nil }
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                let pA = try await savePackage(on: app.db, "1")
+                let vA = try Version(package: pA, latest: .defaultBranch)
+                try await vA.save(on: app.db)
+                try await Build(id: .id0, version: vA, platform: .iOS, status: .failed, swiftVersion: .latest)
+                    .save(on: app.db)
+                let pB = try await savePackage(on: app.db, "2")
+                let vB = try Version(package: pB, latest: .defaultBranch)
+                try await vB.save(on: app.db)
+
+                let dto: API.PostBuildReportDTO = .init(
+                    buildId: .id0,
+                    logUrl: "log url",
+                    platform: .macosXcodebuild,
+                    resolvedDependencies: [.init(packageName: "packageName", repositoryURL: "repositoryURL")],
+                    status: .ok,
+                    swiftVersion: .latest
+                )
+                let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+                // MUT
+                try await app.testing().test(
+                    .POST,
+                    "api/versions/\(vB.requireID())/build-report",
+                    headers: .bearerApplicationJSON("secr3t"),
+                    body: body,
+                    afterResponse: { res async throws in
+                        // validation
+                        #expect(res.status == .badRequest)
+                        let b = try await Build.find(.id0, on: app.db).unwrap()
+                        #expect(b.platform == .iOS)
+                        #expect(b.status == .failed)
+                        #expect(b.logUrl == nil)
+                        let v = try await Version.find(vB.id, on: app.db).unwrap()
+                        #expect(v.resolvedDependencies == nil)
+                    })
+            }
+        }
+    }
+
     @Test func post_buildReport_infrastructureError() async throws {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
