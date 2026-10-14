@@ -20,4 +20,8 @@ extension PSQLError {
     var isUniqueViolation: Bool {
         serverInfo?[.sqlState] == PostgresError.Code.uniqueViolation.raw
     }
+
+    var isQueryCanceled: Bool {
+        serverInfo?[.sqlState] == PostgresError.Code.queryCanceled.raw
+    }
 }

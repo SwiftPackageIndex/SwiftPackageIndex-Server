@@ -183,6 +183,14 @@ extension Gitlab.Builder {
         }
     }
 
+    struct ErrorMessage: Content, Equatable {
+        var message: Message
+        struct Message: Content, Equatable {
+            var base: [String]
+        }
+        func joined() -> String { String(message.base.joined(by: " ")) }
+    }
+
     static func validate(response: HTTPClient.Response,
                          retry request: TriggerRequest? = .none) async -> Build.TriggerResponse {
         @Dependency(\.logger) var logger
@@ -196,8 +204,7 @@ extension Gitlab.Builder {
                     logger.info("Triggered build: \(res.webUrl)")
                     return res
                 case .badRequest:
-                    struct ErrorResponse: Content { var message: String }
-                    let message = try JSONDecoder().decode(ErrorResponse.self, from: responseBody).message
+                    let message = (try? JSONDecoder().decode(ErrorMessage.self, from: responseBody))?.joined() ?? responseBody.asString()
                     if message.lowercased().contains("too many pipelines created"),
                        let request {
                         // retry once
@@ -208,13 +215,12 @@ extension Gitlab.Builder {
                         )
                         return await validate(response: response)
                     } else {
-                        logger.warning("triggerBuild failed: \(response.status) \(message)")
+                        logger.warning("triggerBuild failed: \(response.status) '\(message)'")
                         return .init(status: response.status, webUrl: nil)
                     }
                 default:
-                    struct ErrorResponse: Content { var message: String }
-                    let message = (try? JSONDecoder().decode(ErrorResponse.self, from: responseBody))?.message ?? "(no error message)"
-                    logger.warning("triggerBuild failed: \(response.status) \(message)")
+                    let message = (try? JSONDecoder().decode(ErrorMessage.self, from: responseBody))?.joined() ?? responseBody.asString()
+                    logger.warning("triggerBuild failed: \(response.status) '\(message)'")
                     return .init(status: response.status, webUrl: nil)
             }
         } catch {

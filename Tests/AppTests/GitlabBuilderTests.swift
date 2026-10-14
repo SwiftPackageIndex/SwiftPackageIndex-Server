@@ -229,6 +229,12 @@ extension AllTests.GitlabBuilderTests {
         }
     }
 
+    @Test func decode_rate_limit_error() async throws {
+        let error = #"{"message":{"base":["Too many pipelines created in the last minute. Try again later."]}}"#
+        let message = try JSONDecoder().decode(Gitlab.Builder.ErrorMessage.self, from: Data(error.utf8))
+        #expect(message == Gitlab.Builder.ErrorMessage("Too many pipelines created in the last minute. Try again later."))
+    }
+
     @Test func validate_400_rate_limit_without_retry() async throws {
         await withDependencies {
             $0.environment.gitlabProjectId = { 123 }
@@ -237,8 +243,7 @@ extension AllTests.GitlabBuilderTests {
                 return .ok
             }
         } operation: {
-            struct Response: Content { var message: String }
-            let rateLimit = Response(message: "Too many pipelines created in the last minute. Try again later.")
+            let rateLimit = Gitlab.Builder.ErrorMessage("Too many pipelines created in the last minute. Try again later.")
             #expect(await Gitlab.Builder.validate(response: .badRequest(jsonEncode: rateLimit))
                     == .init(status: .badRequest, webUrl: nil))
         }
@@ -252,16 +257,14 @@ extension AllTests.GitlabBuilderTests {
                 triggerCount.withValue { triggerCount -> HTTPClient.Response in
                     defer { triggerCount += 1 }
                     if triggerCount == 0 {
-                        struct Response: Content { var message: String }
-                        return .badRequest(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                        return .badRequest(jsonEncode: Gitlab.Builder.ErrorMessage("Too many pipelines created in the last minute. Try again later."))
                     } else {
                         return .created(webUrl: "http://web_url")
                     }
                 }
             }
         } operation: {
-            struct Response: Content { var message: String }
-            let rateLimit = Response(message: "Too many pipelines created in the last minute. Try again later.")
+            let rateLimit = Gitlab.Builder.ErrorMessage("Too many pipelines created in the last minute. Try again later.")
             let dto = Gitlab.Builder.PostDTO(token: "token", ref: "ref", variables: [:])
             let req = try Gitlab.Builder.TriggerRequest(dto)
             #expect(await Gitlab.Builder.validate(response: .badRequest(jsonEncode: rateLimit), retry: req)
@@ -278,10 +281,9 @@ extension AllTests.GitlabBuilderTests {
                 return .ok
             }
         } operation: {
-            struct Response: Content { var message: String }
             let dto = Gitlab.Builder.PostDTO(token: "token", ref: "ref", variables: [:])
             let req = try Gitlab.Builder.TriggerRequest(dto)
-            #expect(await Gitlab.Builder.validate(response: .badRequest(jsonEncode: Response(message: "other")), retry: req)
+            #expect(await Gitlab.Builder.validate(response: .badRequest(jsonEncode: Gitlab.Builder.ErrorMessage("other")), retry: req)
                     == .init(status: .badRequest, webUrl: nil))
         }
     }
@@ -295,11 +297,44 @@ extension AllTests.GitlabBuilderTests {
                 return .ok
             }
         } operation: {
-            struct Response: Content { var message: String }
             let dto = Gitlab.Builder.PostDTO(token: "token", ref: "ref", variables: [:])
             let req = try Gitlab.Builder.TriggerRequest(dto)
             #expect(await Gitlab.Builder.validate(response: .notFound, retry: req)
                     == .init(status: .notFound, webUrl: nil))
+        }
+    }
+
+    @Test func validate_log_unstructured_error_badRequest() async throws {
+        // Ensure we log errors that can't be parsed (when the status code is badRequest)
+        let capturingLogger = CapturingLogger()
+        await withDependencies {
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            _ = await Gitlab.Builder.validate(
+                response: .init(status: .badRequest, body: .init(string: "unstructured error"))
+            )
+            capturingLogger.logs.withValue { logs in
+                #expect(logs == [
+                    .init(level: .warning, message: "triggerBuild failed: 400 Bad Request 'unstructured error'")
+                ])
+            }
+        }
+    }
+
+    @Test func validate_log_unstructured_error_default() async throws {
+        // Ensure we log errors that can't be parsed (when the status code is some other code that ends up in our default handler)
+        let capturingLogger = CapturingLogger()
+        await withDependencies {
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            _ = await Gitlab.Builder.validate(
+                response: .init(status: .internalServerError, body: .init(string: "unstructured error"))
+            )
+            capturingLogger.logs.withValue { logs in
+                #expect(logs == [
+                    .init(level: .warning, message: "triggerBuild failed: 500 Internal Server Error 'unstructured error'")
+                ])
+            }
         }
     }
 
@@ -322,5 +357,12 @@ private extension HTTPClient.Response {
     static func badRequest<T: Encodable>(jsonEncode value: T) -> Self {
         let data = try! JSONEncoder().encode(value)
         return .init(status: .badRequest, body: .init(data: data))
+    }
+}
+
+
+private extension Gitlab.Builder.ErrorMessage {
+    init(_ message: String) {
+        self = .init(message: .init(base: [message]))
     }
 }

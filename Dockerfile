@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/saguaro1/spi-base:2.4.0 AS build
+FROM registry.gitlab.com/saguaro1/spi-base:2.4.1 AS build
 ARG COMPILATION_MODE="release"
 
 # Set up a build area
@@ -42,7 +42,6 @@ RUN mkdir /staging
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
 RUN swift build -c ${COMPILATION_MODE} \
         --enable-experimental-prebuilts \
-        --static-swift-stdlib \
         -Xlinker -ljemalloc
 
 # Switch to the staging area
@@ -65,7 +64,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/saguaro1/spi-base:2.4.0
+FROM registry.gitlab.com/saguaro1/spi-base:2.4.1
 
 # NB sas 2022-09-23: We're not using a dedicated `vapor` user to run the executable, because it
 # makes managing the data in the checkouts volume difficult. See

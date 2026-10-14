@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import PostgresKit
 import SQLKit
 import Vapor
 
@@ -370,7 +371,8 @@ enum Search {
     static func fetch(_ database: Database,
                       _ terms: [String],
                       page: Int,
-                      pageSize: Int) async throws -> Search.Response {
+                      pageSize: Int,
+                      statementTimeoutMilliseconds: Int = Constants.searchStatementTimeoutMilliseconds) async throws -> Search.Response {
         let page = page.clamped(to: Pagination.pageRange)
         let pageSize = pageSize.clamped(to: Pagination.pageSizeRange)
         let (sanitizedTerms, filters) = SearchFilter.split(terms: sanitize(terms))
@@ -379,17 +381,21 @@ enum Search {
         AppMetrics.searchTermsCount?.set(sanitizedTerms.count)
         AppMetrics.searchFiltersCount?.set(filters.count)
 
-        guard let query = query(database,
-                                sanitizedTerms,
-                                filters: filters,
-                                page: page,
-                                pageSize: pageSize) else {
+        let records = try await withStatementTimeout(on: database, milliseconds: statementTimeoutMilliseconds) { tx in
+            try await query(tx,
+                            sanitizedTerms,
+                            filters: filters,
+                            page: page,
+                            pageSize: pageSize)?
+                .all(decoding: DBRecord.self)
+        }
+        guard let records else {
             return .init(hasMoreResults: false,
                          searchTerm: sanitizedTerms.joined(separator: " "),
                          searchFilters: [],
                          results: [])
         }
-        let results = try await query.all(decoding: DBRecord.self).compactMap(Result.init)
+        let results = records.compactMap(Result.init)
 
         let hasMoreResults = results.filter(\.isPackage).count > pageSize
         // first page has non-package results prepended, extend prefix for them
@@ -401,6 +407,23 @@ enum Search {
                                searchTerm: sanitizedTerms.joined(separator: " "),
                                searchFilters: filters.map { $0.viewModel },
                                results: Array(results.prefix(keep)))
+    }
+
+    static func withStatementTimeout<T: Sendable>(on database: Database,
+                                                  milliseconds: Int,
+                                                  _ body: @escaping @Sendable (Database) async throws -> T) async throws -> T {
+        do {
+            return try await database.transaction { tx in
+                guard let db = tx as? SQLDatabase else {
+                    fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+                }
+                // SET LOCAL scopes the timeout to this transaction so it can't leak onto the pooled connection.
+                try await db.raw("SET LOCAL statement_timeout = \(literal: milliseconds)").run()
+                return try await body(tx)
+            }
+        } catch let error as PSQLError where error.isQueryCanceled {
+            throw Abort(.serviceUnavailable)
+        }
     }
 
     static func refresh(on database: Database) async throws {
