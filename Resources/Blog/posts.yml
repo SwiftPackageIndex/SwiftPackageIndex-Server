@@ -195,8 +195,8 @@
   written_by: Dave Verwer
   published_at: 2026-08-12
   published: true
-- slug: swift-6-4-and-swift-build
-  title: Swift 6.4 and Swift Build on Swift Package Index
+- slug: swift-6-4-support-and-the-move-to-swift-build
+  title: Swift 6.4 Support and the Move to Swift Build
   summary: The Swift Package Index now supports Swift 6.4, and with it comes a new default build system for SwiftPM.
   written_by: Dave Verwer
   published_at: 2026-10-14
