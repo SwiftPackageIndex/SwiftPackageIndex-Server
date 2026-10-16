@@ -15,18 +15,37 @@
 import Vapor
 
 
-/// A baseline `Content-Security-Policy` that restricts plugins, `<base>`, framing and form targets.
+/// A `Content-Security-Policy` that restricts plugins, `<base>`, framing, form targets and scripts, unless
+/// the route set its own.
 ///
-/// It leaves `script-src` and `style-src` open: pages use an inline analytics script, Vega compiles its
-/// expressions with `new Function` and Mermaid injects `<style>`, so locking those down comes later.
+/// It leaves `style-src` open: Mermaid, vega-tooltip and Turbo's progress bar all inject `<style>`.
 struct ContentSecurityPolicyMiddleware: AsyncMiddleware {
 
     func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
-        response.headers.replaceOrAdd(
-            name: "Content-Security-Policy",
-            value: "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
-        )
+        if !response.headers.contains(name: .contentSecurityPolicy) {
+            response.headers.add(name: .contentSecurityPolicy, value: Self.pagePolicy)
+        }
         return response
+    }
+
+    /// The hashes are the production analytics scripts in ``PublicPage/analyticsScriptTags``.
+    static let pagePolicy = policy(scriptSources: [
+        "'sha256-sriZsXN1Y/G5VuC6lkbt1PHDxFN1loZa4Vdx24xSR6o='",
+        "'sha256-vOUCijeZnvKQPZiIb624x4B3Y2cu2UDYb/HYIuDw4i0='",
+    ])
+
+    /// DocC's inline `baseUrl` script differs per package, so it can't be hashed, and a hash in the list
+    /// would switch `'unsafe-inline'` off.
+    static let documentationPolicy = policy(scriptSources: ["'unsafe-inline'"])
+
+    private static func policy(scriptSources: [String]) -> String {
+        [
+            "object-src 'none'",
+            "base-uri 'self'",
+            "frame-ancestors 'self'",
+            "form-action 'self'",
+            "script-src " + (["'self'", "https://developer.apple.com"] + scriptSources).joined(separator: " "),
+        ].joined(separator: "; ")
     }
 }

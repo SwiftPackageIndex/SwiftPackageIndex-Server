@@ -148,17 +148,22 @@ enum PackageController {
         else {
             return try await ClientResponse(
                 status: .ok,
-                headers: HTTPHeaders().replacingOrAdding(name: .contentType,
-                                                         value: route.contentType),
+                headers: documentationPageHeaders(contentType: route.contentType),
                 body: awsResponse.body
             ).encodeResponse(for: req)
         }
 
         return try await processor.processedPage.encodeResponse(
             status: .ok,
-            headers: HTTPHeaders().replacingOrAdding(name: .contentType, value: route.contentType),
+            headers: documentationPageHeaders(contentType: route.contentType),
             for: req
         )
+    }
+
+    private static func documentationPageHeaders(contentType: String) -> HTTPHeaders {
+        HTTPHeaders()
+            .replacingOrAdding(name: .contentType, value: contentType)
+            .replacingOrAdding(name: .contentSecurityPolicy, value: ContentSecurityPolicyMiddleware.documentationPolicy)
     }
 
     static func awsResponse(client: Client, route: DocRoute) async throws -> HTTPClient.Response {

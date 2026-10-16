@@ -839,6 +839,38 @@ extension AllTests.PackageController_routesTests {
         }
     }
 
+    @Test func documentationRunsItsInlineScripts() async throws {
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
+        } operation: {
+            try await withSPIApp { app in
+                let pkg = try await savePackage(on: app.db, "1")
+                try await Repository(package: pkg, name: "package", owner: "owner").save(on: app.db)
+                try await Version(package: pkg,
+                                  commit: "0123456789",
+                                  commitDate: .t0,
+                                  docArchives: [.init(name: "target", title: "Target")],
+                                  latest: .release,
+                                  packageName: "pkg",
+                                  reference: .tag(1, 2, 3))
+                .save(on: app.db)
+
+                try await app.testing().test(.GET, "/owner/package/1.2.3/documentation/target") { res async throws in
+                    #expect(res.status == .ok)
+                    let policy = try #require(res.headers.first(name: "Content-Security-Policy"))
+                    let blocked = try ParsedContentSecurityPolicy(policy).blockedScripts(in: res.body.string)
+                    #expect(blocked == [])
+                }
+            }
+        }
+    }
+
     @Test func documentation_routes_no_archive() async throws {
         // Test documentation routes when no archive is in the path
         try await withDependencies {

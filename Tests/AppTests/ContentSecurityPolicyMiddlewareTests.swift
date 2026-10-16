@@ -28,9 +28,50 @@ extension AllTests.ContentSecurityPolicyMiddlewareTests {
 
     @Test func pagesRefuseFramingPluginsAndForeignBaseOrFormTargets() async throws {
         try await withSPIApp(setup) { app in
-            try await app.testing().test(.GET, "ok") { res async in
-                #expect(res.headers.first(name: "Content-Security-Policy")
-                        == "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'")
+            try await app.testing().test(.GET, "ok") { res async throws in
+                let policy = ParsedContentSecurityPolicy(try #require(res.headers.first(name: "Content-Security-Policy")))
+                #expect(policy.directives["object-src"] == ["'none'"])
+                #expect(policy.directives["base-uri"] == ["'self'"])
+                #expect(policy.directives["frame-ancestors"] == ["'self'"])
+                #expect(policy.directives["form-action"] == ["'self'"])
+            }
+        }
+    }
+
+    /// Without `'unsafe-eval'` or `'unsafe-inline'`, injected markup can't run script: no `<script>`, no
+    /// `onerror=`, no `javascript:` URL, and no library compiling a string it was handed.
+    @Test func pagesRunNoScriptFromStrings() async throws {
+        try await withSPIApp(setup) { app in
+            try await app.testing().test(.GET, "ok") { res async throws in
+                let policy = ParsedContentSecurityPolicy(try #require(res.headers.first(name: "Content-Security-Policy")))
+                let sources = try #require(policy.directives["script-src"])
+                #expect(!sources.contains("'unsafe-eval'"))
+                #expect(!sources.contains("'unsafe-inline'"))
+            }
+        }
+    }
+
+    @Test func pagesRunTheirOwnScripts() async throws {
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+            $0.environment.maintenanceMessage = { nil }
+        } operation: {
+            try await withSPIApp { app in
+                try await app.testing().test(.GET, "/") { res async throws in
+                    let policy = try #require(res.headers.first(name: "Content-Security-Policy"))
+                    let blocked = try ParsedContentSecurityPolicy(policy).blockedScripts(in: res.body.string)
+                    #expect(blocked == [])
+                }
+            }
+        }
+    }
+
+    @Test func pagesRunTheProductionAnalyticsScripts() async throws {
+        try await withSPIApp(setup) { app in
+            try await app.testing().test(.GET, "ok") { res async throws in
+                let policy = try #require(res.headers.first(name: "Content-Security-Policy"))
+                let blocked = try ParsedContentSecurityPolicy(policy).blockedScripts(in: PublicPage.analyticsScriptTags)
+                #expect(blocked == [])
             }
         }
     }
