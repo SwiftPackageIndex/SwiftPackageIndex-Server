@@ -14,6 +14,7 @@
 
 import { Controller } from '@hotwired/stimulus'
 import * as vega from 'vega'
+import { expressionInterpreter } from 'vega-interpreter'
 import * as vegaTooltip from 'vega-tooltip'
 
 export class VegaChartController extends Controller {
@@ -127,7 +128,9 @@ export class VegaChartController extends Controller {
 
         const chartClass = window[this.classValue]
         const spec = chartClass.spec(includeTotals, plotData, eventData)
-        new vega.View(vega.parse(spec), {
+        // Interpreted rather than compiled with `new Function`, so the page needs no `'unsafe-eval'`.
+        new vega.View(vega.parse(spec, null, { ast: true }), {
+            expr: expressionInterpreter,
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
