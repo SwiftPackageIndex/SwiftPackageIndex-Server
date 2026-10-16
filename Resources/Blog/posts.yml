@@ -200,4 +200,4 @@
   summary: The Swift Package Index now supports Swift 6.4, and with it comes a new default build system for SwiftPM.
   written_by: Dave Verwer
   published_at: 2026-10-14
-  published: false
+  published: true
