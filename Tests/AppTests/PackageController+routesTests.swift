@@ -1128,6 +1128,49 @@ extension AllTests.PackageController_routesTests {
         }
     }
 
+    /// An asset, a processed page, and a page served unprocessed because the bucket sent no body.
+    @Test(arguments: ["/owner/package/1.2.3/css/a",
+                      "/owner/package/1.2.3/documentation/target",
+                      "/owner/package/2.0.0/documentation/target"])
+    func documentationEchoesNoRequestHeaders(path: String) async throws {
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable url in
+                url.path.contains("/2.0.0/") ? .ok : .ok(body: .mockIndexHTML())
+            }
+            $0.timeZone = .utc
+        } operation: {
+            try await withSPIApp { app in
+                let pkg = try await savePackage(on: app.db, "1")
+                try await Repository(package: pkg, name: "package", owner: "owner").save(on: app.db)
+                for reference in [Reference.tag(1, 2, 3), .tag(2, 0, 0)] {
+                    try await Version(package: pkg, commit: "0123456789", commitDate: .t0,
+                                      docArchives: [.init(name: "target", title: "Target")],
+                                      packageName: "pkg", reference: reference)
+                    .save(on: app.db)
+                }
+                let headers: HTTPHeaders = ["Cookie": "session=secret",
+                                            "Authorization": "Bearer secret",
+                                            "X-Forwarded-For": "203.0.113.7",
+                                            "Content-Security-Policy": "script-src *"]
+
+                try await app.testing().test(.GET, path, headers: headers) { res async in
+                    #expect(res.status == .ok)
+                    #expect(res.headers[.cookie].isEmpty)
+                    #expect(res.headers[.authorization].isEmpty)
+                    #expect(res.headers[.xForwardedFor].isEmpty)
+                    // Echoed, it would be what a cache serves everyone, and the policy middleware leaves a
+                    // response's own policy alone.
+                    #expect(!res.headers[.contentSecurityPolicy].contains("script-src *"))
+                }
+            }
+        }
+    }
+
     @Test func documentation_current_data() async throws {
         try await withDependencies {
             $0.currentReferenceCache = .disabled

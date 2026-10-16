@@ -76,7 +76,7 @@ enum PackageController {
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
                 return try await ClientResponse(
                     status: .ok,
-                    headers: req.headers
+                    headers: HTTPHeaders()
                         .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
                         .replacingOrAdding(name: .cacheControl, value: "no-transform"),
                     body: res.body
@@ -148,20 +148,15 @@ enum PackageController {
         else {
             return try await ClientResponse(
                 status: .ok,
-                headers: req.headers.replacingOrAdding(name: .contentType,
-                                                       value: route.contentType),
+                headers: HTTPHeaders().replacingOrAdding(name: .contentType,
+                                                         value: route.contentType),
                 body: awsResponse.body
             ).encodeResponse(for: req)
         }
 
-        // Remove cookies from response headers to prevent "upstream sent too big header" errors
-        var headers = req.headers
-        headers.remove(name: .cookie)
-        headers.replaceOrAdd(name: .contentType, value: route.contentType)
-
         return try await processor.processedPage.encodeResponse(
             status: .ok,
-            headers: headers,
+            headers: HTTPHeaders().replacingOrAdding(name: .contentType, value: route.contentType),
             for: req
         )
     }
