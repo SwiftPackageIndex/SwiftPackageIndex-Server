@@ -58,6 +58,7 @@ extension AllTests {
     @Suite struct CustomCollectionTests { }
     @Suite struct DateExtensionTests { }
     @Suite struct DefaultStringInterpolationTests { }
+    @Suite struct DocRouteTests { }
     @Suite struct DocUploadTests { }
     @Suite struct DocumentationPageProcessorTests { }
     @Suite struct DocumentationTargetTests { }
