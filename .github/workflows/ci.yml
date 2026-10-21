@@ -202,30 +202,3 @@ jobs:
           sleep 10
           echo Probing api/version...
           bash -c '[ "$(curl -sL -w "%{http_code}" -o /dev/null http://127.0.0.1:8080/api/version)" == "200" ] || (echo Connection failed ; exit 1)'
-
-  # test-macos:
-  #   name: Test macOS
-  #   runs-on: macOS-latest
-  #   services:
-  #     postgres:
-  #       image: postgres:16-alpine
-  #       env:
-  #         POSTGRES_DB: spi_dev
-  #         POSTGRES_USER: spi_dev
-  #         POSTGRES_PASSWORD: xxx
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v7
-  #     - name: Select Xcode 11.4
-  #       run: sudo xcode-select -s /Applications/Xcode_11.4.app
-  #     - name: Log Xcode version
-  #       run: /usr/bin/xcodebuild -version
-  #     - name: Run tests
-  #       run: make test
-  #       env:
-  #         DATABASE_HOST: postgres
-  #         DATABASE_PORT: 5432
