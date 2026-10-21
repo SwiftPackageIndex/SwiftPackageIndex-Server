@@ -29,6 +29,7 @@ public func configure(_ app: Application, databaseHost: String? = nil, databaseP
     // app.http.server.configuration.responseCompression = .enabled
     // app.http.server.configuration.requestDecompression = .enabled
 
+    app.middleware.use(ContentSecurityPolicyMiddleware(), at: .beginning)
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
 
