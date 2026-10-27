@@ -54,6 +54,7 @@ extension AllTests {
     @Suite struct BuildShowModelTests { }
     @Suite struct BuildTests { }
     @Suite struct BuildTriggerTests { }
+    @Suite struct ContentSecurityPolicyMiddlewareTests { }
     @Suite struct CustomCollectionControllerTests { }
     @Suite struct CustomCollectionTests { }
     @Suite struct DateExtensionTests { }
