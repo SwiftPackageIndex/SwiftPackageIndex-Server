@@ -52,7 +52,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
                 // setup
                 let pkg = Package(url: "1")
                 try await pkg.save(on: app.db)
-                let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
+                let old = try makeVersion(pkg, "sha_old", .hours(-50), .branch("main"))
                 let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
                 // MUT
@@ -188,7 +188,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
                 // setup
                 let pkg = Package(url: "1")
                 try await pkg.save(on: app.db)
-                let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
+                let old = try makeVersion(pkg, "sha_old", .hours(-50), .branch("main"))
                 let new0 = try makeVersion(pkg, "sha_new0", .hours(-3), .branch("main"))
                 let new1 = try makeVersion(pkg, "sha_new1", .hours(-2), .branch("main"))
                 let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
@@ -215,7 +215,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
                 let pkg = Package(url: "1".asGithubUrl.url)
                 try await pkg.save(on: app.db)
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-                let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"), .defaultBranch)
+                let old = try makeVersion(pkg, "sha_old", .hours(-47), .branch("main"), .defaultBranch)
                 try await old.save(on: app.db)
                 let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
@@ -287,13 +287,13 @@ extension AllTests.AnalyzerVersionThrottlingTests {
                 // start at t0
                 let commitDates: [Date] = [
                     .t0,
-                    .t0.addingTimeInterval(.hours(1)),
-                    .t0.addingTimeInterval(.hours(5)),
-                    .t0.addingTimeInterval(.hours(9)),
-                    .t0.addingTimeInterval(.hours(13)),
-                    .t0.addingTimeInterval(.hours(17)),
-                    .t0.addingTimeInterval(.hours(21)),
-                    .t0.addingTimeInterval(.hours(25)),
+                    .t0.addingTimeInterval(.hours(2)),
+                    .t0.addingTimeInterval(.hours(10)),
+                    .t0.addingTimeInterval(.hours(18)),
+                    .t0.addingTimeInterval(.hours(26)),
+                    .t0.addingTimeInterval(.hours(34)),
+                    .t0.addingTimeInterval(.hours(42)),
+                    .t0.addingTimeInterval(.hours(50)),
                 ]
 
                 try await withDependencies {
@@ -361,7 +361,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
                 do {  // both within window
                     let ex = try makeVersion(pkg, "sha-ex", .hours(-1), .branch("main"))
-                    let inc = try makeVersion(pkg, "sha-inc", .hours(-23), .branch("main"))
+                    let inc = try makeVersion(pkg, "sha-inc", .hours(-46), .branch("main"))
 
                     // MUT
                     let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
@@ -372,7 +372,7 @@ extension AllTests.AnalyzerVersionThrottlingTests {
 
                 do {  // incoming version out of window
                     let ex = try makeVersion(pkg, "sha-ex", .hours(-1), .branch("main"))
-                    let inc = try makeVersion(pkg, "sha-inc", .hours(-26), .branch("main"))
+                    let inc = try makeVersion(pkg, "sha-inc", .hours(-52), .branch("main"))
 
                     // MUT
                     let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
@@ -382,8 +382,8 @@ extension AllTests.AnalyzerVersionThrottlingTests {
                 }
 
                 do {  // both versions out of window
-                    let ex = try makeVersion(pkg, "sha-ex", .hours(-26), .branch("main"))
-                    let inc = try makeVersion(pkg, "sha-inc", .hours(-28), .branch("main"))
+                    let ex = try makeVersion(pkg, "sha-ex", .hours(-52), .branch("main"))
+                    let inc = try makeVersion(pkg, "sha-inc", .hours(-56), .branch("main"))
 
                     // MUT
                     let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
