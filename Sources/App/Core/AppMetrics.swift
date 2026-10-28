@@ -37,8 +37,16 @@ enum AppMetrics {
         gauge("spi_analyze_versions_added_count")
     }
 
+    static var analyzeVersionsAddedTotal: PromCounter<Int>? {
+        counter("spi_analyze_versions_added_total")
+    }
+
     static var analyzeVersionsDeletedCount: PromGauge<Int>? {
         gauge("spi_analyze_versions_deleted_count")
+    }
+
+    static var analyzeVersionsDeletedTotal: PromCounter<Int>? {
+        counter("spi_analyze_versions_deleted_total")
     }
 
     static var apiBuildReportTotal: PromCounter<Int>? {
