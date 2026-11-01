@@ -19,12 +19,12 @@
     "devDependencies": {
         "esbuild": "^0.28.2",
         "esbuild-sass-plugin": "^3.7.0",
-        "postcss": "^8.5.31",
+        "postcss": "^8.5.32",
         "prettier": "^3.9.10",
         "stylelint": "^17.16.0",
         "stylelint-config-standard-scss": "^17.0.0",
         "stylelint-order": "^8.1.2",
-        "stylelint-scss": "^7.3.0"
+        "stylelint-scss": "^7.4.0"
     },
     "allowScripts": {
         "esbuild@0.28.1": true,
