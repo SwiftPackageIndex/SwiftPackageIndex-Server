@@ -16,6 +16,7 @@ import Foundation
 
 @testable import App
 
+import Plot
 import Testing
 
 
@@ -54,6 +55,29 @@ extension AllTests.API_PackageSchemaTests {
         #expect(schema.programmingLanguage.type == "ComputerLanguage")
         #expect(schema.programmingLanguage.name == "Swift")
         #expect(schema.programmingLanguage.url == "https://swift.org/")
+    }
+
+    @Test func summaryWithHTMLTagsKeepsStructuredDataValid() throws {
+        struct Decoded: Decodable { let description: String }
+        let summary = "Type-safe <script></script> and <style></style> tags for Swift"
+        let schema = API.PackageSchema(
+            repositoryOwner: "Owner",
+            repositoryName: "Name",
+            organisationName: "OrganisationName",
+            summary: summary,
+            licenseUrl: "License",
+            version: "Version",
+            repositoryUrl: "URL",
+            datePublished: .t0,
+            dateModified: .t1,
+            keywords: []
+        )
+
+        let html = Node<HTML.BodyContext>.structuredData(schema).render()
+
+        let content = try #require(html.split(separator: ">", maxSplits: 1).last)
+        let json = try #require(content.components(separatedBy: "</script").first)
+        #expect(try JSONDecoder().decode(Decoded.self, from: Data(json.utf8)).description == summary)
     }
 
 }

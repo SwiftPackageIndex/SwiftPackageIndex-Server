@@ -34,7 +34,9 @@ extension Node where Context: HTML.BodyContext {
 
         do {
             let data = try encoder.encode(model)
+            // `.raw` inside `<script>`: an unescaped `</script>` in a package summary would end the element.
             let rawScript = String(decoding: data, as: UTF8.self)
+                .replacingOccurrences(of: "<", with: "\\u003c")
 
             return .script(
                 .attribute(named: "type", value: "application/ld+json"),
