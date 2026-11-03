@@ -78,7 +78,7 @@ enum PackageController {
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
-                        .replacingOrAdding(name: .cacheControl, value: "no-transform"),
+                        .replacingOrAdding(name: .cacheControl, value: route.cacheControl),
                     body: res.body
                 ).encodeResponse(for: req)
         }
@@ -148,8 +148,9 @@ enum PackageController {
         else {
             return try await ClientResponse(
                 status: .ok,
-                headers: req.headers.replacingOrAdding(name: .contentType,
-                                                       value: route.contentType),
+                headers: req.headers
+                    .replacingOrAdding(name: .contentType, value: route.contentType)
+                    .replacingOrAdding(name: .cacheControl, value: route.cacheControl),
                 body: awsResponse.body
             ).encodeResponse(for: req)
         }
@@ -158,6 +159,7 @@ enum PackageController {
         var headers = req.headers
         headers.remove(name: .cookie)
         headers.replaceOrAdd(name: .contentType, value: route.contentType)
+        headers.replaceOrAdd(name: .cacheControl, value: route.cacheControl)
 
         return try await processor.processedPage.encodeResponse(
             status: .ok,
