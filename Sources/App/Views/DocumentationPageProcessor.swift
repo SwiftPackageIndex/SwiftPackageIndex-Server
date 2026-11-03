@@ -96,7 +96,6 @@ struct DocumentationPageProcessor {
             }
             try document.body()?.prepend(self.header)
             try document.body()?.append(self.footer)
-            try document.body()?.append(self.frontEndDebugPanel)
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
@@ -306,10 +305,6 @@ struct DocumentationPageProcessor {
             ),
             .if(environment.current() == .development, stagingBanner())
         ).render()
-    }
-
-    var frontEndDebugPanel: String {
-        Plot.Node<HTML.BodyContext>.spiFrontEndDebugPanel(dataItems: []).render()
     }
 
     var processedPage: String {
