@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/saguaro1/spi-base:4a9319eab27049d971e7f49cb5b1119f8b49c531
+FROM registry.gitlab.com/saguaro1/spi-base:2.4.2
 
 # Install SPM build dependencies
 RUN apt-get update && apt-get install -y curl git make unzip \
