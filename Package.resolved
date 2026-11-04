@@ -1,5 +1,5 @@
 {
-  "originHash" : "ac298734530f5dec7a413f190af43c5e1f770691ee23e83b1a97f5c580bc6a6d",
+  "originHash" : "0eefa0e609999ba8d8418b1397a173359494d2b709b0d8dcd7e34f7813a08139",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -330,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-certificates.git",
       "state" : {
-        "revision" : "2f797305c1b5b982acaa6005d8a9f970cc4e97ff",
-        "version" : "1.5.0"
+        "branch" : "1.10.1",
+        "revision" : "386001a92200c70fd06217b3ccad58d7226edb84"
       }
     },
     {
@@ -348,8 +348,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "c11818f3cae0780656baa430b49e7f163f08dffd",
-        "version" : "1.1.6"
+        "branch" : "1.1.6",
+        "revision" : "c11818f3cae0780656baa430b49e7f163f08dffd"
       }
     },
     {
@@ -366,8 +366,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
-        "version" : "3.15.1"
+        "branch" : "3.12.5",
+        "revision" : "d79c573e1b400d670ed12c0cb29d33f2c0f5ab70"
       }
     },
     {
@@ -400,10 +400,10 @@
     {
       "identity" : "swift-driver",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-driver.git",
+      "location" : "https://github.com/swiftlang/swift-driver.git",
       "state" : {
-        "branch" : "release/6.1",
-        "revision" : "20cd624311cb835f7a61c0103404fc191d392a38"
+        "branch" : "release/6.4.x",
+        "revision" : "174567a5681a9a949bcd52f821deb8fa65105434"
       }
     },
     {
@@ -436,10 +436,10 @@
     {
       "identity" : "swift-llbuild",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-llbuild.git",
+      "location" : "https://github.com/swiftlang/swift-llbuild.git",
       "state" : {
-        "branch" : "release/6.1",
-        "revision" : "4fc005bfb0849f17e6a79ad02ba27f4f539ca6b9"
+        "branch" : "release/6.4.x",
+        "revision" : "ab6421207b9e4971c94e97c5832a3d8a4cae9092"
       }
     },
     {
@@ -517,10 +517,10 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/swift-package-manager.git",
+      "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
-        "branch" : "release/6.1",
-        "revision" : "85e4b20acd9babda0b8428e16cd37de5b9412791"
+        "branch" : "release/6.4.x",
+        "revision" : "6dfd80bead535adc160af2cb288f98e866f5076e"
       }
     },
     {
@@ -582,26 +582,26 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
       "state" : {
-        "revision" : "869129b7bf4ecc57b97d0193ad29690ca2134750",
-        "version" : "1.8.1"
+        "branch" : "1.5.0",
+        "revision" : "61e4ca4b81b9e09e2ec863b00c340eb13497dac6"
       }
     },
     {
       "identity" : "swift-toolchain-sqlite",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-toolchain-sqlite",
+      "location" : "https://github.com/swiftlang/swift-toolchain-sqlite.git",
       "state" : {
-        "revision" : "d9b11cb79071d5ab992ff47dfd2e8d6e19418d97",
-        "version" : "1.0.13"
+        "branch" : "1.0.9",
+        "revision" : "c0ecc1e0fd1b4fbc38db1efa6113bc12c2a4e559"
       }
     },
     {
       "identity" : "swift-tools-support-core",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-tools-support-core.git",
+      "location" : "https://github.com/swiftlang/swift-tools-support-core.git",
       "state" : {
-        "branch" : "release/6.1",
-        "revision" : "5cd61a77866b110bb222c38073627d2703c750e6"
+        "branch" : "release/6.4.x",
+        "revision" : "75a4f8586889fff3813f88ac3a0179ad568247e0"
       }
     },
     {
