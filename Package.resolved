@@ -1,13 +1,13 @@
 {
-  "originHash" : "679faae8a02216a9d08cef94b32b9f75690411c9599a374c5e9f6305f74bca09",
+  "originHash" : "3bb8a216ef51a2b68b41ff2faaff7c3f5894a0172ba3b90e2643280a860ea284",
   "pins" : [
     {
       "identity" : "async-http-client",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "4b99975677236d13f0754339864e5360142ff5a1",
-        "version" : "1.30.3"
+        "revision" : "d2dfb39bcb0fafd1834ec6e6334c1755360f856e",
+        "version" : "1.37.0"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/async-kit.git",
       "state" : {
-        "revision" : "6f3615ccf2ac3c2ae0c8087d527546e9544a43dd",
-        "version" : "1.21.0"
+        "revision" : "6bbb83cbf9d886623a967a965c8fb1b73e6566f9",
+        "version" : "1.22.0"
       }
     },
     {
@@ -362,6 +362,15 @@
       }
     },
     {
+      "identity" : "swift-configuration",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-configuration.git",
+      "state" : {
+        "revision" : "5aa8bdb1ddd11de51cb30b0ba575f4b05a9a169d",
+        "version" : "1.4.0"
+      }
+    },
+    {
       "identity" : "swift-crypto",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
@@ -474,8 +483,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "f1f6f772198bee35d99dd145f1513d8581a54f2c",
-        "version" : "1.26.0"
+        "revision" : "8e1249b29f92574e05e0d91637f239e378a9a95b",
+        "version" : "1.35.2"
       }
     },
     {
@@ -571,10 +580,10 @@
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
-        "version" : "601.0.1"
+        "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
+        "version" : "604.0.0"
       }
     },
     {
@@ -636,8 +645,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "0d9ee7ea8c4ebd4a489ad7a73d5c6cad55d6fed3",
-        "version" : "5.0.6"
+        "revision" : "a27b21e0c81c5bf42049b897a62aaf387e80f279",
+        "version" : "6.2.2"
       }
     }
   ],
