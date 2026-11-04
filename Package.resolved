@@ -1,5 +1,5 @@
 {
-  "originHash" : "0eefa0e609999ba8d8418b1397a173359494d2b709b0d8dcd7e34f7813a08139",
+  "originHash" : "679faae8a02216a9d08cef94b32b9f75690411c9599a374c5e9f6305f74bca09",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -517,10 +517,10 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-package-manager.git",
+      "location" : "https://github.com/SwiftPackageIndex/swift-package-manager.git",
       "state" : {
-        "branch" : "release/6.4.x",
-        "revision" : "6dfd80bead535adc160af2cb288f98e866f5076e"
+        "branch" : "release/6.4.3",
+        "revision" : "3e15694aca205d04f1439a261940f72ed01ba274"
       }
     },
     {
