@@ -137,6 +137,8 @@ extension EnvironmentClient: DependencyKey {
                     ?? 1.0
             },
             collectionSigningCertificateChain: {
+                // Can be verified as follows:
+                // openssl verify -CAfile AppleIncRootCertificate.cer -untrusted AppleWWDRCAG3.cer package_collections.cer
                 [
                     "package_collections.cer",
                     "AppleWWDRCAG3.cer",
