@@ -169,6 +169,7 @@ enum PackageController {
     static func awsResponse(client: Client, route: DocRoute) async throws -> HTTPClient.Response {
         @Dependency(\.httpClient) var httpClient
         @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
         @Dependency(\.s3) var s3
 
         // Check if direct S3 access is enabled
@@ -220,10 +221,12 @@ enum PackageController {
                             body: ByteBuffer(data: data)
                         )
                         return response
-                    } catch {
+                    } catch let fallbackError {
+                        logger.error("Failed to fetch \(bucket)/\(primaryS3Key): \(error); fallback \(bucket)/\(fallbackS3Key): \(fallbackError)")
                         throw Abort(.notFound)
                     }
                 } else {
+                    logger.error("Failed to fetch \(bucket)/\(primaryS3Key): \(error)")
                     throw Abort(.notFound)
                 }
             }
@@ -233,18 +236,18 @@ enum PackageController {
         let url = try Self.awsDocumentationURL(route: route)
 
         let response: HTTPClient.Response
-        if environment.awsUseIamRole() {
-            guard let iamResponse = try? await httpClient.fetchDocumentationWithIAM(url) else {
-                throw Abort(.notFound)
+        do {
+            if environment.awsUseIamRole() {
+                response = try await httpClient.fetchDocumentationWithIAM(url)
+            } else {
+                response = try await httpClient.fetchDocumentation(url)
             }
-            response = iamResponse
-        } else {
-            guard let standardResponse = try? await httpClient.fetchDocumentation(url) else {
-                throw Abort(.notFound)
-            }
-            response = standardResponse
+        } catch {
+            logger.error("Failed to fetch \(url): \(error)")
+            throw Abort(.notFound)
         }
         guard (200..<399).contains(response.status.code) else {
+            logger.error("Failed to fetch \(url): status \(response.status.code)")
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
