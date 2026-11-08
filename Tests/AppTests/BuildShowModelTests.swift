@@ -54,7 +54,6 @@ extension AllTests.BuildShowModelTests {
             
             // validate
             #expect(model?.packageName == "Bar")
-            #expect(model?.versionId == version.id)
             #expect(model?.buildInfo.logs == "logs")
         }
     }

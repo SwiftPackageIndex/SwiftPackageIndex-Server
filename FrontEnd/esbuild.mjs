@@ -30,7 +30,6 @@ try {
     const context = await esbuild.context({
         entryPoints: [
             'FrontEnd/main.js',
-            'FrontEnd/shared.js',
             'FrontEnd/main.scss',
             'FrontEnd/docc.scss',
             'FrontEnd/shared.scss',

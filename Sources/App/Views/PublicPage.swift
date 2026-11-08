@@ -34,7 +34,7 @@ class PublicPage {
         return HTML(
             .lang(.english),
             .comment("Version: \(environment.appVersion())"),
-            .comment("DB Id: \(environment.dbId())"),
+            .comment("Environment: \(environment.current() == .production ? "prod" : "dev")"),
             head(),
             body()
         )
@@ -271,8 +271,7 @@ class PublicPage {
             main(),
             postMain(),
             footer(),
-            postBody(),
-            frontEndDebugPanel()
+            postBody()
         )
     }
 
@@ -483,18 +482,6 @@ class PublicPage {
             )
         )
     }
-
-    /// Output a hidden-by-default panel on the page showing useful debug information
-    /// - Returns: The HTML for the debug console element.
-    final func frontEndDebugPanel() -> Node<HTML.BodyContext> {
-        .spiFrontEndDebugPanel(dataItems: frontEndDebugPanelData())
-    }
-
-    /// Returns the debug information that a page would like to show in the front-end debug console.
-    /// - Returns: An array of `DebugConsoleDataItem` structs that will be displayed by `frontEndDebugConsole()`.
-    func frontEndDebugPanelData() -> [FrontEndDebugPanelDataItem] {
-        []
-    }
 }
 
 extension PublicPage {
@@ -504,11 +491,4 @@ extension PublicPage {
         case packages
     }
 
-}
-
-extension PublicPage {
-    struct FrontEndDebugPanelDataItem {
-        var title: String
-        var value: String
-    }
 }
