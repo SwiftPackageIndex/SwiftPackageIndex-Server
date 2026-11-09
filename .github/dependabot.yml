@@ -52,4 +52,6 @@ updates:
     ignore:
       - dependency-name: '@hotwired/turbo'
         versions: ['^8.0.0']
+      - dependency-name: 'stylelint'
+        update-types: ['version-update:semver-major']
           
