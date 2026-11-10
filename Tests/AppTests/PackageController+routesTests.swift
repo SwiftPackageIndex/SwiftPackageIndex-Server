@@ -1441,12 +1441,12 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // validate
-                try capturingLogger.logs.withValue { logs in
-                    #expect(logs.count == 1, "was: \(logs)")
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("docs-bucket"), "was: \(error.message)")
-                    #expect(error.message.contains("theme-settings.json"), "was: \(error.message)")
-                    #expect(error.message.contains("SomeError"), "was: \(error.message)")
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch docs-bucket/owner/package/1.2.3/theme-settings.json: SomeError()",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
                 }
             }
         }
@@ -1473,11 +1473,12 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // validate
-                try capturingLogger.logs.withValue { logs in
-                    #expect(logs.count == 1, "was: \(logs)")
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("Failed to fetch"), "was: \(error.message)")
-                    #expect(error.message.contains("SomeError"), "was: \(error.message)")
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch http://docs-bucket.s3-website.region.amazonaws.com/owner/package/1.2.3/theme-settings.json: SomeError()",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
                 }
             }
         }
@@ -1503,11 +1504,12 @@ extension AllTests.PackageController_routesTests {
                 }
 
                 // validate
-                try capturingLogger.logs.withValue { logs in
-                    #expect(logs.count == 1, "was: \(logs)")
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("Failed to fetch"), "was: \(error.message)")
-                    #expect(error.message.contains("403"), "was: \(error.message)")
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch http://docs-bucket.s3-website.region.amazonaws.com/owner/package/1.2.3/theme-settings.json: status 403",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
                 }
             }
         }
