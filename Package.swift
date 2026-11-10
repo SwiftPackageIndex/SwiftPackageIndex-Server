@@ -53,10 +53,6 @@ let package = Package(
         // 2026-11-10 sas: Pinning vapor to 4.118.0 to fix:
         // error: cannot find type 'ValidatedCertificateChain' in scope
         .package(url: "https://github.com/vapor/vapor.git", exact: "4.118.0"),
-        // sas 2026-02-15: OpenCombine gets pulled in only on Linux and we declare it explicitly,
-        // so package resolve does not strip it when run on macOS. That would break CI,
-        // due to --disable-automatic-resolution.
-        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
