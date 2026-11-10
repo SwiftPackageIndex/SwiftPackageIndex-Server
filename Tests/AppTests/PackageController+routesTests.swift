@@ -1421,6 +1421,100 @@ extension AllTests.PackageController_routesTests {
         }
     }
 
+    @Test func themeSettings_s3Error() async throws {
+        // Test that S3 errors are logged, and converted into a 404
+        struct SomeError: Error { }
+        let capturingLogger = CapturingLogger()
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { true }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.dbId = { nil }
+            $0.logger = .testLogger(capturingLogger)
+            $0.s3.fetchDocumentation = { @Sendable _, _ in throw SomeError() }
+        } operation: {
+            try await withSPIApp { app in
+                // MUT
+                try await app.testing().test(.GET, "/owner/package/1.2.3/theme-settings.json") { res async in
+                    #expect(res.status == .notFound)
+                }
+
+                // validate
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch docs-bucket/owner/package/1.2.3/theme-settings.json: SomeError()",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
+                }
+            }
+        }
+    }
+
+    @Test func themeSettings_httpFallback_error() async throws {
+        // Test that errors from the HTTP fallback are logged, and converted into a 404
+        struct SomeError: Error { }
+        let capturingLogger = CapturingLogger()
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in throw SomeError() }
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            try await withSPIApp { app in
+                // MUT
+                try await app.testing().test(.GET, "/owner/package/1.2.3/theme-settings.json") { res async in
+                    #expect(res.status == .notFound)
+                }
+
+                // validate
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch http://docs-bucket.s3-website.region.amazonaws.com/owner/package/1.2.3/theme-settings.json: SomeError()",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
+                }
+            }
+        }
+    }
+
+    @Test func themeSettings_httpFallback_status() async throws {
+        // Test that non-2xx/3xx statuses from the HTTP fallback are logged, and converted into a 404
+        let capturingLogger = CapturingLogger()
+        try await withDependencies {
+            $0.environment.awsDirectS3Access = { false }
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.awsDocsBucketRegion = { "region" }
+            $0.environment.awsRegion = { "region" }
+            $0.environment.awsUseIamRole = { true }
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentationWithIAM = { @Sendable _ in .init(status: .forbidden) }
+            $0.logger = .testLogger(capturingLogger)
+        } operation: {
+            try await withSPIApp { app in
+                // MUT
+                try await app.testing().test(.GET, "/owner/package/1.2.3/theme-settings.json") { res async in
+                    #expect(res.status == .notFound)
+                }
+
+                // validate
+                capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    #expect(logs.map(\.message) == [
+                        "Failed to fetch http://docs-bucket.s3-website.region.amazonaws.com/owner/package/1.2.3/theme-settings.json: status 403",
+                        "Abort.404: Not Found: /owner/package/1.2.3/theme-settings.json",
+                    ])
+                }
+            }
+        }
+    }
+
     @Test func linkablePaths() async throws {
         try await withDependencies {
             $0.environment.awsDirectS3Access = { false }
