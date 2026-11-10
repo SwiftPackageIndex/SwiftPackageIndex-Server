@@ -1,5 +1,5 @@
 {
-  "originHash" : "3bb8a216ef51a2b68b41ff2faaff7c3f5894a0172ba3b90e2643280a860ea284",
+  "originHash" : "e54ab7a51bf660cee038048130b1bf918faff03a9e9c0a0f6ff1a361440a237a",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "649adba966158859f4fb1767e4d11802966d3fb4",
-        "version" : "1.33.2"
+        "revision" : "c7320acff7ba4034d8eb7acac2daf200855996d3",
+        "version" : "1.33.3"
       }
     },
     {
@@ -366,8 +366,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-configuration.git",
       "state" : {
-        "revision" : "5aa8bdb1ddd11de51cb30b0ba575f4b05a9a169d",
-        "version" : "1.4.0"
+        "revision" : "0b0c23215764302f7db752b079c024fbaff12e62",
+        "version" : "1.5.0"
       }
     },
     {
@@ -402,8 +402,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-distributed-tracing.git",
       "state" : {
-        "revision" : "789663680a3a4767e698be46bc154a3bc5c64fef",
-        "version" : "1.7.3"
+        "revision" : "9f982a7ec8dd815bf57024e39de592813ca14399",
+        "version" : "1.7.4"
       }
     },
     {
@@ -456,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "c9c6bb9d275ec0d95c3ad16391f3f045dc623104",
-        "version" : "1.16.2"
+        "revision" : "e3da04078777e6a1b72ce19981fbd6539b0847d8",
+        "version" : "1.17.0"
       }
     },
     {
@@ -610,7 +610,7 @@
       "location" : "https://github.com/swiftlang/swift-tools-support-core.git",
       "state" : {
         "branch" : "release/6.4.x",
-        "revision" : "75a4f8586889fff3813f88ac3a0179ad568247e0"
+        "revision" : "0496a15648b286a259356c534f3f26a57bbf48a5"
       }
     },
     {
