@@ -27,6 +27,9 @@ let package = Package(
         .library(name: "S3Store", targets: ["S3Store"]),
     ],
     dependencies: [
+        // 2026-11-10 sas: Pinning swift-async-algorithms to 1.1.3 to fix:
+        // error: 'swift-async-algorithms': product 'BasicContainers' required by package 'swift-async-algorithms' target 'AsyncStreaming' not found in package 'swift-collections'.
+        .package(url: "https://github.com/apple/swift-async-algorithms.git", exact: "1.1.3"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/swift-server/swift-prometheus.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/Plot.git", branch: "main"),
@@ -47,11 +50,9 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
         .package(url: "https://github.com/vapor/redis.git", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.102.0"),
-        // sas 2026-02-15: OpenCombine gets pulled in only on Linux and we declare it explicitly,
-        // so package resolve does not strip it when run on macOS. That would break CI,
-        // due to --disable-automatic-resolution.
-        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
+        // 2026-11-10 sas: Pinning vapor to 4.118.0 to fix:
+        // error: cannot find type 'ValidatedCertificateChain' in scope
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.118.0"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
