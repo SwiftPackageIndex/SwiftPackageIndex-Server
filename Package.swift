@@ -52,7 +52,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/redis.git", from: "4.0.0"),
         // 2026-11-10 sas: Pinning vapor to 4.118.0 to fix:
         // error: cannot find type 'ValidatedCertificateChain' in scope
-        .package(url: "https://github.com/vapor/vapor.git", exact: "4.118.0"),
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.122.3"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
