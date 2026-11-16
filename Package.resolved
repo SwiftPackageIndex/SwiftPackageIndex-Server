@@ -1,5 +1,5 @@
 {
-  "originHash" : "e54ab7a51bf660cee038048130b1bf918faff03a9e9c0a0f6ff1a361440a237a",
+  "originHash" : "87d7494ef265c84385f9f659f8f88e203fb984f63cadb3653fdc9b640589640c",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-postgres-driver.git",
       "state" : {
-        "revision" : "26fe8199666eb0794660dfa0560b75c2ac1e40a8",
-        "version" : "2.14.0"
+        "revision" : "518a9dafba6f7670e3abadbb3204e9a0ee13ddba",
+        "version" : "2.14.1"
       }
     },
     {
@@ -618,8 +618,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "e7f85f4d3dd91ca9a1e94d3328aa1ed5120a8c0f",
-        "version" : "2.14.3"
+        "revision" : "8397a860c6955924b584c50c5265c6aac0970015",
+        "version" : "2.14.4"
       }
     },
     {
@@ -627,8 +627,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "a69c0eabde9fd757e04b2d2db3fc41fbbea97ab5",
-        "version" : "4.118.0"
+        "revision" : "48852309b11230e62a89b41a9c578c93f4d2d916",
+        "version" : "4.122.3"
       }
     },
     {
