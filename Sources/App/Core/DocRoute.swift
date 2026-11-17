@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SemanticVersion
+
 
 struct DocRoute: Equatable {
     var owner: String
@@ -86,4 +88,15 @@ extension DocRoute {
     var archive: String? { pathElements.first }
 
     var path: String { pathElements.joined(separator: "/") }
+
+    var cacheControl: String {
+        switch (fragment, docVersion) {
+            case (.documentation, _), (.tutorials, _):
+                return "public, max-age=0, s-maxage=600"
+            case let (_, .reference(reference)) where SemanticVersion(reference) != nil:
+                return "public, max-age=86400, s-maxage=86400, no-transform"
+            default:
+                return "public, max-age=300, s-maxage=300, no-transform"
+        }
+    }
 }
