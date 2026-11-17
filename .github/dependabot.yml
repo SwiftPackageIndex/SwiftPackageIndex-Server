@@ -38,6 +38,10 @@ updates:
       swift-dependencies:
         patterns:
           - "*"
+    ignore:
+      # 2026-11-17 sas: Vapor is pinned to 4.118.0, silence Dependabot about it.
+      - dependency-name: "vapor"
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
   - package-ecosystem: "npm"
     directory: "/"
     commit-message:
