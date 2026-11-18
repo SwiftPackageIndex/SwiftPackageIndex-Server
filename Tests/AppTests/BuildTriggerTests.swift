@@ -168,6 +168,39 @@ extension AllTests.BuildTriggerTests {
         }
     }
 
+    @Test func fetchBuildCandidates_timeouts() async throws {
+        // Test behaviour of candidate selection with builds that have timed out.
+        try await withDependencies {
+            $0.environment.buildTriggerAllowList = { [] }
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                do {  // save package with all builds in status `timeout`
+                    let p = Package(id: UUID(), url: "some-package".url)
+                    try await p.save(on: app.db)
+                    let v = try Version(package: p,
+                                        latest: .defaultBranch,
+                                        reference: .branch("main"))
+                    try await v.save(on: app.db)
+                    for pair in BuildPair.all {
+                        try await Build(id: UUID(),
+                                        version: v,
+                                        platform: pair.platform,
+                                        status: .timeout,
+                                        swiftVersion: pair.swiftVersion)
+                        .save(on: app.db)
+                    }
+                }
+
+                // MUT
+                let ids = try await fetchBuildCandidates(app.db)
+
+                // validate that the package is _not_ selected
+                #expect(ids == [])
+            }
+        }
+    }
+
     @Test func fetchBuildCandidates_priorityIDs() async throws {
         // Ensure allow-listed IDs can be prioritised. See
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2159
