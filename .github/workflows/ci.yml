@@ -37,7 +37,7 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v7
-        with: { 'fetch-depth': 0 }
+        with: { 'fetch-depth': 0, 'persist-credentials': false }
 
       - name: Install unzip (for tests) and zstd (for faster caching)
         run: apt-get update && apt-get install -y unzip zstd
@@ -168,7 +168,7 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v7
-        with: { 'fetch-depth': 0 }
+        with: { 'fetch-depth': 0, 'persist-credentials': false }
 
       - name: Install zstd (for faster caching)
         run: apt-get update && apt-get install -y zstd
