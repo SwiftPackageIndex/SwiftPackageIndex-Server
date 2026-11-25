@@ -23,22 +23,19 @@ extension BuildShow {
         var repositoryOwner: String
         var repositoryOwnerName: String
         var buildInfo: BuildInfo
-        var versionId: Version.Id
         var reference : String
 
         init?(result: BuildResult, logs: String?) {
             guard
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
-                let buildInfo = BuildInfo(build: result.build, logs: logs),
-                let versionId = result.version.id
+                let buildInfo = BuildInfo(build: result.build, logs: logs)
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
                       repositoryOwner: repositoryOwner,
                       repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                       repositoryName: repositoryName,
-                      versionId: versionId,
                       reference: "\(result.version.reference)")
         }
 
@@ -47,14 +44,12 @@ extension BuildShow {
                       repositoryOwner: String,
                       repositoryOwnerName: String,
                       repositoryName: String,
-                      versionId: Version.Id,
                       reference: String) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
-            self.versionId = versionId
             self.reference = reference
         }
     }
