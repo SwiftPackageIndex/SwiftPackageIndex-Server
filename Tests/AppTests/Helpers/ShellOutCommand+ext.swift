@@ -20,8 +20,29 @@ import ShellOut
 
 
 extension ShellOutCommand {
+    /// Overlay to use Apple's `container` CLI instead of `docker`.
+    /// Set `SPI_TEST_CONTAINER_RUNTIME=container` to enable it.
+    private static func containerRuntime(_ arguments: String...) -> ShellOutCommand {
+        if usesAppleContainerRuntime {
+            .init(command: appleContainerPath, arguments: arguments)
+        } else {
+            .init(command: .dockerPath, arguments: arguments)
+        }
+    }
+
+    private static var usesAppleContainerRuntime: Bool {
+        ProcessInfo.processInfo.environment["SPI_TEST_CONTAINER_RUNTIME"] == "container"
+    }
+
+    /// Probes the known Homebrew locations first, because Xcode doesn't have them in its `PATH`
+    /// (see `String.dockerPath`). Falls back to resolving `container` via `PATH`.
+    private static var appleContainerPath: String {
+        let knownPaths = ["/opt/homebrew/bin/container", "/usr/local/bin/container"]
+        return knownPaths.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "container"
+    }
+
     static func launchDB(port: Int) -> ShellOutCommand {
-        .docker(
+        containerRuntime(
             "run", "--name", "spi_test_\(port)",
             "-e", "POSTGRES_DB=spi_test",
             "-e", "POSTGRES_USER=spi_test",
@@ -37,11 +58,15 @@ extension ShellOutCommand {
     }
 
     static func removeDB(port: Int) -> ShellOutCommand {
-        .docker("rm", "-f", "spi_test_\(port)")
+        containerRuntime("rm", "-f", "spi_test_\(port)")
     }
 
     static var getContainerNames: ShellOutCommand {
-        .docker("ps", "--format", "{{.Names}}")
+        if usesAppleContainerRuntime {
+            containerRuntime("ls", "--quiet")
+        } else {
+            containerRuntime("ps", "--format", "{{.Names}}")
+        }
     }
 }
 
