@@ -1,5 +1,5 @@
 {
-  "originHash" : "2df57f56c1492541a6847cf132a11d10e5eb8c03ff6bce9184ab46e2d53369ee",
+  "originHash" : "bb64cff235745058affd96f5c72ee4044acb14b79c8b6a3ea22a2b2ebc326d8b",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -258,8 +258,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",
       "state" : {
-        "revision" : "40c22a43a9d4f6f0fb88e597e8b4742a55ddbcef",
-        "version" : "1.13.1"
+        "revision" : "57e170dd37d9aa6279557f473370ba695a7ef973",
+        "version" : "1.14.0"
       }
     },
     {

@@ -300,7 +300,6 @@ extension AllTests.BuildTriggerTests {
                           "\(v) could not be converted to a SPIManifest Swift version")
         }
         // Check the values specifically (which we can't easily do in the loop above)
-        #expect(BuildPair(.iOS, .v6_1).manifestSwiftVersion == .v6_1)
         #expect(BuildPair(.iOS, .v6_2).manifestSwiftVersion == .v6_2)
         #expect(BuildPair(.iOS, .v6_3).manifestSwiftVersion == .v6_3)
         #expect(BuildPair(.iOS, .v6_4).manifestSwiftVersion == .v6_4)
