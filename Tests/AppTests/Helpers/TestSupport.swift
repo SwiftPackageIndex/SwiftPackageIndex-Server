@@ -57,7 +57,7 @@ func isRunningInDevContainer() -> Bool {
 
 
 func isDockerAvailable() -> Bool {
-    if isRunningInCI() || isRunningInDevContainer() {
+    if isRunningInCI() {
         false
     } else {
         true
