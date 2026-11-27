@@ -363,7 +363,7 @@ func fetchBuildCandidates(_ database: Database,
                    MIN(v.created_at) created_at
             FROM versions v
             LEFT JOIN builds b ON b.version_id = v.id
-            WHERE v.latest IS NOT NULL
+            WHERE ARRAY[v.latest] <@ \(bind: Version.Kind.selectedForBuilding)
             GROUP BY v.package_id, v.latest
             HAVING COUNT(*) < \(bind: expectedBuildCount)
         ) AS t
@@ -382,7 +382,7 @@ func fetchBuildCandidates(_ database: Database,
                   (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
                   AND (b.swift_version->'minor')::INT = \(bind: SwiftVersion.latest.minor)
                 )
-            WHERE v.latest IS NOT NULL
+            WHERE ARRAY[v.latest] <@ \(bind: Version.Kind.selectedForBuilding)
             GROUP BY v.package_id, v.latest
             HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
         ) AS t

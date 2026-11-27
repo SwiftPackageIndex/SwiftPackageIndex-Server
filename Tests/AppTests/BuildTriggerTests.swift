@@ -712,7 +712,7 @@ extension AllTests.BuildTriggerTests {
                 for id in pkgIds {
                     let p = Package(id: id, url: id.uuidString.url)
                     try await p.save(on: app.db)
-                    try await Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                    try await Version(id: UUID(), package: p, latest: .release, reference: .tag(1, 2, 3))
                         .save(on: app.db)
                 }
 
@@ -720,7 +720,61 @@ extension AllTests.BuildTriggerTests {
                 try await triggerBuilds(on: app.db, mode: .limit(4))
 
                 // validate - only the first batch must be allowed to trigger
-                #expect(await triggerCount.value == 27)
+                let count = await triggerCount.value
+                #expect(count == 27, "was: \(count)")
+            }
+        }
+    }
+
+    @Test func TriggerBuilds_triggerBuilds_defaultBranch() async throws {
+        // Ensure we are not triggering default branch builds anymore (2026-11-27)
+        let triggerCount = ActorIsolated(0)
+        try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _ in 0 }
+            $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
+            $0.environment.builderToken = { "builder token" }
+            $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+            $0.environment.enableBuildLogsPreSignedURLs = { false }
+            $0.environment.enablePackageUploadPreSignedURLs = { false }
+            $0.environment.gitlabPipelineLimit = { 300 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
+            $0.environment.gitlabProjectId = { 123 }
+            $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                await triggerCount.increment()
+                return .created(webUrl: "http://web_url")
+            }
+        } operation: {
+            try await withSPIApp { app in
+                // setup
+                do { // Default branch version that must not trigger builds.
+                    let id = UUID()
+                    let p = Package(id: id, url: id.uuidString.url)
+                    try await p.save(on: app.db)
+                    try await Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                        .save(on: app.db)
+                }
+                do { // Save one package to actually trigger to ensure we're not failing to trigger generally.
+                    let id = UUID()
+                    let p = Package(id: id, url: id.uuidString.url)
+                    try await p.save(on: app.db)
+                    try await Version(id: UUID(), package: p, latest: .release, reference: .tag(1, 2, 3))
+                        .save(on: app.db)
+
+                }
+
+                // MUT
+                try await triggerBuilds(on: app.db, mode: .limit(4))
+
+                // validate - triggerCount must be 27 for the singe release version and must not include another 27 builds for the defaultBranch version
+                let count = await triggerCount.value
+                #expect(count == 27, "was: \(count)")
             }
         }
     }
