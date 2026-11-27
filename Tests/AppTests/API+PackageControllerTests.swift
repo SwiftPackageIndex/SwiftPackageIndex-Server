@@ -224,11 +224,9 @@ extension AllTests.API_PackageControllerTests {
             // v2 - no data - unknown
             // v3 - ok
             makeBuild(.ok, .macosXcodebuild, .v3),
-            // v4 - ok
-            makeBuild(.failed, .iOS, .v4),
-            makeBuild(.ok, .macosXcodebuild, .v4),
+            makeBuild(.failed, .iOS, .v3),
             // unrelated release version build (we're testing defaultBranch builds)
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v4, platform: .iOS, status: .failed),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v3, platform: .iOS, status: .failed),
         ]
 
         // MUT
@@ -240,7 +238,6 @@ extension AllTests.API_PackageControllerTests {
         #expect(res?.results[.v1] == .incompatible)
         #expect(res?.results[.v2] == .unknown)
         #expect(res?.results[.v3] == .compatible)
-        #expect(res?.results[.v4] == .compatible)
     }
 
     @Test func platformBuildInfo() throws {
@@ -278,7 +275,6 @@ extension AllTests.API_PackageControllerTests {
         #expect(res?.stable?.results[.v1] == .unknown)
         #expect(res?.stable?.results[.v2] == .incompatible)
         #expect(res?.stable?.results[.v3] == .compatible)
-        #expect(res?.stable?.results[.v4] == .unknown)
         #expect(res?.beta == nil)
         #expect(res?.latest == nil)
     }

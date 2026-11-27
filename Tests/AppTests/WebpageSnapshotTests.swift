@@ -206,8 +206,7 @@ extension AllTests.WebpageSnapshotTests {
         do {
             let compatible = CompatibilityMatrix.SwiftVersionCompatibility(results: [.v1: .compatible,
                                                                                      .v2: .compatible,
-                                                                                     .v3: .compatible,
-                                                                                     .v4: .compatible])
+                                                                                     .v3: .compatible])
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),
                 beta: .init(referenceName: "6.0.0-b1", results: compatible),
@@ -248,8 +247,7 @@ extension AllTests.WebpageSnapshotTests {
         var model = API.PackageController.GetRoute.Model.mock
         let compatible = CompatibilityMatrix.SwiftVersionCompatibility(results: [.v1: .compatible,
                                                                                  .v2: .compatible,
-                                                                                 .v3: .compatible,
-                                                                                 .v4: .compatible])
+                                                                                 .v3: .compatible])
         model.swiftVersionBuildInfo = .init(
             stable: .init(referenceName: "5.2.5", results: compatible),
             beta: .init(referenceName: "6.0.0-b1", results: compatible),

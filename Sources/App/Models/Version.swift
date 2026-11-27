@@ -154,6 +154,8 @@ final class Version: @unchecked Sendable, Model, Content {
         case defaultBranch = "default_branch"
         case preRelease = "pre_release"
         case release
+
+        static var selectedForBuilding: [Self] { [.preRelease, .release] }
     }
 }
 

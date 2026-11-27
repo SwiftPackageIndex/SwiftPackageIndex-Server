@@ -60,7 +60,7 @@ extension AllTests.LiveGitlabBuilderTests {
                 isDocBuild: false,
                 platform: .macosSpm,
                 reference: .tag(.init(0, 3, 2)),
-                swiftVersion: .v4,
+                swiftVersion: .v3,
                 versionID: versionID
             )
 

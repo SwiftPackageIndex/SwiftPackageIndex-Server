@@ -157,7 +157,7 @@ actor DatabasePool {
         let port = Int.random(in: 10_000...65_000)
         _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
         try await run(maxAttempts: 3) { attempt in
-            print("⚠️ Launching DB on port \(port) (attempt: \(attempt))")
+            print("ℹ️  Launching DB on port \(port) (attempt: \(attempt))")
             try await ShellOut.shellOut(to: .launchDB(port: port))
         }
         return .init(index: port)
@@ -165,7 +165,7 @@ actor DatabasePool {
 
     private func removeDB(database: Database, maxAttempts: Int = 3) async throws {
         try await run(maxAttempts: 3) { attempt in
-            // print("⚠️ Removing DB on port \(database.port) (attempt: \(attempt))")
+            // print("ℹ️  Removing DB on port \(database.port) (attempt: \(attempt))")
             try await ShellOut.shellOut(to: .removeDB(port: database.index))
         }
     }

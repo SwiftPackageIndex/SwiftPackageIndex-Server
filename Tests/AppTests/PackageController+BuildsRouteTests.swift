@@ -58,7 +58,7 @@ extension AllTests.PackageController_BuildsRouteTests {
                                      name: "bar2",
                                      owner: "foo").save(on: app.db)
                 let builds: [BuildDetails] = [
-                    (.id4, .branch("develop"), .iOS, .v4, .ok, nil),
+                    (.id4, .branch("develop"), .iOS, .v3, .ok, nil),
                 ]
                 for b in builds {
                     let v = try App.Version(package: pkg,
