@@ -18,21 +18,18 @@ extension SwiftVersion {
     // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1267#issuecomment-975379966
     // Patch versions are irrelevant here but the underlying type requires one, so use 0
     // in general.
-    static let v6_1: Self = .init(6, 1, 0)
     static let v6_2: Self = .init(6, 2, 0)
     static let v6_3: Self = .init(6, 3, 0)
     static let v6_4: Self = .init(6, 4, 0)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
-        [.v6_1, .v6_2, .v6_3, .v6_4]
+        [.v6_2, .v6_3, .v6_4]
     }
 
     var xcodeVersion: String? {
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
-            case .v6_1:
-                return "Xcode 16.3"
             case .v6_2:
                 return "Xcode 26.3"
             case .v6_3:

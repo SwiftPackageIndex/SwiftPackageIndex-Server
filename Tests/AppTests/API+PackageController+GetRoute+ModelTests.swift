@@ -486,25 +486,22 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
                                                      results: Results(results: [.v1: .compatible,
                                                                                 .v2: .incompatible,
-                                                                                .v3: .unknown,
-                                                                                .v4: .compatible]))),
+                                                                                .v3: .unknown]))),
                                  beta: nil,
                                  latest: nil)
-            #expect(info?.compatibility == [.v1, .v4])
+            #expect(info?.compatibility == [.v1])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
                                                      results: Results(results: [.v1: .compatible,
                                                                                 .v2: .incompatible,
-                                                                                .v3: .unknown,
-                                                                                .v4: .compatible]))),
+                                                                                .v3: .unknown]))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
                                                    results: Results(results: [.v1: .incompatible,
                                                                               .v2: .incompatible,
-                                                                              .v3: .compatible,
-                                                                              .v4: .unknown]))),
+                                                                              .v3: .compatible]))),
                                  latest: nil)
-            #expect(info?.compatibility == [.v1, .v3, .v4])
+            #expect(info?.compatibility == [.v1, .v3])
         }
     }
 
@@ -547,16 +544,13 @@ extension AllTests.API_PackageController_GetRoute_ModelTests {
         try await withSPIApp { app in
             let result1: BuildResults = .init(results: [.v1: .compatible,
                                                         .v2: .compatible,
-                                                        .v3: .compatible,
-                                                        .v4: .compatible])
+                                                        .v3: .compatible])
             let result2: BuildResults = .init(results: [.v1: .compatible,
                                                         .v2: .incompatible,
-                                                        .v3: .incompatible,
-                                                        .v4: .incompatible])
+                                                        .v3: .incompatible])
             let result3: BuildResults = .init(results: [.v1: .unknown,
                                                         .v2: .unknown,
-                                                        .v3: .unknown,
-                                                        .v4: .unknown])
+                                                        .v3: .unknown])
             do {  // three distinct groups
                 let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3", results: result1),
                                                  beta: .init(referenceName: "2.0.0-b1", results: result2),

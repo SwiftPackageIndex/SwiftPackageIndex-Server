@@ -407,18 +407,7 @@ struct BuildPair {
 
     static let all = Build.Platform.allActive.flatMap { platform in
         SwiftVersion.allActive.compactMap { swiftVersion in
-            switch platform {
-                case .android:
-                    // Android is supported from Swift version 6.1+
-                    return swiftVersion >= .v6_1 ? BuildPair(platform, swiftVersion) : nil
-                case .iOS, .linux, .macosSpm, .macosXcodebuild, .tvOS, .watchOS:
-                    return BuildPair(platform, swiftVersion)
-                case .visionOS:
-                    return BuildPair(platform, swiftVersion)
-                case .wasm:
-                    // Android is supported from Swift version 6.1+
-                    return swiftVersion >= .v6_1 ? BuildPair(platform, swiftVersion) : nil
-            }
+            BuildPair(platform, swiftVersion)
         }
     }
 

@@ -44,20 +44,17 @@ extension API.PackageController.GetRoute.Model {
                     referenceName: "5.2.3",
                     results: .init(results: [.v1: .incompatible,
                                              .v2: .incompatible,
-                                             .v3: .unknown,
-                                             .v4: .compatible])),
+                                             .v3: .unknown])),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
                     results: .init(results: [.v1: .incompatible,
                                              .v2: .compatible,
-                                             .v3: .compatible,
-                                             .v4: .compatible])),
+                                             .v3: .compatible])),
                 latest: NamedBuildResults(
                     referenceName: "main",
                     results: .init(results: [.v1: .incompatible,
                                              .v2: .incompatible,
-                                             .v3: .unknown,
-                                             .v4: .compatible]))),
+                                             .v3: .unknown]))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
